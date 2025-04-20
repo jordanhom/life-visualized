@@ -1,5 +1,8 @@
 // Import the calculation functions we need
 import { calculateCurrentAge, getRemainingExpectancy } from './calculator.js';
+// Import the grid rendering function
+import { renderWeekGrid } from './gridRenderer.js';
+
 
 // --- DOM Element References ---
 // Get references to the elements this module interacts with
@@ -52,15 +55,16 @@ function handleCalculation(event) {
         <p>Your current age: <strong>${currentAge} years</strong></p>
         <p>Estimated remaining lifespan (avg., based on US 2021 data): <strong>${remainingYears} years</strong></p>
         <p>Total estimated lifespan (avg.): <strong>${totalEstimatedLifespan} years</strong></p>
-        <hr>
-        <p><em>(Grid visualization coming soon!)</em></p>
     `;
 
-    // --- Prepare for Grid Rendering (Next Step) ---
-    gridContainer.innerHTML = ''; // Clear any previous grid
-    console.log("Ready to render grid with:", { birthDate, totalEstimatedLifespan });
-    // TODO: Call the grid rendering function here in the next step
-    // renderLifeGrid(birthDate, totalEstimatedLifespan);
+    // --- Render the Grid ---
+    // Call the imported function, passing the necessary data and the container element
+    try {
+        renderWeekGrid(birthDate, totalEstimatedLifespan, gridContainer);
+    } catch (error) {
+        console.error("Error rendering week grid:", error);
+        gridContainer.innerHTML = '<p class="error-message">Sorry, there was an error displaying the life grid.</p>';
+    }
 }
 
 // Export the form element (so main.js can attach the listener)

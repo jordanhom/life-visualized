@@ -138,3 +138,77 @@ h1 {
         font-size: 1rem; /* Slightly smaller button text */
     }
 }
+
+/* --- Life Grid Styles --- */
+.life-grid-container {
+    margin-top: 2rem;
+    width: 100%;
+    max-width: 90vw; /* Limit width, adjust as needed */
+    /* Use CSS Grid for layout */
+    display: grid;
+    /* Responsive columns: fit as many as possible, min 8px wide, max 1fr */
+    /* Adjust minmax values to control block size and responsiveness */
+    grid-template-columns: repeat(auto-fit, minmax(8px, 1fr));
+    gap: 2px; /* Adjust gap between blocks */
+    padding: 10px; /* Padding around the grid */
+    background-color: #e9ecef; /* Light background for the grid area */
+    border: 1px solid #ced4da;
+    border-radius: 5px;
+    box-sizing: border-box;
+    /* Add some constraints to prevent excessive height on wide screens */
+    /* max-height: 70vh; */ /* Uncomment and adjust if needed */
+    /* overflow-y: auto; */ /* Uncomment if using max-height */
+}
+
+.week-block {
+    /* Make blocks square */
+    aspect-ratio: 1 / 1;
+    /* Alternatively, set fixed width/height */
+    /* width: 10px; */
+    /* height: 10px; */
+    border-radius: 1px; /* Slightly rounded corners */
+    transition: background-color 0.2s ease-in-out; /* Smooth color changes */
+    box-sizing: border-box; /* Include border in size */
+}
+
+/* --- Week Block State Styles --- */
+.week-block.past {
+    background-color: #6c757d; /* Grey for past weeks */
+    opacity: 0.7; /* Slightly faded */
+}
+
+.week-block.present {
+    background-color: #4a90e2; /* Use the button blue for current week */
+    border: 1px solid #2c5aa3; /* Darker border to highlight */
+    transform: scale(1.1); /* Slightly larger */
+    z-index: 1; /* Ensure it's visually on top if overlapping */
+    position: relative; /* Needed for z-index */
+    box-shadow: 0 0 3px rgba(0, 0, 0, 0.3);
+}
+
+.week-block.future {
+    background-color: #ffffff; /* White for future weeks */
+    border: 1px solid #dee2e6; /* Light border for definition */
+}
+
+/* --- Responsive Adjustments for Grid --- */
+@media (max-width: 600px) {
+    .life-grid-container {
+        /* Use smaller blocks and gaps on smaller screens */
+        grid-template-columns: repeat(auto-fit, minmax(6px, 1fr));
+        gap: 1.5px;
+        max-width: 95vw; /* Allow slightly more width */
+        padding: 5px;
+    }
+    .week-block.present {
+         /* Reduce scaling effect slightly on mobile */
+        transform: scale(1.05);
+    }
+}
+
+@media (max-width: 400px) {
+    .life-grid-container {
+        grid-template-columns: repeat(auto-fit, minmax(5px, 1fr));
+        gap: 1px;
+    }
+}
