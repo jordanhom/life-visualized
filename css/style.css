@@ -142,73 +142,119 @@ h1 {
 /* --- Life Grid Styles --- */
 .life-grid-container {
     margin-top: 2rem;
-    width: 100%;
-    max-width: 90vw; /* Limit width, adjust as needed */
-    /* Use CSS Grid for layout */
-    display: grid;
-    /* Responsive columns: fit as many as possible, min 8px wide, max 1fr */
-    /* Adjust minmax values to control block size and responsiveness */
-    grid-template-columns: repeat(auto-fit, minmax(8px, 1fr));
-    gap: 2px; /* Adjust gap between blocks */
-    padding: 10px; /* Padding around the grid */
-    background-color: #e9ecef; /* Light background for the grid area */
+    width: 100%; /* Take full available width */
+    box-sizing: border-box;
+
+    /* === KEY CHANGE: Use Flexbox for rows, enable scrolling === */
+    display: flex;
+    flex-direction: column; /* Stack year rows vertically */
+    gap: 3px; /* Vertical gap between year rows */
+    overflow-x: auto; /* Allow horizontal scrolling */
+    padding: 10px; /* Padding inside the scrollable area */
+
+    background-color: #e9ecef;
     border: 1px solid #ced4da;
     border-radius: 5px;
-    box-sizing: border-box;
-    /* Add some constraints to prevent excessive height on wide screens */
-    /* max-height: 70vh; */ /* Uncomment and adjust if needed */
-    /* overflow-y: auto; */ /* Uncomment if using max-height */
+
+    /* Improve scrolling experience on touch devices */
+    -webkit-overflow-scrolling: touch;
+
+    /* Optional: Add a max-height if you want vertical scrolling too */
+    /* max-height: 70vh; */
+    /* overflow-y: auto; */
 }
 
+/* === NEW: Style for each year row === */
+.year-row {
+    display: flex;
+    flex-wrap: nowrap; /* Ensure weeks stay in a single horizontal line */
+    gap: 2px; /* Horizontal gap between week blocks */
+    /* Optional: Add styling to visually separate rows */
+    /* border-bottom: 1px dashed #ccc; */
+    /* padding-bottom: 3px; */
+}
+/* Optional: Add year label using pseudo-element
+.year-row::before {
+    content: attr(data-year);
+    font-size: 0.7em;
+    color: #888;
+    writing-mode: vertical-rl;
+    margin-right: 5px;
+    align-self: center;
+} */
+
+
 .week-block {
-    /* Make blocks square */
-    aspect-ratio: 1 / 1;
-    /* Alternatively, set fixed width/height */
-    /* width: 10px; */
-    /* height: 10px; */
-    border-radius: 1px; /* Slightly rounded corners */
-    transition: background-color 0.2s ease-in-out; /* Smooth color changes */
-    box-sizing: border-box; /* Include border in size */
+    /* === KEY CHANGE: Define fixed size for blocks === */
+    /* Adjust size as desired */
+    width: 10px;
+    height: 10px;
+    flex-shrink: 0; /* Prevent blocks from shrinking */
+
+    border-radius: 1px;
+    transition: background-color 0.2s ease-in-out, border-color 0.2s ease-in-out, opacity 0.2s ease-in-out;
+    box-sizing: border-box;
+    border: 1px solid transparent; /* Start with transparent border */
 }
 
 /* --- Week Block State Styles --- */
 .week-block.past {
-    background-color: #6c757d; /* Grey for past weeks */
-    opacity: 0.7; /* Slightly faded */
+    background-color: #6c757d;
+    border-color: #6c757d;
+    opacity: 0.8;
 }
 
 .week-block.present {
-    background-color: #4a90e2; /* Use the button blue for current week */
-    border: 1px solid #2c5aa3; /* Darker border to highlight */
-    transform: scale(1.1); /* Slightly larger */
-    z-index: 1; /* Ensure it's visually on top if overlapping */
-    position: relative; /* Needed for z-index */
-    box-shadow: 0 0 3px rgba(0, 0, 0, 0.3);
+    background-color: #4a90e2;
+    border-color: #2c5aa3;
+    box-shadow: 0 0 0 1px #ffffff, inset 0 0 0 1px rgba(0,0,0,0.3);
+    z-index: 1;
+    position: relative;
+    opacity: 1; /* Ensure present is fully opaque */
 }
 
 .week-block.future {
-    background-color: #ffffff; /* White for future weeks */
-    border: 1px solid #dee2e6; /* Light border for definition */
+    background-color: #ffffff;
+    border-color: #dee2e6;
+    opacity: 1;
 }
 
-/* --- Responsive Adjustments for Grid --- */
+/* === NEW: Style for weeks outside the lifespan === */
+.week-block.out-of-bounds {
+    background-color: #e9ecef; /* Match grid background */
+    border-color: #e9ecef;
+    opacity: 0.3; /* Make them very faint */
+    /* Or use visibility: hidden; if you prefer empty space */
+    /* visibility: hidden; */
+}
+
+
+/* --- Responsive Media Queries --- */
+/* Less specific adjustments needed now, mostly for overall container/font */
 @media (max-width: 600px) {
-    .life-grid-container {
-        /* Use smaller blocks and gaps on smaller screens */
-        grid-template-columns: repeat(auto-fit, minmax(6px, 1fr));
+    /* Example: Adjust block size and gaps for smaller screens */
+    .year-row {
         gap: 1.5px;
-        max-width: 95vw; /* Allow slightly more width */
+    }
+    .week-block {
+        width: 8px;
+        height: 8px;
+    }
+    .life-grid-container {
+        gap: 2px; /* Smaller vertical gap */
         padding: 5px;
     }
-    .week-block.present {
-         /* Reduce scaling effect slightly on mobile */
-        transform: scale(1.05);
+}
+@media (max-width: 400px) {
+    .week-block {
+        width: 6px;
+        height: 6px;
+    }
+     .year-row {
+        gap: 1px;
+    }
+     .life-grid-container {
+        gap: 1.5px;
     }
 }
 
-@media (max-width: 400px) {
-    .life-grid-container {
-        grid-template-columns: repeat(auto-fit, minmax(5px, 1fr));
-        gap: 1px;
-    }
-}
