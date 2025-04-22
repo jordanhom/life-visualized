@@ -154,6 +154,84 @@ h1 {
     margin: 0; /* Reset default margin */
 }
 
+/* --- Explanation Details Styles --- */
+.explanation-details {
+    /* Sizing and Spacing */
+    margin-top: 1.5rem; /* Consistent vertical spacing */
+    margin-bottom: 1rem;
+    max-width: 500px; /* Match disclaimer or adjust as needed */
+    width: 90%; /* Allow shrinking on smaller viewports */
+    box-sizing: border-box;
+
+    /* Appearance */
+    border: 1px solid #e0e0e0; /* Match results/toggle border */
+    border-radius: 5px;     /* Match results/toggle radius */
+    background-color: #f9f9f9; /* Match results/toggle background */
+    text-align: left;
+    transition: background-color 0.2s ease-in-out; /* Subtle transition */
+}
+
+/* Style the summary element */
+.explanation-details summary {
+    cursor: pointer;
+    font-weight: 600;
+    color: #333;
+    padding: 0.8rem 1rem; /* Give summary padding like a header */
+    position: relative; /* Needed for potential pseudo-elements */
+    outline: none; /* Remove focus outline */
+
+    /* Hide default marker */
+    list-style: none;
+}
+/* Hide default marker for WebKit browsers */
+.explanation-details summary::-webkit-details-marker {
+    display: none;
+}
+/* Optional: Add a custom marker (e.g., +/- or arrow) */
+.explanation-details summary::before {
+    content: '+'; // Or use an SVG background-image
+    position: absolute;
+    left: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    font-weight: bold;
+    margin-right: 0.5rem;
+    transition: transform 0.2s ease-in-out;
+}
+.explanation-details[open] summary::before {
+    content: '−';
+    // transform: translateY(-50%) rotate(45deg); // Example for arrow
+}
+
+/* Add slight visual separation when open */
+.explanation-details[open] summary {
+    border-bottom: 1px solid #e0e0e0;
+    margin-bottom: 0.5rem; /* Space below summary when open */
+}
+
+/* Style the content elements (p, ul) inside */
+.explanation-details > *:not(summary) {
+    padding: 0 1rem 0.8rem 1rem; /* Padding for content area */
+    font-size: 0.875rem; /* Slightly smaller than main text */
+    line-height: 1.6;
+    color: #555;
+}
+
+.explanation-details ul {
+    padding-left: 1.5rem; /* Indent list */
+    margin-top: 0.5rem;
+    margin-bottom: 0; /* Remove default bottom margin */
+}
+
+.explanation-details li {
+    margin-bottom: 0.4rem;
+}
+
+.explanation-details p:last-child,
+.explanation-details ul:last-child {
+     margin-bottom: 0; /* Remove bottom margin from last content element */
+}
+
 /* --- Life Grid Styles (Row=Year, Horizontal Scroll) --- */
 .life-grid-container {
     margin-top: 2rem;

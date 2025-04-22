@@ -59,36 +59,51 @@ function renderAgeGrid(inputBirthDate, totalLifespanYearsEst, gridContainerEleme
             const ageStartDateUTC = dateFns.startOfDay(dateFns.addYears(birthDateUTC, age), { timeZone: UTC_TIMEZONE });
             const ageEndDateExclusiveUTC = dateFns.startOfDay(dateFns.addYears(birthDateUTC, age + 1), { timeZone: UTC_TIMEZONE });
 
-            let weeksInAgeYear = [];
-            if (dateFns.isBefore(ageStartDateUTC, ageEndDateExclusiveUTC)) {
-                // End the interval on the day *before* the next birthday
-                const ageIntervalEndDateUTC = dateFns.subDays(ageEndDateExclusiveUTC, 1);
+            // === Use eachWeekOfInterval + Filter + Pop ===
+            let weeksInAgeYearRaw = []; // Weeks overlapping the interval
+            let weeksInAgeYearFiltered = []; // Weeks starting strictly before next birthday
+            let weeksInAgeYearFinal = []; // Max 53 weeks for display
 
-                // Use eachWeekOfInterval with the adjusted end date
-                weeksInAgeYear = dateFns.eachWeekOfInterval({
+            if (dateFns.isBefore(ageStartDateUTC, ageEndDateExclusiveUTC)) {
+                // Use the original interval ending AT the next birthday
+                weeksInAgeYearRaw = dateFns.eachWeekOfInterval({
                     start: ageStartDateUTC,
-                    end: ageIntervalEndDateUTC // Use the day BEFORE the next birthday
+                    end: ageEndDateExclusiveUTC // End AT the next birthday
                 }, { weekStartsOn: 1 }); // 1 = Monday for ISO
 
-                // Add logging to check the count right after generation
-                if (weeksInAgeYear.length > 53) {
-                    console.warn(`Age ${age}: Unexpected week count (${weeksInAgeYear.length}) AFTER interval adjustment. Start: ${dateFns.format(ageStartDateUTC, 'yyyy-MM-dd')}, End: ${dateFns.format(ageIntervalEndDateUTC, 'yyyy-MM-dd')}`);
-                    // Log the generated dates if the count is still wrong
-                    console.log("Generated week dates:", weeksInAgeYear.map(d => dateFns.format(d, 'yyyy-MM-dd')));
+                // Filter to keep only weeks starting strictly BEFORE the next birthday
+                weeksInAgeYearFiltered = weeksInAgeYearRaw.filter(weekStart =>
+                    dateFns.isBefore(weekStart, ageEndDateExclusiveUTC)
+                );
+
+                // Log comparison
+                if (weeksInAgeYearRaw.length !== weeksInAgeYearFiltered.length) {
+                    console.log(`Age ${age}: Filter removed ${weeksInAgeYearRaw.length - weeksInAgeYearFiltered.length} week(s). Raw: ${weeksInAgeYearRaw.length}, Filtered: ${weeksInAgeYearFiltered.length}`);
                 }
 
-                // === NO LONGER NEED THE FILTER ===
-                // Since the interval now correctly excludes the next birthday,
-                // the filter is likely redundant. Let's remove it for now.
-                // weeksInAgeYear = weeksInAgeYear.filter(weekStart =>
-                //     dateFns.isBefore(weekStart, ageEndDateExclusiveUTC)
-                // );
+                // Start with the filtered list
+                weeksInAgeYearFinal = [...weeksInAgeYearFiltered]; // Copy the array
+
+                // Apply the pop correction if needed
+                if (weeksInAgeYearFinal.length === 54) {
+                    console.warn(`Age ${age}: Filtered list had 54 weeks. Removing the last week (${dateFns.format(weeksInAgeYearFinal[weeksInAgeYearFinal.length - 1], 'yyyy-MM-dd')}) to enforce max 53.`);
+                    weeksInAgeYearFinal.pop(); // Remove the last element
+                }
+
+                // Final check on length after potential correction
+                if (weeksInAgeYearFinal.length > 53) {
+                     console.error(`Age ${age}: FINAL count is ${weeksInAgeYearFinal.length} AFTER CORRECTION.`);
+                } else if (weeksInAgeYearFinal.length < 52 && weeksInAgeYearFinal.length > 0) { // Allow 0 for last partial year
+                     console.warn(`Age ${age}: FINAL count is ${weeksInAgeYearFinal.length}.`);
+                } else {
+                     console.log(`Age ${age}: Final week count is ${weeksInAgeYearFinal.length}.`);
+                }
             } else {
                  console.warn(`Age ${age}: Start date not before end date. Skipping row.`);
             }
 
             let weekInAgeYearIndex = 0;
-            for (const currentRenderWeekStartDateUTC of weeksInAgeYear) {
+            for (const currentRenderWeekStartDateUTC of weeksInAgeYearFinal) {
                 // Ensure the week start is not after the estimated end of life
                  if (dateFns.isAfter(currentRenderWeekStartDateUTC, estimatedEndDateUTC)) {
                     continue; // Don't render blocks past the estimated end date
