@@ -291,30 +291,111 @@ h1 {
     border: 1px solid transparent; /* Start with transparent border */
 }
 
-/* --- Week Block State Styles --- */
+/* --- Life Stage Color Styles --- */
+/* Define base background colors for each stage */
+.week-block.stage-infancy { background-color: #FFB6C1; } /* LightPink */
+.week-block.stage-toddler { background-color: #FFA07A; } /* LightSalmon */
+.week-block.stage-earlychildhood { background-color: #FFDA63; } /* Medium Gold */
+.week-block.stage-middlechildhood { background-color: #9ACD32; } /* YellowGreen */
+.week-block.stage-adolescence { background-color: #48D1CC; } /* MediumTurquoise */
+.week-block.stage-youngadult { background-color: #6495ED; } /* CornflowerBlue */
+.week-block.stage-adulthood { background-color: #9370DB; } /* MediumPurple */
+.week-block.stage-middleadulthood { background-color: #DA70D6; } /* Orchid */
+.week-block.stage-earlysenior { background-color: #C0C0C0; } /* Silver */
+.week-block.stage-midsenior { background-color: #B0C4DE; } /* LightSteelBlue */
+.week-block.stage-latesenior { background-color: #D8BFD8; } /* Thistle */
+
+
+/* --- Week Block State Styles (Adjusted for Life Stages) --- */
 .week-block.past {
-    background-color: #6c757d;
-    border-color: #6c757d;
-    opacity: 0.8;
+    /* Inherits stage background-color */
+    border-color: rgba(0, 0, 0, 0.3); /* Slightly darker border for contrast */
+    opacity: 0.7; /* Fade the past block slightly */
 }
+
 .week-block.present {
-    background-color: #4a90e2;
-    border-color: #2c5aa3;
-    box-shadow: 0 0 0 1px #ffffff, inset 0 0 0 1px rgba(0,0,0,0.3);
+    background-color: #FF4500; /* Override background: OrangeRed - stands out */
+    border-color: rgba(0, 0, 0, 0.7); /* Stronger border */
+    box-shadow: 0 0 0 1px #ffffff, inset 0 0 0 1px rgba(0,0,0,0.4);
     z-index: 1;
     position: relative;
-    opacity: 1;
+    opacity: 1; /* Ensure fully opaque */
 }
+
 .week-block.future {
+    /* Override stage color to keep future weeks neutral/consistent */
     background-color: #ffffff;
-    border-color: #ced4da;
+    border-color: #ced4da; /* Use the consistent future border color */
     opacity: 1;
 }
+
 .week-block.out-of-bounds {
-    background-color: #e9ecef;
-    border-color: #e9ecef;
-    opacity: 0.3;
+    /* This overrides everything else */
+    background-color: #e9ecef !important; /* Use !important to ensure override */
+    border-color: #e9ecef !important;
+    opacity: 0.3 !important;
+    box-shadow: none !important; /* Remove present shadow if applied */
 }
+
+/* --- Color Key Styles --- */
+.color-key {
+    margin-top: 1.5rem;
+    padding: 0.8rem 1rem;
+    border: 1px solid #e0e0e0;
+    border-radius: 5px;
+    background-color: #f9f9f9;
+    max-width: 450px; /* Match explanation/results width */
+    width: 90%;
+    box-sizing: border-box;
+    text-align: left;
+}
+
+.color-key h3 {
+    font-size: 0.95rem;
+    font-weight: 600;
+    margin-top: 0;
+    margin-bottom: 0.75rem;
+    color: #333;
+}
+
+.color-key ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex; /* Allow wrapping */
+    flex-wrap: wrap;
+    gap: 0.5rem 1rem; /* Row and column gap */
+}
+
+.color-key li {
+    display: flex;
+    align-items: center;
+    font-size: 0.875rem;
+    color: #555;
+}
+
+.key-color {
+    display: inline-block;
+    width: 14px; /* Size of the color swatch */
+    height: 14px;
+    margin-right: 0.5rem;
+    border: 1px solid rgba(0,0,0,0.2); /* Slight border on swatch */
+    border-radius: 2px;
+    flex-shrink: 0; /* Prevent shrinking */
+}
+
+/* Add background colors matching the JS constants */
+.key-color.stage-infancy { background-color: #FFB6C1; }
+.key-color.stage-toddler { background-color: #FFA07A; }
+.key-color.stage-earlychildhood { background-color: #FFDA63; }
+.key-color.stage-middlechildhood { background-color: #9ACD32; }
+.key-color.stage-adolescence { background-color: #48D1CC; }
+.key-color.stage-youngadult { background-color: #6495ED; }
+.key-color.stage-adulthood { background-color: #9370DB; }
+.key-color.stage-middleadulthood { background-color: #DA70D6; }
+.key-color.stage-earlysenior { background-color: #C0C0C0; }
+.key-color.stage-midsenior { background-color: #B0C4DE; }
+.key-color.stage-latesenior { background-color: #D8BFD8; }
 
 /* --- Responsive Media Queries --- */
 /* Adjust block size and gaps for smaller screens */

@@ -3,6 +3,32 @@
 // --- Constants ---
 const UTC_TIMEZONE = 'UTC';
 
+// Life Stage Definitions
+const LIFE_STAGES = [
+    // Colors chosen for more visibility, sequence roughly follows spectrum
+    { key: 'infancy', name: 'Infancy', maxAge: 0, color: '#FFB6C1' }, // LightPink (Birth-1)
+    { key: 'toddler', name: 'Toddlerhood', maxAge: 2, color: '#FFA07A' }, // LightSalmon (1-3)
+    { key: 'earlychildhood', name: 'Early Childhood', maxAge: 5, color: '#FFDA63' }, // Medium Gold (3-6)
+    { key: 'middlechildhood', name: 'Middle Childhood', maxAge: 11, color: '#9ACD32' }, // YellowGreen (6-12)
+    { key: 'adolescence', name: 'Adolescence', maxAge: 17, color: '#48D1CC' }, // MediumTurquoise (12-18)
+    { key: 'youngadult', name: 'Young Adulthood', maxAge: 25, color: '#6495ED' }, // CornflowerBlue (18-26)
+    { key: 'adulthood', name: 'Adulthood', maxAge: 39, color: '#9370DB' }, // MediumPurple (26-40)
+    { key: 'middleadulthood', name: 'Middle Adulthood', maxAge: 59, color: '#DA70D6' }, // Orchid (40-60)
+    { key: 'earlysenior', name: 'Early Senior', maxAge: 74, color: '#C0C0C0' }, // Silver (60-74) - Kept
+    { key: 'midsenior', name: 'Mid-Senior', maxAge: 84, color: '#B0C4DE' }, // LightSteelBlue (75-84) - New
+    { key: 'latesenior', name: 'Late Senior', maxAge: Infinity, color: '#D8BFD8' } // Thistle (85+) - New
+];
+
+// Helper: Get stage key based on age
+function getLifeStageKey(age) {
+    for (const stage of LIFE_STAGES) {
+        if (age <= stage.maxAge) {
+            return stage.key;
+        }
+    }
+    return LIFE_STAGES[LIFE_STAGES.length - 1].key; // Default to last stage if somehow needed
+}
+
 // --- Helper: Check if date-fns is loaded ---
 function checkDateFns() {
     if (typeof dateFns === 'undefined' || typeof dateFns.startOfDay === 'undefined') {
@@ -17,6 +43,17 @@ function checkDateFns() {
         console.log("Using date-fns version:", dateFns.version);
     }
     return true;
+}
+
+// --- Helper: Calculate age at a specific date
+// Necessary for renderCalendarGrid
+function calculateAgeAtDate(currentDateUTC, birthDateUTC) {
+    let age = currentDateUTC.getUTCFullYear() - birthDateUTC.getUTCFullYear();
+    const monthDiff = currentDateUTC.getUTCMonth() - birthDateUTC.getUTCMonth();
+    if (monthDiff < 0 || (monthDiff === 0 && currentDateUTC.getUTCDate() < birthDateUTC.getUTCDate())) {
+        age--;
+    }
+    return Math.max(0, age);
 }
 
 /**
@@ -59,7 +96,9 @@ function renderAgeGrid(inputBirthDate, totalLifespanYearsEst, gridContainerEleme
             const ageStartDateUTC = dateFns.startOfDay(dateFns.addYears(birthDateUTC, age), { timeZone: UTC_TIMEZONE });
             const ageEndDateExclusiveUTC = dateFns.startOfDay(dateFns.addYears(birthDateUTC, age + 1), { timeZone: UTC_TIMEZONE });
 
-            // === Use eachWeekOfInterval + Filter + Pop ===
+            const stageKey = getLifeStageKey(age);
+
+            // === Week Generation Logic (eachWeekOfInterval + Filter + Pop) ===
             let weeksInAgeYearRaw = []; // Weeks overlapping the interval
             let weeksInAgeYearFiltered = []; // Weeks starting strictly before next birthday
             let weeksInAgeYearFinal = []; // Max 53 weeks for display
@@ -111,6 +150,7 @@ function renderAgeGrid(inputBirthDate, totalLifespanYearsEst, gridContainerEleme
 
                 const weekBlock = document.createElement('div');
                 weekBlock.classList.add('week-block');
+                weekBlock.classList.add(`stage-${stageKey}`);
                 let stateClass = '';
                 let title = `Age ${age}, Week ${weekInAgeYearIndex + 1} (Starts UTC: ${dateFns.format(currentRenderWeekStartDateUTC, 'yyyy-MM-dd', { timeZone: UTC_TIMEZONE })})`;
 
@@ -200,6 +240,11 @@ function renderCalendarGrid(inputBirthDate, totalLifespanYearsEst, gridContainer
 
                 const weekBlock = document.createElement('div');
                 weekBlock.classList.add('week-block');
+
+                const ageDuringWeek = calculateAgeAtDate(currentRenderWeekStartDateUTC, birthDateUTC);
+                const stageKey = getLifeStageKey(ageDuringWeek);
+                weekBlock.classList.add(`stage-${stageKey}`);
+
                 let stateClass = '';
                 let title = `Year ${isoYear}, Week ${weekNum} (Starts UTC: ${dateFns.format(currentRenderWeekStartDateUTC, 'yyyy-MM-dd', { timeZone: UTC_TIMEZONE })})`;
 
