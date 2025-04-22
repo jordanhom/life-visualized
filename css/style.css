@@ -14,12 +14,16 @@ html, body {
 }
 .container {
     text-align: center;
-    padding: 1.5rem 2rem; /* Default padding */
+    padding: 1.5rem 1rem; /* Reduce side padding slightly */
     border-radius: 10px;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.07);
     background: #ffffff;
-    max-width: 600px;
-    width: 90vw;
+
+    /* === ADJUST MAX-WIDTH (Fix for desktop scroll) === */
+    /* Remove fixed max-width to allow container to grow */
+     max-width: none; /* Let it grow */
+     width: 95vw; /* Use viewport width with some margin */
+
     box-sizing: border-box;
     display: flex;
     flex-direction: column;
@@ -93,7 +97,7 @@ h1 {
     border-radius: 5px;
     background-color: #f9f9f9;
     width: 100%;
-    max-width: 450px;
+    max-width: 450px; /* Keep results area constrained */
     box-sizing: border-box;
     min-height: 50px; /* Ensure it has some height */
     text-align: left;
@@ -112,85 +116,74 @@ h1 {
     font-size: 0.85rem;
     color: #777;
     font-style: italic;
-    max-width: 500px;
+    max-width: 500px; /* Keep disclaimer constrained */
     line-height: 1.5;
 }
 
-/* --- Grid Placeholder (for later) --- */
-.life-grid-container {
-    margin-top: 2rem;
-    width: 100%;
-    /* Styles for the grid will go here later */
+/* --- View Toggle Styles --- */
+.view-toggle {
+    border: 1px solid #e0e0e0;
+    border-radius: 5px;
+    padding: 0.8rem 1rem;
+    margin-top: 1.5rem;
+    margin-bottom: 0.5rem; /* Space before grid */
+    display: inline-flex; /* Align items nicely */
+    flex-direction: column; /* Stack legend and options */
+    align-items: flex-start; /* Align left */
+    gap: 0.5rem;
+    background-color: #f9f9f9;
+    max-width: 450px; /* Constrain width */
+}
+.view-toggle legend {
+    font-weight: 600;
+    padding: 0 0.3rem; /* Give legend some space */
+    font-size: 0.95rem;
+    color: #333;
+}
+.view-toggle div { /* Each radio button + label pair */
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+.view-toggle label {
+    cursor: pointer;
+    font-size: 0.9rem;
+}
+.view-toggle input[type="radio"] {
+    cursor: pointer;
+    margin: 0; /* Reset default margin */
 }
 
-/* --- Responsive Adjustments --- */
-
-/* Reduce container padding on very small screens */
-@media (max-width: 360px) {
-    .container {
-        padding: 1.5rem 1rem; /* Reduced horizontal padding */
-        width: 95vw; /* Allow slightly more width if needed */
-    }
-    h1 {
-        font-size: 1.6rem; /* Slightly smaller heading */
-    }
-    .calculate-btn {
-        font-size: 1rem; /* Slightly smaller button text */
-    }
-}
-
-/* --- Life Grid Styles --- */
+/* --- Life Grid Styles (Row=Year, Horizontal Scroll) --- */
 .life-grid-container {
     margin-top: 2rem;
-    width: 100%; /* Take full available width */
+    width: 100%; /* Takes width from parent .container */
+    /* Optional: Set a max-width on the grid itself if desired */
+    /* max-width: 654px; */
+    max-width: 660px;
     box-sizing: border-box;
-
-    /* === KEY CHANGE: Use Flexbox for rows, enable scrolling === */
     display: flex;
     flex-direction: column; /* Stack year rows vertically */
     gap: 3px; /* Vertical gap between year rows */
-    overflow-x: auto; /* Allow horizontal scrolling */
+    overflow-x: auto; /* Allow HORIZONTAL scrolling */
     padding: 10px; /* Padding inside the scrollable area */
-
     background-color: #e9ecef;
     border: 1px solid #ced4da;
     border-radius: 5px;
-
-    /* Improve scrolling experience on touch devices */
-    -webkit-overflow-scrolling: touch;
-
-    /* Optional: Add a max-height if you want vertical scrolling too */
-    /* max-height: 70vh; */
-    /* overflow-y: auto; */
+    -webkit-overflow-scrolling: touch; /* Improve scrolling on touch devices */
 }
 
-/* === NEW: Style for each year row === */
 .year-row {
     display: flex;
     flex-wrap: nowrap; /* Ensure weeks stay in a single horizontal line */
     gap: 2px; /* Horizontal gap between week blocks */
-    /* Optional: Add styling to visually separate rows */
-    /* border-bottom: 1px dashed #ccc; */
-    /* padding-bottom: 3px; */
 }
-/* Optional: Add year label using pseudo-element
-.year-row::before {
-    content: attr(data-year);
-    font-size: 0.7em;
-    color: #888;
-    writing-mode: vertical-rl;
-    margin-right: 5px;
-    align-self: center;
-} */
-
 
 .week-block {
-    /* === KEY CHANGE: Define fixed size for blocks === */
-    /* Adjust size as desired */
-    width: 10px;
+    /* Define fixed size for blocks */
+    width: 10px; /* Default size */
     height: 10px;
     flex-shrink: 0; /* Prevent blocks from shrinking */
-
     border-radius: 1px;
     transition: background-color 0.2s ease-in-out, border-color 0.2s ease-in-out, opacity 0.2s ease-in-out;
     box-sizing: border-box;
@@ -203,51 +196,48 @@ h1 {
     border-color: #6c757d;
     opacity: 0.8;
 }
-
 .week-block.present {
     background-color: #4a90e2;
     border-color: #2c5aa3;
     box-shadow: 0 0 0 1px #ffffff, inset 0 0 0 1px rgba(0,0,0,0.3);
     z-index: 1;
     position: relative;
-    opacity: 1; /* Ensure present is fully opaque */
-}
-
-.week-block.future {
-    background-color: #ffffff;
-    border-color: #dee2e6;
     opacity: 1;
 }
-
-/* === NEW: Style for weeks outside the lifespan === */
+.week-block.future {
+    background-color: #ffffff;
+    border-color: #ced4da;
+    opacity: 1;
+}
 .week-block.out-of-bounds {
-    background-color: #e9ecef; /* Match grid background */
+    background-color: #e9ecef;
     border-color: #e9ecef;
-    opacity: 0.3; /* Make them very faint */
-    /* Or use visibility: hidden; if you prefer empty space */
-    /* visibility: hidden; */
+    opacity: 0.3;
 }
 
-
 /* --- Responsive Media Queries --- */
-/* Less specific adjustments needed now, mostly for overall container/font */
+/* Adjust block size and gaps for smaller screens */
 @media (max-width: 600px) {
-    /* Example: Adjust block size and gaps for smaller screens */
     .year-row {
         gap: 1.5px;
     }
     .week-block {
-        width: 8px;
+        width: 8px; /* Smaller blocks */
         height: 8px;
     }
     .life-grid-container {
         gap: 2px; /* Smaller vertical gap */
         padding: 5px;
     }
+    /* Adjust container padding on small screens */
+    .container {
+        padding: 1.5rem 0.5rem;
+    }
 }
+
 @media (max-width: 400px) {
     .week-block {
-        width: 6px;
+        width: 6px; /* Even smaller blocks */
         height: 6px;
     }
      .year-row {
@@ -258,3 +248,30 @@ h1 {
     }
 }
 
+/* Adjustments for very small screens */
+@media (max-width: 360px) {
+    h1 {
+        font-size: 1.6rem;
+    }
+    .calculate-btn {
+        font-size: 1rem;
+    }
+    .week-block {
+        width: 5px; /* Smallest blocks */
+        height: 5px;
+    }
+    .life-grid-container {
+        padding: 4px;
+    }
+    .container {
+        padding: 1rem 0.25rem; /* Minimal side padding */
+    }
+}
+
+/* Optional: Media query to apply larger container max-width only on desktop */
+@media (min-width: 768px) { /* Example breakpoint */
+    .container {
+        /* You could restore larger padding here if desired */
+        /* padding: 1.5rem 2rem; */
+    }
+}

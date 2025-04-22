@@ -1,120 +1,199 @@
 // js/gridRenderer.js
 
 // --- Constants ---
-const UTC_TIMEZONE = 'UTC'; // Define UTC timezone identifier as per IANA standard
+const UTC_TIMEZONE = 'UTC';
+
+// --- Helper: Check if date-fns is loaded ---
+function checkDateFns() {
+    if (typeof dateFns === 'undefined' || typeof dateFns.startOfDay === 'undefined') {
+        console.error("date-fns v4.1.0 library or key functions not loaded!");
+        return false;
+    }
+    // Use optional chaining and check for a specific function expected in v4.1.0
+    if (!dateFns?.version?.startsWith('4.')) {
+         console.warn(`date-fns object found, but version (${dateFns?.version}) might not be v4.1.0+. Ensure correct CDN script is loaded.`);
+         // Allow proceeding but be cautious
+    } else {
+        console.log("Using date-fns version:", dateFns.version);
+    }
+    return true;
+}
 
 /**
- * Renders the life grid with accurate weeks per year (52 or 53).
- * Each row represents one ISO week-numbering year.
- * Uses date-fns v4.1.0 (via global `dateFns` object from CDN) and UTC for internal calculations.
- *
- * @param {Date} inputBirthDate - The user's birth date object (from input, local time).
- * @param {number} totalLifespanYearsEst - Total estimated lifespan in years.
- * @param {HTMLElement} gridContainerElement - The DOM element to render the grid into.
+ * Renders the life grid based on years of age (Age View).
+ * Each row represents one year of age (e.g., Age 0, Age 1, ...).
+ * @param {Date} inputBirthDate - User's birth date object.
+ * @param {number} totalLifespanYearsEst - Estimated lifespan in years.
+ * @param {HTMLElement} gridContainerElement - The DOM element for the grid.
  */
-function renderWeekGrid(inputBirthDate, totalLifespanYearsEst, gridContainerElement) {
-    // --- Check if date-fns is loaded ---
-    if (typeof dateFns === 'undefined' || typeof dateFns.startOfDay === 'undefined') {
-        console.error("date-fns v4.1.0 library or key functions not loaded! Check CDN link and integrity hash in index.html.");
-        if (gridContainerElement) {
-            gridContainerElement.innerHTML = '<p class="error-message">Error: Date library failed to load.</p>';
-        }
+function renderAgeGrid(inputBirthDate, totalLifespanYearsEst, gridContainerElement) {
+    if (!checkDateFns()) {
+        if (gridContainerElement) gridContainerElement.innerHTML = '<p class="error-message">Error: Date library failed to load.</p>';
         return;
     }
-    if (!gridContainerElement) {
-        console.error("Grid container element not provided.");
-        return;
-    }
+    if (!gridContainerElement) { console.error("Grid container not provided."); return; }
 
-    console.log("Using date-fns version:", dateFns.version); // Log the loaded version
-
+    console.log("Rendering Age Grid...");
     try {
-        // --- Date Setup (Using UTC) ---
-
-        // 1. Normalize Birth Date to UTC Midnight
-        // Construct Date object representing midnight UTC for the given birth date parts.
-        // Date.UTC() returns a timestamp, new Date() converts it back to a Date object in UTC context.
+        // --- Date Setup (UTC) ---
         const year = inputBirthDate.getFullYear();
-        const month = inputBirthDate.getMonth(); // 0-indexed
+        const month = inputBirthDate.getMonth();
         const day = inputBirthDate.getDate();
         const birthDateUTC = new Date(Date.UTC(year, month, day, 0, 0, 0, 0));
-
-        // 2. Get Current Date as UTC Midnight
-        // Use startOfDay with UTC timezone option (confirmed in v4 docs)
         const nowUTC = dateFns.startOfDay(new Date(), { timeZone: UTC_TIMEZONE });
-
-        // 3. Calculate Estimated End Date in UTC
-        // addYears works on the Date object representing UTC time
+        const currentActualWeekStartDateUTC = dateFns.startOfISOWeek(nowUTC);
         const estimatedEndDateRough = dateFns.addYears(birthDateUTC, totalLifespanYearsEst);
-        // Ensure the end date is also considered at UTC midnight
         const estimatedEndDateUTC = dateFns.startOfDay(estimatedEndDateRough, { timeZone: UTC_TIMEZONE });
 
-        // 4. Determine ISO Year Range (based on UTC dates)
-        // getISOWeekYear works on Date objects; assumes UTC context is maintained
+        // --- Grid Rendering ---
+        gridContainerElement.innerHTML = '';
+        const fragment = document.createDocumentFragment();
+        let totalRenderedWeeks = 0;
+        const totalYearsToRender = Math.ceil(totalLifespanYearsEst);
+
+        for (let age = 0; age < totalYearsToRender; age++) {
+            const ageRow = document.createElement('div');
+            ageRow.classList.add('year-row'); // Use same class for styling consistency
+            ageRow.setAttribute('data-age', age);
+
+            const ageStartDateUTC = dateFns.startOfDay(dateFns.addYears(birthDateUTC, age), { timeZone: UTC_TIMEZONE });
+            const ageEndDateExclusiveUTC = dateFns.startOfDay(dateFns.addYears(birthDateUTC, age + 1), { timeZone: UTC_TIMEZONE });
+
+            let weeksInAgeYear = [];
+            if (dateFns.isBefore(ageStartDateUTC, ageEndDateExclusiveUTC)) {
+                // End the interval on the day *before* the next birthday
+                const ageIntervalEndDateUTC = dateFns.subDays(ageEndDateExclusiveUTC, 1);
+
+                // Use eachWeekOfInterval with the adjusted end date
+                weeksInAgeYear = dateFns.eachWeekOfInterval({
+                    start: ageStartDateUTC,
+                    end: ageIntervalEndDateUTC // Use the day BEFORE the next birthday
+                }, { weekStartsOn: 1 }); // 1 = Monday for ISO
+
+                // Add logging to check the count right after generation
+                if (weeksInAgeYear.length > 53) {
+                    console.warn(`Age ${age}: Unexpected week count (${weeksInAgeYear.length}) AFTER interval adjustment. Start: ${dateFns.format(ageStartDateUTC, 'yyyy-MM-dd')}, End: ${dateFns.format(ageIntervalEndDateUTC, 'yyyy-MM-dd')}`);
+                    // Log the generated dates if the count is still wrong
+                    console.log("Generated week dates:", weeksInAgeYear.map(d => dateFns.format(d, 'yyyy-MM-dd')));
+                }
+
+                // === NO LONGER NEED THE FILTER ===
+                // Since the interval now correctly excludes the next birthday,
+                // the filter is likely redundant. Let's remove it for now.
+                // weeksInAgeYear = weeksInAgeYear.filter(weekStart =>
+                //     dateFns.isBefore(weekStart, ageEndDateExclusiveUTC)
+                // );
+            } else {
+                 console.warn(`Age ${age}: Start date not before end date. Skipping row.`);
+            }
+
+            let weekInAgeYearIndex = 0;
+            for (const currentRenderWeekStartDateUTC of weeksInAgeYear) {
+                // Ensure the week start is not after the estimated end of life
+                 if (dateFns.isAfter(currentRenderWeekStartDateUTC, estimatedEndDateUTC)) {
+                    continue; // Don't render blocks past the estimated end date
+                 }
+
+                const weekBlock = document.createElement('div');
+                weekBlock.classList.add('week-block');
+                let stateClass = '';
+                let title = `Age ${age}, Week ${weekInAgeYearIndex + 1} (Starts UTC: ${dateFns.format(currentRenderWeekStartDateUTC, 'yyyy-MM-dd', { timeZone: UTC_TIMEZONE })})`;
+
+                if (currentRenderWeekStartDateUTC.getTime() === currentActualWeekStartDateUTC.getTime()) {
+                    stateClass = 'present'; title += ' (Current week)';
+                } else if (dateFns.isBefore(currentRenderWeekStartDateUTC, currentActualWeekStartDateUTC)) {
+                    stateClass = 'past';
+                } else {
+                    stateClass = 'future';
+                }
+
+                if (stateClass) weekBlock.classList.add(stateClass);
+                weekBlock.title = title;
+                ageRow.appendChild(weekBlock);
+                totalRenderedWeeks++;
+                weekInAgeYearIndex++;
+            }
+
+            if (ageRow.hasChildNodes()) fragment.appendChild(ageRow);
+        }
+
+        gridContainerElement.appendChild(fragment);
+        gridContainerElement.setAttribute('aria-label', `Life grid (Age View) showing estimated lifespan from Age 0 to ${totalYearsToRender - 1}.`);
+        console.log(`Total weeks rendered in age grid: ${totalRenderedWeeks}`);
+
+    } catch (error) {
+        console.error("Error during age-based grid rendering:", error);
+        gridContainerElement.innerHTML = '<p class="error-message">Error generating age-based grid.</p>';
+    }
+}
+
+
+/**
+ * Renders the life grid based on ISO Calendar Years (Calendar View).
+ * Each row represents one ISO year (e.g., 2023, 2024, ...).
+ * Includes 'out-of-bounds' styling for weeks outside the lifespan.
+ * @param {Date} inputBirthDate - User's birth date object.
+ * @param {number} totalLifespanYearsEst - Estimated lifespan in years.
+ * @param {HTMLElement} gridContainerElement - The DOM element for the grid.
+ */
+function renderCalendarGrid(inputBirthDate, totalLifespanYearsEst, gridContainerElement) {
+    if (!checkDateFns()) {
+        if (gridContainerElement) gridContainerElement.innerHTML = '<p class="error-message">Error: Date library failed to load.</p>';
+        return;
+    }
+     if (!gridContainerElement) { console.error("Grid container not provided."); return; }
+
+    console.log("Rendering Calendar Grid...");
+    try {
+        // --- Date Setup (UTC) ---
+        const year = inputBirthDate.getFullYear();
+        const month = inputBirthDate.getMonth();
+        const day = inputBirthDate.getDate();
+        const birthDateUTC = new Date(Date.UTC(year, month, day, 0, 0, 0, 0));
+        const nowUTC = dateFns.startOfDay(new Date(), { timeZone: UTC_TIMEZONE });
+        const estimatedEndDateRough = dateFns.addYears(birthDateUTC, totalLifespanYearsEst);
+        const estimatedEndDateUTC = dateFns.startOfDay(estimatedEndDateRough, { timeZone: UTC_TIMEZONE });
         const startISOYear = dateFns.getISOWeekYear(birthDateUTC);
         const endISOYear = dateFns.getISOWeekYear(estimatedEndDateUTC);
-
-        // 5. Find Start of Birth Week and Current Week in UTC
-        // startOfISOWeek works on Date objects; assumes UTC context is maintained
         const firstWeekStartDateUTC = dateFns.startOfISOWeek(birthDateUTC);
         const currentActualWeekStartDateUTC = dateFns.startOfISOWeek(nowUTC);
 
-        // Logging for verification (format confirmed to accept timezone option in v4)
-        console.log(`Rendering Grid (UTC): Birth=${dateFns.format(birthDateUTC, 'yyyy-MM-dd', { timeZone: UTC_TIMEZONE })}, Now=${dateFns.format(nowUTC, 'yyyy-MM-dd', { timeZone: UTC_TIMEZONE })}, Est. End=${dateFns.format(estimatedEndDateUTC, 'yyyy-MM-dd', { timeZone: UTC_TIMEZONE })}`);
-        console.log(`ISO Year Range: ${startISOYear} to ${endISOYear}`);
-
         // --- Grid Rendering ---
-        gridContainerElement.innerHTML = ''; // Clear previous grid
-        const fragment = document.createDocumentFragment(); // Use fragment for performance
+        gridContainerElement.innerHTML = '';
+        const fragment = document.createDocumentFragment();
         let totalRenderedWeeks = 0;
 
-        // Loop through each ISO year in the estimated lifespan
         for (let isoYear = startISOYear; isoYear <= endISOYear; isoYear++) {
             const yearRow = document.createElement('div');
-            yearRow.classList.add('year-row');
+            yearRow.classList.add('year-row'); // Use same class
+            yearRow.setAttribute('data-year', isoYear); // Add calendar year data attribute
 
-            // Get weeks in this ISO year. Need a date within the target year for context.
-            // Jan 4th is always in week 1. Use UTC date.
-            const dateForYearContext = new Date(Date.UTC(isoYear, 0, 4)); // Jan 4th UTC
-            const weeksInThisYear = dateFns.getISOWeeksInYear(dateForYearContext); // Assumes v4 function exists
+            const dateForYearContext = new Date(Date.UTC(isoYear, 0, 4));
+            const weeksInThisYear = dateFns.getISOWeeksInYear(dateForYearContext);
 
-            // Loop through each week of the current ISO year
             for (let weekNum = 1; weekNum <= weeksInThisYear; weekNum++) {
-                // Calculate the start date of the specific week (in UTC)
                 let currentRenderWeekStartDateUTC;
                 try {
-                    // Set the ISO year and week number on our context date
-                    let tempDate = dateFns.setISOWeekYear(dateForYearContext, isoYear); // Assumes v4 function exists
-                    tempDate = dateFns.setISOWeek(tempDate, weekNum); // Assumes v4 function exists
-                    // Get the start of that ISO week (should maintain UTC context)
+                    let tempDate = dateFns.setISOWeekYear(dateForYearContext, isoYear);
+                    tempDate = dateFns.setISOWeek(tempDate, weekNum);
                     currentRenderWeekStartDateUTC = dateFns.startOfISOWeek(tempDate);
                 } catch (e) {
-                    console.error(`Error calculating UTC date for Year ${isoYear}, Week ${weekNum}`, e);
-                    currentRenderWeekStartDateUTC = null; // Handle potential errors during date calculation
+                    currentRenderWeekStartDateUTC = null;
                 }
 
-                // Skip rendering if date calculation failed
                 if (!currentRenderWeekStartDateUTC) continue;
 
                 const weekBlock = document.createElement('div');
                 weekBlock.classList.add('week-block');
-
-                // --- Determine State & Apply Classes (Comparing UTC dates) ---
                 let stateClass = '';
-                // Tooltip formatting (use format with UTC timezone)
                 let title = `Year ${isoYear}, Week ${weekNum} (Starts UTC: ${dateFns.format(currentRenderWeekStartDateUTC, 'yyyy-MM-dd', { timeZone: UTC_TIMEZONE })})`;
 
-                // 1. Check Out of Bounds (using UTC dates)
-                // isBefore/isAfter compare timestamps
+                // Check Out of Bounds first
                 if (dateFns.isBefore(currentRenderWeekStartDateUTC, firstWeekStartDateUTC) || dateFns.isAfter(currentRenderWeekStartDateUTC, estimatedEndDateUTC)) {
-                    stateClass = 'out-of-bounds';
-                    title += ' (Outside lifespan)';
-                } else {
-                    // 2. Check Past, Present, Future (comparing UTC week start timestamps)
-                    // Use getTime() for precise comparison of the exact moment the week starts
+                    stateClass = 'out-of-bounds'; title += ' (Outside lifespan)';
+                } else { // Within lifespan, check past/present/future
                     if (currentRenderWeekStartDateUTC.getTime() === currentActualWeekStartDateUTC.getTime()) {
-                         stateClass = 'present';
-                         title += ' (Current week)';
+                        stateClass = 'present'; title += ' (Current week)';
                     } else if (dateFns.isBefore(currentRenderWeekStartDateUTC, currentActualWeekStartDateUTC)) {
                         stateClass = 'past';
                     } else {
@@ -122,36 +201,26 @@ function renderWeekGrid(inputBirthDate, totalLifespanYearsEst, gridContainerElem
                     }
                 }
 
-                // Apply the determined state class
-                if (stateClass) {
-                    weekBlock.classList.add(stateClass);
-                }
-                // Set the tooltip
+                if (stateClass) weekBlock.classList.add(stateClass);
                 weekBlock.title = title;
-
-                // Add the week block to the current year row
                 yearRow.appendChild(weekBlock);
                 totalRenderedWeeks++;
-            } // End week loop
+            }
+            // Only append row if it has content (prevents empty rows at end if lifespan ends mid-year)
+            if (yearRow.hasChildNodes()) {
+                 fragment.appendChild(yearRow);
+            }
+        }
 
-            // Add the completed year row to the fragment
-            fragment.appendChild(yearRow);
-        } // End year loop
-
-        // Append the entire fragment to the grid container in one DOM operation
         gridContainerElement.appendChild(fragment);
-
-        // --- Accessibility ---
-        // Update ARIA label with formatted UTC dates
-        gridContainerElement.setAttribute('aria-label', `Life grid showing estimated lifespan from ${dateFns.format(birthDateUTC, 'yyyy', { timeZone: UTC_TIMEZONE })} to ${dateFns.format(estimatedEndDateUTC, 'yyyy', { timeZone: UTC_TIMEZONE })} (UTC). Each row represents a year (${startISOYear}-${endISOYear}), containing 52 or 53 weeks.`);
-        console.log(`Total weeks rendered in grid structure: ${totalRenderedWeeks}`);
+        gridContainerElement.setAttribute('aria-label', `Life grid (Calendar View) showing estimated lifespan from ${startISOYear} to ${endISOYear}.`);
+        console.log(`Total weeks rendered in calendar grid: ${totalRenderedWeeks}`);
 
     } catch (error) {
-        // Catch errors during the entire rendering process
-        console.error("Error during grid rendering with date-fns v4.1.0:", error);
-        gridContainerElement.innerHTML = '<p class="error-message">Sorry, an error occurred while generating the life grid. Check console for details.</p>';
+        console.error("Error during calendar-based grid rendering:", error);
+        gridContainerElement.innerHTML = '<p class="error-message">Error generating calendar-based grid.</p>';
     }
 }
 
-// Export the main function for use in ui.js
-export { renderWeekGrid };
+// Export both rendering functions
+export { renderAgeGrid, renderCalendarGrid };
