@@ -159,7 +159,7 @@ h1 {
     /* Sizing and Spacing */
     margin-top: 1.5rem; /* Consistent vertical spacing */
     margin-bottom: 1rem;
-    max-width: 500px; /* Match disclaimer or adjust as needed */
+    max-width: 450px; /* Match disclaimer or adjust as needed */
     width: 90%; /* Allow shrinking on smaller viewports */
     box-sizing: border-box;
 
@@ -189,18 +189,41 @@ h1 {
 }
 /* Optional: Add a custom marker (e.g., +/- or arrow) */
 .explanation-details summary::before {
-    content: '+'; // Or use an SVG background-image
+    content: '+'; /* Or use an SVG background-image */
     position: absolute;
-    left: 1rem;
+    /* Adjust left positioning if needed based on summary padding */
+    left: 0.5rem; /* Example: slightly less than padding */
     top: 50%;
     transform: translateY(-50%);
     font-weight: bold;
+    /* Ensure enough space between marker and text */
     margin-right: 0.5rem;
-    transition: transform 0.2s ease-in-out;
+    /* Transition is optional, affects how the marker changes */
+    /* transition: transform 0.2s ease-in-out; */
+    display: inline-block; /* Ensure it takes space */
+    width: 1em; /* Give it a consistent width */
+    text-align: center;
 }
+
 .explanation-details[open] summary::before {
-    content: '−';
-    // transform: translateY(-50%) rotate(45deg); // Example for arrow
+    content: '−'; /* Use the minus sign when open */
+    /* transform: translateY(-50%) rotate(45deg); */ /* Example for arrow rotation */
+}
+
+/* Add padding to the summary text itself to make space for the ::before pseudo-element */
+.explanation-details summary {
+    cursor: pointer;
+    font-weight: 600;
+    color: #333;
+    /* Increase left padding to accommodate the marker */
+    padding: 0.8rem 1rem 0.8rem 2rem; /* Example: Increased left padding */
+    position: relative;
+    outline: none;
+    list-style: none;
+}
+/* Hide default marker for WebKit browsers */
+.explanation-details summary::-webkit-details-marker {
+    display: none;
 }
 
 /* Add slight visual separation when open */
