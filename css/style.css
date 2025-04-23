@@ -256,12 +256,12 @@ h1 {
 }
 
 /* --- Life Grid Styles (Row=Year, Horizontal Scroll) --- */
+/* Default (Desktop / Widest): 10px blocks */
 .life-grid-container {
     margin-top: 2rem;
     width: 100%; /* Takes width from parent .container */
-    /* Optional: Set a max-width on the grid itself if desired */
-    /* max-width: 654px; */
-    max-width: 660px;
+    /* Precise max-width for 53 * (10px block + 2px gap) + 2 * 10px padding */
+    max-width: 656px;
     box-sizing: border-box;
     display: flex;
     flex-direction: column; /* Stack year rows vertically */
@@ -398,62 +398,68 @@ h1 {
 .key-color.stage-latesenior { background-color: #D8BFD8; }
 
 /* --- Responsive Media Queries --- */
-/* Adjust block size and gaps for smaller screens */
-@media (max-width: 600px) {
+/* Tier 2: Medium Screens (e.g., Narrow Tablet / Large Phone) - 8px blocks */
+/* Breakpoint just below the width needed for 10px blocks (656px) */
+@media (max-width: 655px) {
+    .life-grid-container {
+        /* Precise max-width for 53 * (8px block + 1px gap) + 2 * 5px padding */
+        max-width: 487px;
+        padding: 5px;
+        gap: 2px; /* Vertical gap */
+    }
     .year-row {
-        gap: 1.5px;
+        gap: 1px; /* Gap between blocks */
     }
     .week-block {
-        width: 8px; /* Smaller blocks */
+        width: 8px; /* Block size */
         height: 8px;
     }
-    .life-grid-container {
-        gap: 2px; /* Smaller vertical gap */
-        padding: 5px;
-    }
-    /* Adjust container padding on small screens */
+    /* Adjust container padding if needed */
     .container {
         padding: 1.5rem 0.5rem;
     }
 }
 
-@media (max-width: 400px) {
+/* Tier 3: Smaller Screens (Standard Phone) - 6px blocks */
+/* Breakpoint just below the width needed for 8px blocks (487px) */
+@media (max-width: 486px) {
+    .life-grid-container {
+        /* Precise max-width for 53 * (6px block + 1px gap) + 2 * 4px padding */
+        max-width: 379px;
+        padding: 4px;
+        gap: 1.5px; /* Vertical gap */
+    }
+    .year-row {
+        gap: 1px; /* Gap between blocks */
+    }
     .week-block {
-        width: 6px; /* Even smaller blocks */
+        width: 6px; /* Block size */
         height: 6px;
     }
-     .year-row {
-        gap: 1px;
-    }
-     .life-grid-container {
-        gap: 1.5px;
-    }
 }
 
-/* Adjustments for very small screens */
-@media (max-width: 360px) {
-    h1 {
-        font-size: 1.6rem;
+/* Tier 4: Smallest Screens - 5px blocks */
+/* Breakpoint just below the width needed for 6px blocks (379px) */
+@media (max-width: 378px) {
+    .life-grid-container {
+        /* Precise max-width for 53 * (5px block + 1px gap) + 2 * 3px padding */
+        max-width: 324px;
+        padding: 3px;
+        gap: 1px; /* Vertical gap */
     }
-    .calculate-btn {
-        font-size: 1rem;
+    .year-row {
+        gap: 1px; /* Gap between blocks */
     }
     .week-block {
-        width: 5px; /* Smallest blocks */
+        width: 5px; /* Block size */
         height: 5px;
     }
-    .life-grid-container {
-        padding: 4px;
+     /* Adjust container padding for very small screens */
+     .container {
+        padding: 1rem 0.25rem;
     }
-    .container {
-        padding: 1rem 0.25rem; /* Minimal side padding */
-    }
+     h1 { font-size: 1.6rem; }
+     .calculate-btn { font-size: 1rem; }
 }
 
-/* Optional: Media query to apply larger container max-width only on desktop */
-@media (min-width: 768px) { /* Example breakpoint */
-    .container {
-        /* You could restore larger padding here if desired */
-        /* padding: 1.5rem 2rem; */
-    }
-}
+/* Below ~324px, overflow-x: auto will handle scrolling */
