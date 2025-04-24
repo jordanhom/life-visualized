@@ -1,9 +1,22 @@
-// js/gridRenderer.js
+/**
+ * @module gridRenderer
+ * @description Generates and renders HTML for life visualization grids (weeks, months, years).
+ * Handles layout logic for each view type and applies CSS classes for styling based
+ * on life stage and time (past, present, future).
+ *
+ * Exports: `renderAgeGrid`, `renderCalendarGrid`, `renderMonthsGrid`, `renderYearsGrid`.
+ *
+ * Relies on the global `dateFns` object (v4.1.0+) for UTC-based date calculations.
+ * Expects input `birthDate` to be pre-normalized to UTC midnight by the calling module.
+ * Defines `LIFE_STAGES` and helper functions internally. Uses `DocumentFragment` for
+ * efficient DOM manipulation.
+ */
+
 
 // --- Constants ---
 const UTC_TIMEZONE = 'UTC';
 
-// Life Stage Definitions
+// Life Stage Definitions (Used for styling blocks)
 const LIFE_STAGES = [
     // Colors chosen for more visibility, sequence roughly follows spectrum
     { key: 'infancy', name: 'Infancy', maxAge: 0, color: '#FFB6C1' }, // LightPink (Birth-1)
@@ -19,7 +32,7 @@ const LIFE_STAGES = [
     { key: 'latesenior', name: 'Late Senior', maxAge: Infinity, color: '#D8BFD8' } // Thistle (85+) - New
 ];
 
-// Helper: Get stage key based on age
+// Helper: Get stage key based on age. (Used for styling blocks)
 function getLifeStageKey(age) {
     for (const stage of LIFE_STAGES) {
         if (age <= stage.maxAge) {
@@ -30,6 +43,7 @@ function getLifeStageKey(age) {
 }
 
 // --- Helper: Check if date-fns is loaded ---
+// Ensures the required global library is present before attempting rendering.
 function checkDateFns() {
     if (typeof dateFns === 'undefined' || typeof dateFns.startOfDay === 'undefined') {
         console.error("date-fns v4.1.0 library or key functions not loaded!");
@@ -45,8 +59,10 @@ function checkDateFns() {
     return true;
 }
 
-// --- Helper: Calculate age at a specific date
-// Necessary for renderCalendarGrid
+// --- Helper: Calculate age at a specific date ---
+// Needed for determining life stage in calendar/month views where the block's
+// corresponding date changes relative to the birth date. Uses UTC methods.
+
 function calculateAgeAtDate(currentDateUTC, birthDateUTC) {
     let age = currentDateUTC.getUTCFullYear() - birthDateUTC.getUTCFullYear();
     const monthDiff = currentDateUTC.getUTCMonth() - birthDateUTC.getUTCMonth();
@@ -58,8 +74,8 @@ function calculateAgeAtDate(currentDateUTC, birthDateUTC) {
 
 /**
  * Renders the life grid based on years of age (Age View).
- * Each row represents one year of age (e.g., Age 0, Age 1, ...).
- * @param {Date} inputBirthDate - User's birth date object.
+ * Each row represents one year of age.
+ * @param {Date} inputBirthDate - User's birth date object (UTC normalized).
  * @param {number} totalLifespanYearsEst - Estimated lifespan in years.
  * @param {HTMLElement} gridContainerElement - The DOM element for the grid.
  */
@@ -73,14 +89,13 @@ function renderAgeGrid(inputBirthDate, totalLifespanYearsEst, gridContainerEleme
     console.log("Rendering Age Grid...");
     try {
         // --- Date Setup (UTC) ---
-        const year = inputBirthDate.getFullYear();
-        const month = inputBirthDate.getMonth();
-        const day = inputBirthDate.getDate();
-        const birthDateUTC = new Date(Date.UTC(year, month, day, 0, 0, 0, 0));
+        // Ensure all date operations use UTC to avoid timezone/DST issues.
+        const birthDateUTC = inputBirthDate; // Already normalized by ui.js
         const nowUTC = dateFns.startOfDay(new Date(), { timeZone: UTC_TIMEZONE });
         const currentActualWeekStartDateUTC = dateFns.startOfISOWeek(nowUTC);
         const estimatedEndDateRough = dateFns.addYears(birthDateUTC, totalLifespanYearsEst);
         const estimatedEndDateUTC = dateFns.startOfDay(estimatedEndDateRough, { timeZone: UTC_TIMEZONE });
+
 
         // --- Grid Rendering ---
         gridContainerElement.innerHTML = '';
@@ -92,51 +107,58 @@ function renderAgeGrid(inputBirthDate, totalLifespanYearsEst, gridContainerEleme
             const ageRow = document.createElement('div');
             ageRow.classList.add('year-row'); // Use same class for styling consistency
             ageRow.setAttribute('data-age', age);
+            ageRow.setAttribute('aria-label', `Age ${age}`);
 
             const ageStartDateUTC = dateFns.startOfDay(dateFns.addYears(birthDateUTC, age), { timeZone: UTC_TIMEZONE });
             const ageEndDateExclusiveUTC = dateFns.startOfDay(dateFns.addYears(birthDateUTC, age + 1), { timeZone: UTC_TIMEZONE });
 
             const stageKey = getLifeStageKey(age);
 
-            // === Week Generation Logic (eachWeekOfInterval + Filter + Pop) ===
+            // === Week Generation Logic for Age View ===
+            // This section ensures accurate week representation for each year of age,
+            // handling the 52/53 week variation and edge cases near birthdays.
+            // 1. Get all ISO weeks overlapping the interval [ageStartDate, ageEndDateExclusive).
+            // 2. Filter to keep only weeks starting strictly BEFORE the next birthday (ageEndDateExclusive).
+            // 3. If the filtered list has 54 weeks (rare edge case), remove the last one
+            //    to enforce a visual maximum of 53 weeks per row.
             let weeksInAgeYearRaw = []; // Weeks overlapping the interval
             let weeksInAgeYearFiltered = []; // Weeks starting strictly before next birthday
             let weeksInAgeYearFinal = []; // Max 53 weeks for display
 
             if (dateFns.isBefore(ageStartDateUTC, ageEndDateExclusiveUTC)) {
-                // Use the original interval ending AT the next birthday
+                // Step 1: Get overlapping weeks (Monday starts)
                 weeksInAgeYearRaw = dateFns.eachWeekOfInterval({
                     start: ageStartDateUTC,
-                    end: ageEndDateExclusiveUTC // End AT the next birthday
+                    end: ageEndDateExclusiveUTC
                 }, { weekStartsOn: 1 }); // 1 = Monday for ISO
 
-                // Filter to keep only weeks starting strictly BEFORE the next birthday
+                // Step 2: Filter weeks starting before the next birthday
                 weeksInAgeYearFiltered = weeksInAgeYearRaw.filter(weekStart =>
                     dateFns.isBefore(weekStart, ageEndDateExclusiveUTC)
                 );
 
-                // Log comparison
-                if (weeksInAgeYearRaw.length !== weeksInAgeYearFiltered.length) {
-                    console.log(`Age ${age}: Filter removed ${weeksInAgeYearRaw.length - weeksInAgeYearFiltered.length} week(s). Raw: ${weeksInAgeYearRaw.length}, Filtered: ${weeksInAgeYearFiltered.length}`);
-                }
+                // OPTIONAL: Log comparison
+                // if (weeksInAgeYearRaw.length !== weeksInAgeYearFiltered.length) {
+                //     console.log(`Age ${age}: Filter removed ${weeksInAgeYearRaw.length - weeksInAgeYearFiltered.length} week(s). Raw: ${weeksInAgeYearRaw.length}, Filtered: ${weeksInAgeYearFiltered.length}`);
+                // }
 
-                // Start with the filtered list
+                // Step 3: Enforce max 53 weeks visually
                 weeksInAgeYearFinal = [...weeksInAgeYearFiltered]; // Copy the array
-
                 // Apply the pop correction if needed
                 if (weeksInAgeYearFinal.length === 54) {
                     console.warn(`Age ${age}: Filtered list had 54 weeks. Removing the last week (${dateFns.format(weeksInAgeYearFinal[weeksInAgeYearFinal.length - 1], 'yyyy-MM-dd')}) to enforce max 53.`);
                     weeksInAgeYearFinal.pop(); // Remove the last element
                 }
 
-                // Final check on length after potential correction
-                if (weeksInAgeYearFinal.length > 53) {
-                     console.error(`Age ${age}: FINAL count is ${weeksInAgeYearFinal.length} AFTER CORRECTION.`);
-                } else if (weeksInAgeYearFinal.length < 52 && weeksInAgeYearFinal.length > 0) { // Allow 0 for last partial year
-                     console.warn(`Age ${age}: FINAL count is ${weeksInAgeYearFinal.length}.`);
-                } else {
-                     console.log(`Age ${age}: Final week count is ${weeksInAgeYearFinal.length}.`);
-                }
+                /* Final check on length after potential correction (optional)
+                // if (weeksInAgeYearFinal.length > 53) {
+                //      console.error(`Age ${age}: FINAL count is ${weeksInAgeYearFinal.length} AFTER CORRECTION.`);
+                // } else if (weeksInAgeYearFinal.length < 52 && weeksInAgeYearFinal.length > 0) { // Allow 0 for last partial year
+                //      console.warn(`Age ${age}: FINAL count is ${weeksInAgeYearFinal.length}.`);
+                // } else {
+                //      console.log(`Age ${age}: Final week count is ${weeksInAgeYearFinal.length}.`);
+                // }
+                */
             } else {
                  console.warn(`Age ${age}: Start date not before end date. Skipping row.`);
             }
@@ -154,6 +176,7 @@ function renderAgeGrid(inputBirthDate, totalLifespanYearsEst, gridContainerEleme
                 let stateClass = '';
                 let title = `Age ${age}, Week ${weekInAgeYearIndex + 1} (Starts UTC: ${dateFns.format(currentRenderWeekStartDateUTC, 'yyyy-MM-dd', { timeZone: UTC_TIMEZONE })})`;
 
+                // Determine state (past/present/future) by comparing week start dates
                 if (currentRenderWeekStartDateUTC.getTime() === currentActualWeekStartDateUTC.getTime()) {
                     stateClass = 'present'; title += ' (Current week)';
                 } else if (dateFns.isBefore(currentRenderWeekStartDateUTC, currentActualWeekStartDateUTC)) {
@@ -185,9 +208,8 @@ function renderAgeGrid(inputBirthDate, totalLifespanYearsEst, gridContainerEleme
 
 /**
  * Renders the life grid based on ISO Calendar Years (Calendar View).
- * Each row represents one ISO year (e.g., 2023, 2024, ...).
- * Includes 'out-of-bounds' styling for weeks outside the lifespan.
- * @param {Date} inputBirthDate - User's birth date object.
+ * Each row represents one ISO year. Includes 'out-of-bounds' styling.
+ * @param {Date} inputBirthDate - User's birth date object (UTC normalized).
  * @param {number} totalLifespanYearsEst - Estimated lifespan in years.
  * @param {HTMLElement} gridContainerElement - The DOM element for the grid.
  */
@@ -201,16 +223,15 @@ function renderCalendarGrid(inputBirthDate, totalLifespanYearsEst, gridContainer
     console.log("Rendering Calendar Grid...");
     try {
         // --- Date Setup (UTC) ---
-        const year = inputBirthDate.getFullYear();
-        const month = inputBirthDate.getMonth();
-        const day = inputBirthDate.getDate();
-        const birthDateUTC = new Date(Date.UTC(year, month, day, 0, 0, 0, 0));
+        const birthDateUTC = inputBirthDate; // Already normalized by ui.js
         const nowUTC = dateFns.startOfDay(new Date(), { timeZone: UTC_TIMEZONE });
         const estimatedEndDateRough = dateFns.addYears(birthDateUTC, totalLifespanYearsEst);
         const estimatedEndDateUTC = dateFns.startOfDay(estimatedEndDateRough, { timeZone: UTC_TIMEZONE });
         const startISOYear = dateFns.getISOWeekYear(birthDateUTC);
         const endISOYear = dateFns.getISOWeekYear(estimatedEndDateUTC);
+        // Determine the start of the ISO week containing the birth date
         const firstWeekStartDateUTC = dateFns.startOfISOWeek(birthDateUTC);
+        // Determine the start of the current ISO week
         const currentActualWeekStartDateUTC = dateFns.startOfISOWeek(nowUTC);
 
         // --- Grid Rendering ---
@@ -218,29 +239,38 @@ function renderCalendarGrid(inputBirthDate, totalLifespanYearsEst, gridContainer
         const fragment = document.createDocumentFragment();
         let totalRenderedWeeks = 0;
 
+        // Loop through each ISO calendar year from birth year to estimated end year
         for (let isoYear = startISOYear; isoYear <= endISOYear; isoYear++) {
             const yearRow = document.createElement('div');
             yearRow.classList.add('year-row'); // Use same class
             yearRow.setAttribute('data-year', isoYear); // Add calendar year data attribute
+            yearRow.setAttribute('aria-label', `Calendar Year ${isoYear}`); // Add row label
 
+            // Use a date within the target ISO year to get context for week calculations
             const dateForYearContext = new Date(Date.UTC(isoYear, 0, 4));
+            // Determine number of ISO weeks in this specific calendar year (can be 52 or 53)
             const weeksInThisYear = dateFns.getISOWeeksInYear(dateForYearContext);
 
+            // Loop through each week number within the ISO year
             for (let weekNum = 1; weekNum <= weeksInThisYear; weekNum++) {
                 let currentRenderWeekStartDateUTC;
                 try {
+                    // Calculate the start date of the specific ISO week/year
                     let tempDate = dateFns.setISOWeekYear(dateForYearContext, isoYear);
                     tempDate = dateFns.setISOWeek(tempDate, weekNum);
                     currentRenderWeekStartDateUTC = dateFns.startOfISOWeek(tempDate);
                 } catch (e) {
+                    // Handle potential errors if date-fns calculation fails (unlikely)
+                    console.error(`Error calculating start of week ${weekNum}, year ${isoYear}:`, e);
                     currentRenderWeekStartDateUTC = null;
                 }
 
-                if (!currentRenderWeekStartDateUTC) continue;
+                if (!currentRenderWeekStartDateUTC) continue; // Skip if calculation failed
 
                 const weekBlock = document.createElement('div');
                 weekBlock.classList.add('week-block');
 
+                // Determine age during this week using helper
                 const ageDuringWeek = calculateAgeAtDate(currentRenderWeekStartDateUTC, birthDateUTC);
                 const stageKey = getLifeStageKey(ageDuringWeek);
                 weekBlock.classList.add(`stage-${stageKey}`);
@@ -248,7 +278,7 @@ function renderCalendarGrid(inputBirthDate, totalLifespanYearsEst, gridContainer
                 let stateClass = '';
                 let title = `Year ${isoYear}, Week ${weekNum} (Starts UTC: ${dateFns.format(currentRenderWeekStartDateUTC, 'yyyy-MM-dd', { timeZone: UTC_TIMEZONE })})`;
 
-                // Check Out of Bounds first
+                // Check Out of Bounds: Is this week before the first week containing birth OR after estimated end?
                 if (dateFns.isBefore(currentRenderWeekStartDateUTC, firstWeekStartDateUTC) || dateFns.isAfter(currentRenderWeekStartDateUTC, estimatedEndDateUTC)) {
                     stateClass = 'out-of-bounds'; title += ' (Outside lifespan)';
                 } else { // Within lifespan, check past/present/future
@@ -299,8 +329,7 @@ function renderMonthsGrid(inputBirthDate, totalLifespanYearsEst, gridContainerEl
     console.log("Rendering Months Grid...");
     try {
         // --- Date Setup (UTC) ---
-        // inputBirthDate is already UTC normalized from ui.js
-        const birthDateUTC = inputBirthDate;
+        const birthDateUTC = inputBirthDate; // Already normalized by ui.js
         const nowUTC = dateFns.startOfDay(new Date(), { timeZone: UTC_TIMEZONE });
         const estimatedEndDateRough = dateFns.addYears(birthDateUTC, totalLifespanYearsEst);
         const estimatedEndDateUTC = dateFns.startOfDay(estimatedEndDateRough, { timeZone: UTC_TIMEZONE });
@@ -308,7 +337,7 @@ function renderMonthsGrid(inputBirthDate, totalLifespanYearsEst, gridContainerEl
         // Calculate the start of the *current* month in UTC for comparison
         const currentMonthStartDateUTC = dateFns.startOfMonth(nowUTC);
 
-        // Calculate total months
+        // Calculate total months to potentially render based on estimated lifespan
         const totalEstimatedMonths = Math.ceil(totalLifespanYearsEst * 12);
 
         // --- Grid Rendering ---
@@ -317,27 +346,30 @@ function renderMonthsGrid(inputBirthDate, totalLifespanYearsEst, gridContainerEl
         let totalRenderedMonths = 0;
         let currentMonthRow = null;
 
+        // Loop through each month index from birth (0) up to the total estimated months
         for (let monthIndex = 0; monthIndex < totalEstimatedMonths; monthIndex++) {
-            // Create a new row every 12 months (start of a new year)
+            // Create a new row every 12 months (start of a new year of life)
             if (monthIndex % 12 === 0) {
                 currentMonthRow = document.createElement('div');
-                // Use a distinct class or reuse year-row? Let's reuse for now, CSS might override size later.
-                currentMonthRow.classList.add('year-row', 'month-row'); // Add both for potential targeting
-                const yearNum = Math.floor(monthIndex / 12);
-                currentMonthRow.setAttribute('data-year-num', yearNum); // Year number since birth
+                // Add classes for styling: generic row layout and month-specific rules
+                currentMonthRow.classList.add('year-row', 'month-row');
+                const yearNum = Math.floor(monthIndex / 12); // Age year (0, 1, 2...)
+                currentMonthRow.setAttribute('data-year-num', yearNum);
+                currentMonthRow.setAttribute('aria-label', `Age ${yearNum}`);
                 fragment.appendChild(currentMonthRow);
             }
 
             // Calculate the start date of this specific month in the person's life
+            // Add 'monthIndex' months to the birth date, then find the start of that month.
             const monthStartDateUTC = dateFns.startOfMonth(dateFns.addMonths(birthDateUTC, monthIndex));
 
-            // Don't render blocks past the estimated end date
+            // Don't render blocks for months that start after the estimated end date
             if (dateFns.isAfter(monthStartDateUTC, estimatedEndDateUTC)) {
                 continue;
             }
 
             const monthBlock = document.createElement('div');
-            monthBlock.classList.add('month-block'); // Use a new class for specific styling
+            monthBlock.classList.add('month-block'); // Class for month-specific styling
 
             // Determine life stage based on age at the START of this month
             const ageAtMonthStart = calculateAgeAtDate(monthStartDateUTC, birthDateUTC);
@@ -345,11 +377,12 @@ function renderMonthsGrid(inputBirthDate, totalLifespanYearsEst, gridContainerEl
             monthBlock.classList.add(`stage-${stageKey}`);
 
             let stateClass = '';
-            const yearOfLife = Math.floor(monthIndex / 12);
-            const monthOfLife = (monthIndex % 12) + 1; // 1-based month index within the year of life
+            const yearOfLife = Math.floor(monthIndex / 12); // Age year
+            const monthOfLife = (monthIndex % 12) + 1; // 1-based month index within the age year
             let title = `Age ${yearOfLife}, Month ${monthOfLife} (Starts UTC: ${dateFns.format(monthStartDateUTC, 'yyyy-MM-dd', { timeZone: UTC_TIMEZONE })})`;
 
-            // Compare month start dates for past/present/future
+            // Determine past/present/future by comparing the start date of this month
+            // with the start date of the current actual month.
             if (monthStartDateUTC.getTime() === currentMonthStartDateUTC.getTime()) {
                 stateClass = 'present'; title += ' (Current month)';
             } else if (dateFns.isBefore(monthStartDateUTC, currentMonthStartDateUTC)) {
@@ -363,7 +396,8 @@ function renderMonthsGrid(inputBirthDate, totalLifespanYearsEst, gridContainerEl
             if (stateClass) monthBlock.classList.add(stateClass);
 
             monthBlock.title = title;
-            if (currentMonthRow) { // Ensure row exists
+            // Append the block to the current row (created every 12 iterations)
+            if (currentMonthRow) {
                  currentMonthRow.appendChild(monthBlock);
                  totalRenderedMonths++;
             } else {
@@ -398,15 +432,15 @@ function renderYearsGrid(inputBirthDate, totalLifespanYearsEst, gridContainerEle
     console.log("Rendering Years Grid (Decades)...");
     try {
         // --- Date Setup (UTC) ---
-        const birthDateUTC = inputBirthDate;
+        const birthDateUTC = inputBirthDate; // Already normalized by ui.js
         const nowUTC = dateFns.startOfDay(new Date(), { timeZone: UTC_TIMEZONE });
         const estimatedEndDateRough = dateFns.addYears(birthDateUTC, totalLifespanYearsEst);
         const estimatedEndDateUTC = dateFns.startOfDay(estimatedEndDateRough, { timeZone: UTC_TIMEZONE });
 
-        // Calculate current age in whole years for state determination
+        // Calculate current age in whole years for state determination (past/present/future)
         const currentAge = calculateAgeAtDate(nowUTC, birthDateUTC);
 
-        // Calculate total years to render (ceiling of estimated lifespan)
+        // Calculate total years to potentially render (ceiling of estimated lifespan)
         const totalEstimatedYears = Math.ceil(totalLifespanYearsEst);
 
         // --- Grid Rendering ---
@@ -415,30 +449,32 @@ function renderYearsGrid(inputBirthDate, totalLifespanYearsEst, gridContainerEle
         let totalRenderedYears = 0;
         let currentDecadeRow = null;
 
+        // Loop through each year index from birth (0) up to the total estimated years
         for (let yearIndex = 0; yearIndex < totalEstimatedYears; yearIndex++) {
             // Create a new row every 10 years (start of a new decade)
             if (yearIndex % 10 === 0) {
                 currentDecadeRow = document.createElement('div');
-                // Use year-row for basic flex layout, add decade-row for specific targeting
+                // Add classes for styling: generic row layout and decade-specific rules
                 currentDecadeRow.classList.add('year-row', 'decade-row');
-                const decadeStart = Math.floor(yearIndex / 10) * 10;
-                currentDecadeRow.setAttribute('data-decade-start', decadeStart); // e.g., 0, 10, 20
+                const decadeStart = Math.floor(yearIndex / 10) * 10; // e.g., 0, 10, 20
+                currentDecadeRow.setAttribute('data-decade-start', decadeStart);
+                currentDecadeRow.setAttribute('aria-label', `Decade starting Age ${decadeStart}`);
                 fragment.appendChild(currentDecadeRow);
             }
 
             // Calculate the start date of this specific year of life
             const yearStartDateUTC = dateFns.startOfDay(dateFns.addYears(birthDateUTC, yearIndex));
 
-            // Don't render blocks past the estimated end date (based on start date)
+            // Don't render blocks for years that start after the estimated end date
             // Note: A year block represents the *entire* year starting at yearIndex
             if (dateFns.isAfter(yearStartDateUTC, estimatedEndDateUTC)) {
                 continue;
             }
 
             const yearBlock = document.createElement('div');
-            yearBlock.classList.add('year-block'); // New class for specific styling
+            yearBlock.classList.add('year-block'); // Class for year-specific styling
 
-            // Determine life stage based on the age for this year block
+            // Determine life stage based on the age for this year block (which is yearIndex)
             const ageForThisYear = yearIndex;
             const stageKey = getLifeStageKey(ageForThisYear);
             yearBlock.classList.add(`stage-${stageKey}`);
@@ -446,7 +482,8 @@ function renderYearsGrid(inputBirthDate, totalLifespanYearsEst, gridContainerEle
             let stateClass = '';
             let title = `Age ${ageForThisYear} (Starts UTC: ${dateFns.format(yearStartDateUTC, 'yyyy-MM-dd', { timeZone: UTC_TIMEZONE })})`;
 
-            // Determine past/present/future based on currentAge
+            // Determine past/present/future based on comparing the age represented by this block
+            // with the pre-calculated current age.
             if (ageForThisYear < currentAge) {
                 stateClass = 'past';
             } else if (ageForThisYear === currentAge) {
@@ -459,7 +496,8 @@ function renderYearsGrid(inputBirthDate, totalLifespanYearsEst, gridContainerEle
             if (stateClass) yearBlock.classList.add(stateClass);
 
             yearBlock.title = title;
-            if (currentDecadeRow) { // Ensure row exists
+            // Append the block to the current decade row (created every 10 iterations)
+            if (currentDecadeRow) {
                  currentDecadeRow.appendChild(yearBlock);
                  totalRenderedYears++;
             } else {

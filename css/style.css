@@ -19,10 +19,11 @@ html, body {
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.07);
     background: #ffffff;
 
-    /* === ADJUST MAX-WIDTH (Fix for desktop scroll) === */
-    /* Remove fixed max-width to allow container to grow */
-     max-width: none; /* Let it grow */
-     width: 95vw; /* Use viewport width with some margin */
+    /* === ADJUST MAX-WIDTH & CENTERING === */
+    max-width: 1200px; /* Limit width on very large screens */
+    width: 95vw; /* Use viewport width up to the max-width */
+    margin-left: auto; /* Center container horizontally */
+    margin-right: auto; /* Center container horizontally */
 
     box-sizing: border-box;
     display: flex;

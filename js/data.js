@@ -1,8 +1,19 @@
+/**
+ * @module data
+ * @description Defines and exports the `lifeExpectancyData` object containing
+ * actuarial estimates based on US CDC/NCHS 2021 Period Life Table data.
+ *
+ * Exports: `lifeExpectancyData`.
+ *
+ * Note: Data represents average *remaining* lifespan under 2021 mortality conditions.
+ * It's a statistical snapshot, not an individual prediction.
+ */
+
 // --- Refined Actuarial Data (Remaining Years by Current Age/Sex) ---
 // Source: Based on CDC/NCHS National Vital Statistics Reports, Vol. 72, No. 12
 // Data: U.S. Period Life Table, 2021 (Table 1)
-// Represents average *remaining years* given current age and sex in the US, 2021.
-// This data reflects mortality conditions in 2021 and does not account for future changes.
+// Structure: Object keyed by sex ('male'/'female'), then by age bracket lower bound (string).
+// Values: Average remaining years for someone entering that age bracket in 2021.
 const lifeExpectancyData = {
     'male': {
         0: 73.5, 10: 64.0, 20: 54.5, 30: 45.3, 40: 36.2, 50: 27.6, 60: 19.7, 70: 12.8, 80: 7.3, 90: 3.7, 100: 2.1
