@@ -337,6 +337,115 @@ h1 {
     box-shadow: none !important; /* Remove present shadow if applied */
 }
 
+/* === NEW: Month Block Styles === */
+.month-block {
+    flex-shrink: 0;
+    border-radius: 2px; /* Slightly more rounded */
+    transition: background-color 0.2s ease-in-out, border-color 0.2s ease-in-out, opacity 0.2s ease-in-out;
+    box-sizing: border-box;
+    border: 1px solid transparent;
+}
+
+/* Apply life stage colors to month blocks too */
+.month-block.stage-infancy { background-color: #FFB6C1; }
+.month-block.stage-toddler { background-color: #FFA07A; }
+.month-block.stage-earlychildhood { background-color: #FFDA63; }
+.month-block.stage-middlechildhood { background-color: #9ACD32; }
+.month-block.stage-adolescence { background-color: #48D1CC; }
+.month-block.stage-youngadult { background-color: #6495ED; }
+.month-block.stage-adulthood { background-color: #9370DB; }
+.month-block.stage-middleadulthood { background-color: #DA70D6; }
+.month-block.stage-earlysenior { background-color: #C0C0C0; }
+.month-block.stage-midsenior { background-color: #B0C4DE; }
+.month-block.stage-latesenior { background-color: #D8BFD8; }
+
+/* Apply state styles (past/present/future) to month blocks */
+.month-block.past {
+    border-color: rgba(0, 0, 0, 0.3);
+    opacity: 0.7;
+}
+
+.month-block.present {
+    background-color: #FF4500; /* OrangeRed */
+    border-color: rgba(0, 0, 0, 0.7);
+    box-shadow: 0 0 0 1px #ffffff, inset 0 0 0 1px rgba(0,0,0,0.4);
+    z-index: 1;
+    position: relative;
+    opacity: 1;
+}
+
+.month-block.future {
+    background-color: #ffffff;
+    border-color: #ced4da;
+    opacity: 1;
+}
+
+/* === NEW: Year Block Styles === */
+.year-block {
+    flex-shrink: 0;
+    border-radius: 3px; /* More rounded */
+    transition: background-color 0.2s ease-in-out, border-color 0.2s ease-in-out, opacity 0.2s ease-in-out;
+    box-sizing: border-box;
+    border: 1px solid transparent;
+}
+
+/* Apply life stage colors to year blocks */
+.year-block.stage-infancy { background-color: #FFB6C1; }
+.year-block.stage-toddler { background-color: #FFA07A; }
+.year-block.stage-earlychildhood { background-color: #FFDA63; }
+.year-block.stage-middlechildhood { background-color: #9ACD32; }
+.year-block.stage-adolescence { background-color: #48D1CC; }
+.year-block.stage-youngadult { background-color: #6495ED; }
+.year-block.stage-adulthood { background-color: #9370DB; }
+.year-block.stage-middleadulthood { background-color: #DA70D6; }
+.year-block.stage-earlysenior { background-color: #C0C0C0; }
+.year-block.stage-midsenior { background-color: #B0C4DE; }
+.year-block.stage-latesenior { background-color: #D8BFD8; }
+
+/* Apply state styles (past/present/future) to year blocks */
+.year-block.past {
+    border-color: rgba(0, 0, 0, 0.3);
+    opacity: 0.7;
+}
+
+.year-block.present {
+    background-color: #FF4500; /* OrangeRed */
+    border-color: rgba(0, 0, 0, 0.7);
+    box-shadow: 0 0 0 1px #ffffff, inset 0 0 0 1px rgba(0,0,0,0.4);
+    z-index: 1;
+    position: relative;
+    opacity: 1;
+}
+
+.year-block.future {
+    background-color: #ffffff;
+    border-color: #ced4da;
+    opacity: 1;
+}
+
+/* === ADJUST CONTAINER FOR MONTH VIEW === */
+/* Ensure month rows use appropriate gap */
+.life-grid-container.grid-view-months .month-row {
+     gap: 2px; /* Horizontal gap between month blocks */
+}
+/* Calculate month block size */
+.life-grid-container.grid-view-months .month-block {
+    /* 12 blocks, 11 gaps of 2px each = 22px total gap space */
+    width: calc((100% - 22px) / 12);
+    aspect-ratio: 1 / 1;
+}
+
+/* Ensure decade rows use appropriate gap */
+.life-grid-container.grid-view-years .decade-row {
+     gap: 3px; /* Horizontal gap between year blocks */
+}
+/* Calculate year block size */
+.life-grid-container.grid-view-years .year-block {
+    /* 10 blocks, 9 gaps of 3px each = 27px total gap space */
+    width: calc((100% - 27px) / 10);
+    aspect-ratio: 1 / 1;
+}
+
 /* --- Color Key Styles --- */
 .color-key {
     margin-top: 1.5rem;
@@ -398,19 +507,22 @@ h1 {
 .key-color.stage-latesenior { background-color: #D8BFD8; }
 
 /* --- Responsive Media Queries --- */
+
+/* === WEEK GRID RESPONSIVENESS === */
 /* Tier 2: Medium Screens (e.g., Narrow Tablet / Large Phone) - 8px blocks */
 /* Breakpoint just below the width needed for 10px blocks (656px) */
 @media (max-width: 655px) {
+    /* Only apply week adjustments if NOT in month view */
     .life-grid-container {
         /* Precise max-width for 53 * (8px block + 1px gap) + 2 * 5px padding */
         max-width: 487px;
         padding: 5px;
         gap: 2px; /* Vertical gap */
     }
-    .year-row {
+    .life-grid-container .year-row {
         gap: 1px; /* Gap between blocks */
     }
-    .week-block {
+    .life-grid-container .week-block {
         width: 8px; /* Block size */
         height: 8px;
     }
@@ -429,10 +541,10 @@ h1 {
         padding: 4px;
         gap: 1.5px; /* Vertical gap */
     }
-    .year-row {
+    .life-grid-container .year-row {
         gap: 1px; /* Gap between blocks */
     }
-    .week-block {
+    .life-grid-container .week-block {
         width: 6px; /* Block size */
         height: 6px;
     }
@@ -447,10 +559,10 @@ h1 {
         padding: 3px;
         gap: 1px; /* Vertical gap */
     }
-    .year-row {
+    .life-grid-container .year-row {
         gap: 1px; /* Gap between blocks */
     }
-    .week-block {
+    .life-grid-container .week-block {
         width: 5px; /* Block size */
         height: 5px;
     }
@@ -463,3 +575,52 @@ h1 {
 }
 
 /* Below ~324px, overflow-x: auto will handle scrolling */
+
+/* === NEW: MONTH GRID RESPONSIVENESS === */
+/* Tier 2: Medium Screens (Months) - Reduce block size */
+/* Breakpoint can be different, let's use one slightly above the default month width */
+@media (max-width: 400px) { /* Adjust breakpoint as needed */
+    .life-grid-container.grid-view-months .month-row {
+        gap: 1px; /* Horizontal gap */
+    }
+    .life-grid-container.grid-view-months .month-block {
+        /* Recalculate based on new gap: 11 gaps * 1px = 11px */
+        width: calc((100% - 11px) / 12);
+        aspect-ratio: 1 / 1;
+    }
+}
+
+/* Tier 3: Smaller Screens (Months) - Reduce block size further */
+@media (max-width: 300px) { /* Adjust breakpoint */
+    .life-grid-container.grid-view-months .month-row {
+        gap: 1px; /* Horizontal gap */
+    }
+}
+
+/* Below smallest month grid width (~115px), overflow-x will handle scrolling */
+
+/* === NEW: YEARS GRID RESPONSIVENESS === */
+/* Tier 2: Smaller Screens (Years) - Reduce block size */
+/* Breakpoint below default years width (~227px) */
+@media (max-width: 300px) { /* Adjust breakpoint as needed */
+    .life-grid-container.grid-view-years .decade-row {
+        gap: 2px; /* Horizontal gap */
+    }
+    .life-grid-container.grid-view-years .year-block {
+        /* Recalculate: 9 gaps * 2px = 18px */
+        width: calc((100% - 18px) / 10);
+        aspect-ratio: 1 / 1;    }
+}
+
+/* Tier 3: Smallest Screens (Years) - Reduce block size further */
+@media (max-width: 250px) { /* Adjust breakpoint */
+    .life-grid-container.grid-view-years .decade-row {
+        gap: 1px; /* Horizontal gap */
+    }
+    .life-grid-container.grid-view-years .year-block {
+        /* Recalculate: 9 gaps * 1px = 9px */
+        width: calc((100% - 9px) / 10);
+        aspect-ratio: 1 / 1;    }
+}
+
+/* Below smallest years grid width (~137px), overflow-x will handle scrolling */

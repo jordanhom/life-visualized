@@ -282,5 +282,200 @@ function renderCalendarGrid(inputBirthDate, totalLifespanYearsEst, gridContainer
     }
 }
 
-// Export both rendering functions
-export { renderAgeGrid, renderCalendarGrid };
+/**
+ * Renders the life grid based on months (Months View).
+ * Each row represents one year (12 months).
+ * @param {Date} inputBirthDate - User's birth date object (UTC normalized).
+ * @param {number} totalLifespanYearsEst - Estimated lifespan in years.
+ * @param {HTMLElement} gridContainerElement - The DOM element for the grid.
+ */
+function renderMonthsGrid(inputBirthDate, totalLifespanYearsEst, gridContainerElement) {
+    if (!checkDateFns()) {
+        if (gridContainerElement) gridContainerElement.innerHTML = '<p class="error-message">Error: Date library failed to load.</p>';
+        return;
+    }
+    if (!gridContainerElement) { console.error("Grid container not provided."); return; }
+
+    console.log("Rendering Months Grid...");
+    try {
+        // --- Date Setup (UTC) ---
+        // inputBirthDate is already UTC normalized from ui.js
+        const birthDateUTC = inputBirthDate;
+        const nowUTC = dateFns.startOfDay(new Date(), { timeZone: UTC_TIMEZONE });
+        const estimatedEndDateRough = dateFns.addYears(birthDateUTC, totalLifespanYearsEst);
+        const estimatedEndDateUTC = dateFns.startOfDay(estimatedEndDateRough, { timeZone: UTC_TIMEZONE });
+
+        // Calculate the start of the *current* month in UTC for comparison
+        const currentMonthStartDateUTC = dateFns.startOfMonth(nowUTC);
+
+        // Calculate total months
+        const totalEstimatedMonths = Math.ceil(totalLifespanYearsEst * 12);
+
+        // --- Grid Rendering ---
+        gridContainerElement.innerHTML = '';
+        const fragment = document.createDocumentFragment();
+        let totalRenderedMonths = 0;
+        let currentMonthRow = null;
+
+        for (let monthIndex = 0; monthIndex < totalEstimatedMonths; monthIndex++) {
+            // Create a new row every 12 months (start of a new year)
+            if (monthIndex % 12 === 0) {
+                currentMonthRow = document.createElement('div');
+                // Use a distinct class or reuse year-row? Let's reuse for now, CSS might override size later.
+                currentMonthRow.classList.add('year-row', 'month-row'); // Add both for potential targeting
+                const yearNum = Math.floor(monthIndex / 12);
+                currentMonthRow.setAttribute('data-year-num', yearNum); // Year number since birth
+                fragment.appendChild(currentMonthRow);
+            }
+
+            // Calculate the start date of this specific month in the person's life
+            const monthStartDateUTC = dateFns.startOfMonth(dateFns.addMonths(birthDateUTC, monthIndex));
+
+            // Don't render blocks past the estimated end date
+            if (dateFns.isAfter(monthStartDateUTC, estimatedEndDateUTC)) {
+                continue;
+            }
+
+            const monthBlock = document.createElement('div');
+            monthBlock.classList.add('month-block'); // Use a new class for specific styling
+
+            // Determine life stage based on age at the START of this month
+            const ageAtMonthStart = calculateAgeAtDate(monthStartDateUTC, birthDateUTC);
+            const stageKey = getLifeStageKey(ageAtMonthStart);
+            monthBlock.classList.add(`stage-${stageKey}`);
+
+            let stateClass = '';
+            const yearOfLife = Math.floor(monthIndex / 12);
+            const monthOfLife = (monthIndex % 12) + 1; // 1-based month index within the year of life
+            let title = `Age ${yearOfLife}, Month ${monthOfLife} (Starts UTC: ${dateFns.format(monthStartDateUTC, 'yyyy-MM-dd', { timeZone: UTC_TIMEZONE })})`;
+
+            // Compare month start dates for past/present/future
+            if (monthStartDateUTC.getTime() === currentMonthStartDateUTC.getTime()) {
+                stateClass = 'present'; title += ' (Current month)';
+            } else if (dateFns.isBefore(monthStartDateUTC, currentMonthStartDateUTC)) {
+                stateClass = 'past';
+            } else {
+                stateClass = 'future';
+            }
+
+            // Apply state class (past/present/future)
+            // Note: 'out-of-bounds' isn't really applicable here like in calendar view
+            if (stateClass) monthBlock.classList.add(stateClass);
+
+            monthBlock.title = title;
+            if (currentMonthRow) { // Ensure row exists
+                 currentMonthRow.appendChild(monthBlock);
+                 totalRenderedMonths++;
+            } else {
+                console.warn("Trying to append month block but currentMonthRow is null. MonthIndex:", monthIndex);
+            }
+        }
+
+        gridContainerElement.appendChild(fragment);
+        gridContainerElement.setAttribute('aria-label', `Life grid (Months View) showing estimated ${totalEstimatedMonths} months.`);
+        console.log(`Total months rendered in grid: ${totalRenderedMonths}`);
+
+    } catch (error) {
+        console.error("Error during months-based grid rendering:", error);
+        gridContainerElement.innerHTML = '<p class="error-message">Error generating months-based grid.</p>';
+    }
+}
+
+/**
+ * Renders the life grid based on years (Years View).
+ * Each row represents one decade (10 years).
+ * @param {Date} inputBirthDate - User's birth date object (UTC normalized).
+ * @param {number} totalLifespanYearsEst - Estimated lifespan in years.
+ * @param {HTMLElement} gridContainerElement - The DOM element for the grid.
+ */
+function renderYearsGrid(inputBirthDate, totalLifespanYearsEst, gridContainerElement) {
+    if (!checkDateFns()) {
+        if (gridContainerElement) gridContainerElement.innerHTML = '<p class="error-message">Error: Date library failed to load.</p>';
+        return;
+    }
+    if (!gridContainerElement) { console.error("Grid container not provided."); return; }
+
+    console.log("Rendering Years Grid (Decades)...");
+    try {
+        // --- Date Setup (UTC) ---
+        const birthDateUTC = inputBirthDate;
+        const nowUTC = dateFns.startOfDay(new Date(), { timeZone: UTC_TIMEZONE });
+        const estimatedEndDateRough = dateFns.addYears(birthDateUTC, totalLifespanYearsEst);
+        const estimatedEndDateUTC = dateFns.startOfDay(estimatedEndDateRough, { timeZone: UTC_TIMEZONE });
+
+        // Calculate current age in whole years for state determination
+        const currentAge = calculateAgeAtDate(nowUTC, birthDateUTC);
+
+        // Calculate total years to render (ceiling of estimated lifespan)
+        const totalEstimatedYears = Math.ceil(totalLifespanYearsEst);
+
+        // --- Grid Rendering ---
+        gridContainerElement.innerHTML = '';
+        const fragment = document.createDocumentFragment();
+        let totalRenderedYears = 0;
+        let currentDecadeRow = null;
+
+        for (let yearIndex = 0; yearIndex < totalEstimatedYears; yearIndex++) {
+            // Create a new row every 10 years (start of a new decade)
+            if (yearIndex % 10 === 0) {
+                currentDecadeRow = document.createElement('div');
+                // Use year-row for basic flex layout, add decade-row for specific targeting
+                currentDecadeRow.classList.add('year-row', 'decade-row');
+                const decadeStart = Math.floor(yearIndex / 10) * 10;
+                currentDecadeRow.setAttribute('data-decade-start', decadeStart); // e.g., 0, 10, 20
+                fragment.appendChild(currentDecadeRow);
+            }
+
+            // Calculate the start date of this specific year of life
+            const yearStartDateUTC = dateFns.startOfDay(dateFns.addYears(birthDateUTC, yearIndex));
+
+            // Don't render blocks past the estimated end date (based on start date)
+            // Note: A year block represents the *entire* year starting at yearIndex
+            if (dateFns.isAfter(yearStartDateUTC, estimatedEndDateUTC)) {
+                continue;
+            }
+
+            const yearBlock = document.createElement('div');
+            yearBlock.classList.add('year-block'); // New class for specific styling
+
+            // Determine life stage based on the age for this year block
+            const ageForThisYear = yearIndex;
+            const stageKey = getLifeStageKey(ageForThisYear);
+            yearBlock.classList.add(`stage-${stageKey}`);
+
+            let stateClass = '';
+            let title = `Age ${ageForThisYear} (Starts UTC: ${dateFns.format(yearStartDateUTC, 'yyyy-MM-dd', { timeZone: UTC_TIMEZONE })})`;
+
+            // Determine past/present/future based on currentAge
+            if (ageForThisYear < currentAge) {
+                stateClass = 'past';
+            } else if (ageForThisYear === currentAge) {
+                stateClass = 'present'; title += ' (Current year)';
+            } else {
+                stateClass = 'future';
+            }
+
+            // Apply state class
+            if (stateClass) yearBlock.classList.add(stateClass);
+
+            yearBlock.title = title;
+            if (currentDecadeRow) { // Ensure row exists
+                 currentDecadeRow.appendChild(yearBlock);
+                 totalRenderedYears++;
+            } else {
+                console.warn("Trying to append year block but currentDecadeRow is null. YearIndex:", yearIndex);
+            }
+        }
+
+        gridContainerElement.appendChild(fragment);
+        gridContainerElement.setAttribute('aria-label', `Life grid (Years View) showing estimated ${totalEstimatedYears} years, grouped by decade.`);
+        console.log(`Total years rendered in grid: ${totalRenderedYears}`);
+
+    } catch (error) {
+        console.error("Error during years-based grid rendering:", error);
+        gridContainerElement.innerHTML = '<p class="error-message">Error generating years-based grid.</p>';
+    }
+}
+
+// Export ALL rendering functions
+export { renderAgeGrid, renderCalendarGrid, renderMonthsGrid, renderYearsGrid };

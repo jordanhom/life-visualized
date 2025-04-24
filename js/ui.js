@@ -2,8 +2,8 @@
 
 // Import calculation functions
 import { calculateCurrentAge, getRemainingExpectancy } from './calculator.js';
-// Import BOTH grid rendering functions
-import { renderAgeGrid, renderCalendarGrid } from './gridRenderer.js';
+// Import grid rendering functions
+import { renderAgeGrid, renderCalendarGrid, renderMonthsGrid, renderYearsGrid } from './gridRenderer.js';
 
 // --- DOM Element References ---
 const form = document.getElementById('life-input-form');
@@ -11,11 +11,10 @@ const birthdateInput = document.getElementById('birthdate');
 const sexInput = document.getElementById('sex');
 const resultsArea = document.getElementById('results-area');
 const gridContainer = document.getElementById('life-grid-container');
-// Add references for view toggle radio buttons
 const viewToggleRadios = document.querySelectorAll('input[name="viewType"]');
 
 // --- State Variables ---
-let currentView = 'age'; // Default view ('age' or 'calendar')
+let currentView = 'age'; // Default view ('age', 'calendar', 'months', or 'years')
 let lastCalcData = { // Store last calculation results to re-render on view change
     birthDate: null,
     totalLifespanYearsEst: null
@@ -28,17 +27,25 @@ function renderCurrentView() {
     if (!lastCalcData.birthDate || lastCalcData.totalLifespanYearsEst === null) {
         console.log("No calculation data available to render grid.");
         gridContainer.innerHTML = ''; // Clear grid if no data
+        gridContainer.classList.remove('grid-view-age', 'grid-view-calendar', 'grid-view-months', 'grid-view-years'); // Clear view classes
         return;
     }
 
     // Clear previous grid content before rendering new view
     gridContainer.innerHTML = '';
+    // Add a class to the container based on the view for potential CSS targeting
+    gridContainer.classList.remove('grid-view-age', 'grid-view-calendar', 'grid-view-months', 'grid-view-years'); // Clear previous
+    gridContainer.classList.add(`grid-view-${currentView}`); // Add current
 
     // Call the appropriate rendering function based on currentView state
     if (currentView === 'age') {
         renderAgeGrid(lastCalcData.birthDate, lastCalcData.totalLifespanYearsEst, gridContainer);
     } else if (currentView === 'calendar') {
         renderCalendarGrid(lastCalcData.birthDate, lastCalcData.totalLifespanYearsEst, gridContainer);
+    } else if (currentView === 'months') {
+        renderMonthsGrid(lastCalcData.birthDate, lastCalcData.totalLifespanYearsEst, gridContainer);
+    } else if (currentView === 'years') {
+        renderYearsGrid(lastCalcData.birthDate, lastCalcData.totalLifespanYearsEst, gridContainer);
     } else {
         console.error("Unknown view type selected:", currentView);
         gridContainer.innerHTML = '<p class="error-message">Invalid view selected.</p>';
@@ -129,6 +136,11 @@ function setupEventListeners() {
     const checkedRadio = document.querySelector('input[name="viewType"]:checked');
     if (checkedRadio) {
         currentView = checkedRadio.value;
+    } else {
+        // Fallback if somehow nothing is checked (shouldn't happen with default checked)
+        currentView = 'age';
+        const ageRadio = document.getElementById('view-age');
+        if (ageRadio) ageRadio.checked = true;
     }
     console.log("Initial view set to:", currentView);
 }

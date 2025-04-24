@@ -1,6 +1,6 @@
-# Prompt to Set Context for `life_visualized` Project
+# Prompt to Set Context for `life-visualized` Project
 
-Hello! We are working on the **`life_visualized`** project, a web application inspired by Tim Urban's "Life in Weeks". This prompt summarizes our progress and current state to provide context for continuing our work.
+Hello! We are working on the **`life-visualized`** project, a web application inspired by Tim Urban's "Life in Weeks". This prompt summarizes our progress and current state to provide context for continuing our work.
 
 **1. Project Goal & Concept:**
 *   Calculate a user's estimated lifespan based on birthdate, sex, and US CDC actuarial data.
@@ -51,4 +51,4 @@ Hello! We are working on the **`life_visualized`** project, a web application in
 *   UI explanation elements are in place and styled.
 *   A comprehensive code review was just completed. The project is ready for the next steps or feature additions.
 
-**The Ask:** Does this context successfully bring you up to speed on the `life_visualized` project, allowing us to continue from this point?
+**The Ask:** Does this context successfully bring you up to speed on the `life-visualized` project, allowing us to continue from this point?
