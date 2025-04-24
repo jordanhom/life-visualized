@@ -8,10 +8,11 @@
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
+    <!-- Main content container, centered with max-width -->
     <div class="container">
         <h1>Visualize Your Life</h1>
 
-        <!-- Input Form -->
+        <!-- Input Form Section -->
         <form id="life-input-form" class="input-form">
             <div class="form-group">
                 <label for="birthdate">Your Birth Date:</label>
@@ -31,13 +32,16 @@
             <button type="submit" class="calculate-btn" id="calculate-btn">Calculate & Visualize</button>
         </form>
 
-        <!-- Results Area -->
-        <div id="results-area" class="results-area">
-            <!-- Calculation results will appear here -->
+        <!-- Results Display Area -->
+        <!-- Content (results or errors) is dynamically updated by ui.js -->
+        <!-- aria-live="polite" ensures screen readers announce updates -->
+        <div id="results-area" class="results-area" aria-live="polite">
+            <!-- Initial placeholder text -->
             <p>Please enter your details above.</p>
         </div>
 
-        <!-- === ADD VIEW TOGGLE CONTROLS === -->
+        <!-- View Toggle Controls -->
+        <!-- Radio buttons to select the grid visualization type -->
         <fieldset class="view-toggle">
             <legend>Grid View Type:</legend>
             <div>
@@ -58,9 +62,10 @@
             </div>
         </fieldset>
         
-        <!-- Explanation Section -->
+        <!-- Explanation Section (Expandable) -->
+        <!-- Provides context about week counting and calendar view -->
         <details class="explanation-details">
-            <summary>Why do some years show 53 weeks? / Why does Calendar View start indented?</summary> <!-- Optional: Update summary text -->
+            <summary>Why do some years show 53 weeks? / Why does Calendar View start indented?</summary>
             <p>
                 A year has 365 days (52 weeks + 1 day) or 366 in a leap year (52 weeks + 2 days). That extra day or two, plus how weeks align with calendar years, explains some visual details:
             </p>
@@ -71,6 +76,7 @@
         </details>
 
         <!-- Color Key Section -->
+        <!-- Displays the mapping of colors to life stages -->
         <div class="color-key">
             <h3>Life Stage Key</h3>
             <ul>
@@ -89,22 +95,25 @@
         </div>
 
         <!-- Grid Placeholder -->
-        <div id="life-grid-container" class="life-grid-container">
-            <!-- The life grid will be generated here later -->
+        <!-- This container is populated with the grid by gridRenderer.js -->
+        <!-- aria-label provides context for screen readers -->
+        <div id="life-grid-container" class="life-grid-container" aria-label="Life grid visualization">
+            <!-- The life grid will be generated here by JavaScript -->
         </div>
 
-        <!-- Disclaimer -->
+        <!-- Disclaimer Section -->
         <p class="disclaimer">
             <strong>Disclaimer:</strong> Life expectancy figures are estimates based on statistical averages for populations (using U.S. CDC/NCHS 2021 Period Life Table data) and may vary based on location, lifestyle, genetics, and future advancements. This visualization is for illustrative purposes only and is <strong>not</strong> a prediction of your individual lifespan.
         </p>
 
-    </div>
+    </div> <!-- End .container -->
 
-    <!-- Load date-fns v4.1.0 via CDN -->
-    <!-- Note: Integrity hash was removed previously due to loading issues -->
+    <!-- External Libraries -->
+    <!-- date-fns v4.1.0 is required by gridRenderer.js and ui.js -->
     <script src="https://cdn.jsdelivr.net/npm/date-fns@4.1.0/cdn.min.js"></script>
 
-    <!-- Link to the main JavaScript file (as a module) -->
+    <!-- Main Application Script -->
+    <!-- Loaded as a module to enable import/export syntax -->
     <script type="module" src="js/main.js"></script>
 </body>
 </html>
