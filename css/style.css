@@ -1,22 +1,85 @@
+/* --- File Structure --- */
+/*
+ * 1. CSS Variables (:root) - Defines reusable values (spacing, colors, fonts).
+ * 2. Basic Styles (html, body) - Global resets and base typography/background.
+ * 3. Main Layout (.container, h1) - Core page structure and main heading.
+ * 4. UI Components - Styles for distinct interface elements:
+ *    - Form Styles (.input-form, .form-group, .calculate-btn)
+ *    - Results & Disclaimer Styles (.results-area, .disclaimer)
+ *    - View Toggle Styles (.view-toggle)
+ *    - Explanation Details Styles (.explanation-details)
+ *    - Color Key Styles (.color-key)
+ * 5. Life Grid Styles - Complex styles for the visualization grid:
+ *    - Grid Container (.life-grid-container)
+ *    - Row Styles (.year-row, etc.)
+ *    - Block Base Styles (.week-block, .month-block, .year-block)
+ *    - Life Stage Colors (.stage-*)
+ *    - Block State Styles (.past, .present, .future, .out-of-bounds)
+ *    - View-Specific Adjustments (Month/Year block sizing)
+ * 6. Responsive Media Queries (@media) - Adjustments for different screen sizes.
+ */
+
+/* --- CSS Variables --- */
+:root {
+    /* Spacing Scale: Defines consistent spacing units from smallest (xxs) to largest (xl). */
+    /* Use these variables for margins, padding, and gaps. */
+    --space-xxs: 0.25rem; /* 4px (Extra Extra Small) */
+    --space-xs:  0.5rem;  /* 8px (Extra Small) */
+    --space-sm:  0.75rem; /* 12px (Small) */
+    --space-md:  1rem;    /* 16px (Medium / Base) */
+    --space-lg:  1.5rem;  /* 24px (Large) */
+    --space-xl:  2rem;    /* 32px (Extra Large) */
+
+    /* Typography */
+    --font-size-sm: 0.875rem; /* 14px */
+    --font-size-base: 1rem;   /* 16px */
+    --font-size-md: 1.05rem;  /* 16.8px */
+    --font-size-lg: 1.8rem;   /* 28.8px */
+
+    /* Borders */
+    --border-radius-sm: 3px;
+    --border-radius-md: 5px;
+    --border-radius-lg: 10px;
+    --border-color-light: #e0e0e0; /* Light Border Gray */
+    --border-color-medium: #ced4da; /* Medium Border Gray */
+
+    /* Colors */
+    --color-text-primary: #333;      /* Dark Gray */
+    --color-text-secondary: #555;    /* Medium Gray */
+    --color-text-muted: #777;        /* Light Gray */
+    --color-background-body: #f4f7f9; /* Very Light Gray / Off-White */
+    --color-background-container: #ffffff; /* White */
+    --color-background-subtle: #f9f9f9; /* Subtle Gray / Off-White */
+    --color-primary: #4a90e2;        /* Primary Blue */
+    --color-primary-dark: #3a7ac0;    /* Darker Primary Blue (Hover) */
+    --color-error: #e74c3c;           /* Error Red */
+    --color-present-highlight: #FF4500; /* OrangeRed */
+
+    /* ADDED: Specific Colors as Variables */
+    --color-heading: #2c3e50;           /* Dark Blue-Gray */
+    --color-grid-background: #e9ecef;   /* Grid Background Gray */
+    --color-key-swatch-border: rgba(0,0,0,0.2); /* Subtle Border */
+}
+
 /* --- Basic Styles --- */
 html, body {
     min-height: 100vh;
     margin: 0;
     padding: 0;
     font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
-    background: #f4f7f9;
-    color: #333;
+    background: var(--color-background-body);
+    color: var(--color-text-primary);
     display: flex; /* Used with justify-content to center container */
     justify-content: center;
-    padding: 2rem 0; /* Vertical padding for body */
+    padding: var(--space-xl) 0; /* Vertical padding for body */
     box-sizing: border-box;
 }
 .container {
     text-align: center;
-    padding: 1.5rem 1rem;
-    border-radius: 10px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.07);
-    background: #ffffff;
+    padding: var(--space-lg) var(--space-md);
+    border-radius: var(--border-radius-lg);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.07); /* Subtle Shadow */
+    background: var(--color-background-container);
 
     /* Layout: Limit width on large screens and center horizontally */
     max-width: 1200px;
@@ -31,21 +94,20 @@ html, body {
     align-items: center;
 }
 h1 {
-    font-size: 1.8rem;
-    margin-bottom: 1.5rem;
+    font-size: var(--font-size-lg);
+    margin-bottom: var(--space-lg);
     font-weight: 600;
-    color: #2c3e50; /* Darker blue-grey */
+    color: var(--color-heading);
 }
 
 /* --- Form Styles --- */
-/* Standard form styling */
 .input-form {
     display: flex;
     flex-direction: column;
-    gap: 1rem; /* Space between form elements */
+    gap: var(--space-md); /* Space between form elements */
     width: 100%;
     max-width: 350px; /* Limit form width */
-    margin-bottom: 1.5rem;
+    margin-bottom: var(--space-lg); /* Space below form */
 }
 .form-group {
     display: flex;
@@ -55,103 +117,105 @@ h1 {
 }
 .form-group label {
     font-weight: 500;
-    margin-bottom: 0.4rem;
-    color: #555;
-    font-size: 0.95rem;
+    margin-bottom: var(--space-xxs);
+    color: var(--color-text-secondary);
+    font-size: 0.95rem; /* Keep specific */
 }
 .form-group input[type="date"],
 .form-group select {
     width: 100%;
-    padding: 0.6rem 0.8rem;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    font-size: 1rem;
+    padding: var(--space-sm) var(--space-xs);
+    border: 1px solid var(--border-color-medium);
+    border-radius: var(--border-radius-md);
+    font-size: var(--font-size-base);
     box-sizing: border-box;
-    background-color: #fff;
+    background-color: var(--color-background-container);
 }
 .form-group input[type="date"]:focus,
 .form-group select:focus {
     outline: none;
-    border-color: #4a90e2;
-    box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.2);
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.2); /* Focus Glow (Keep specific) */
 }
 .calculate-btn {
-    padding: 0.7rem 1.5rem;
-    font-size: 1.05rem;
+    padding: var(--space-sm) var(--space-lg);
+    font-size: var(--font-size-md);
     font-weight: 600;
-    color: #fff;
-    background-color: #4a90e2; /* Blue button */
+    color: var(--color-background-container);
+    background-color: var(--color-primary);
     border: none;
-    border-radius: 5px;
+    border-radius: var(--border-radius-md);
     cursor: pointer;
     transition: background-color 0.2s;
-    margin-top: 0.5rem;
+    margin-top: var(--space-xs); /* Keep small top margin for spacing within form */
 }
 .calculate-btn:hover {
-    background-color: #3a7ac0; /* Darker blue on hover */
+    background-color: var(--color-primary-dark);
 }
 
 /* --- Results & Disclaimer Styles --- */
 .results-area {
     /* Styles for the box displaying calculation results or errors */
-    margin-top: 1.5rem;
-    padding: 1rem;
-    border: 1px solid #e0e0e0; /* Slightly softer border */
-    border-radius: 5px;
-    background-color: #f9f9f9;
+    /* margin-top: var(--space-lg); REMOVED */
+    margin-bottom: var(--space-lg); /* ADDED: Space below results */
+    padding: var(--space-md);
+    border: 1px solid var(--border-color-light);
+    border-radius: var(--border-radius-md);
+    background-color: var(--color-background-subtle);
     width: 100%;
     max-width: 450px; /* Keep results area constrained */
     box-sizing: border-box;
     min-height: 50px; /* Ensure it has some height */
     text-align: left;
     line-height: 1.6;
-    font-size: 1rem;
+    font-size: var(--font-size-base);
 }
 .results-area p {
-    margin: 0.5rem 0;
+    margin: var(--space-xs) 0;
 }
 .error-message {
-    color: #e74c3c; /* Red for errors */
+    color: var(--color-error);
     font-weight: bold;
 }
 .disclaimer {
-    margin-top: 2rem;
-    font-size: 0.85rem;
-    color: #777;
+    /* margin-top: var(--space-xl); REMOVED */
+    font-size: 0.85rem; /* Keep specific */
+    color: var(--color-text-muted);
     font-style: italic;
     max-width: 500px; /* Keep disclaimer constrained */
     line-height: 1.5;
+    /* No margin needed as it's the last element */
 }
 
 /* --- View Toggle Styles --- */
-/* Styling for the radio button group to select grid view */
 .view-toggle {
-    border: 1px solid #e0e0e0;
-    border-radius: 5px;
-    padding: 0.8rem 1rem;
-    margin-top: 1.5rem;
-    margin-bottom: 0.5rem; /* Space before grid */
+    /* margin-top: var(--space-lg); REMOVED */
+    /* margin-bottom: var(--space-xs); REMOVED */
+    margin-bottom: var(--space-lg); /* ADDED: Space below toggle */
+    border: 1px solid var(--border-color-light);
+    border-radius: var(--border-radius-md);
+    padding: var(--space-xs) var(--space-md);
     display: inline-flex; /* Align items nicely */
     flex-direction: column; /* Stack legend and options */
     align-items: flex-start; /* Align left */
-    gap: 0.5rem;
-    background-color: #f9f9f9;
+    gap: var(--space-xs);
+    background-color: var(--color-background-subtle);
     max-width: 450px; /* Constrain width */
 }
 .view-toggle legend {
     font-weight: 600;
-    padding: 0 0.3rem; /* Give legend some space */
-    font-size: 0.95rem;
-    color: #333;
+    padding: 0 var(--space-xxs);
+    font-size: 0.95rem; /* Keep specific */
+    color: var(--color-text-primary);
 }
 .view-toggle div { /* Each radio button + label pair */
     display: flex;
     align-items: center;
-    gap: 0.4rem;
+    gap: var(--space-xxs);
 }
 .view-toggle label {
     cursor: pointer;
-    font-size: 0.9rem;
+    font-size: 0.9rem; /* Keep specific */
 }
 .view-toggle input[type="radio"] {
     cursor: pointer;
@@ -159,19 +223,19 @@ h1 {
 }
 
 /* --- Explanation Details Styles --- */
-/* Styling for the expandable <details> element */
 .explanation-details {
     /* Sizing and Spacing */
-    margin-top: 1.5rem; /* Consistent vertical spacing */
-    margin-bottom: 1rem;
+    /* margin-top: var(--space-lg); REMOVED */
+    /* margin-bottom: var(--space-md); REMOVED */
+    margin-bottom: var(--space-lg); /* ADDED: Space below details */
     max-width: 450px; /* Match disclaimer or adjust as needed */
     width: 90%; /* Allow shrinking on smaller viewports */
     box-sizing: border-box;
 
     /* Appearance */
-    border: 1px solid #e0e0e0; /* Match results/toggle border */
-    border-radius: 5px;     /* Match results/toggle radius */
-    background-color: #f9f9f9; /* Match results/toggle background */
+    border: 1px solid var(--border-color-light);
+    border-radius: var(--border-radius-md);
+    background-color: var(--color-background-subtle);
     text-align: left;
     transition: background-color 0.2s ease-in-out; /* Subtle transition */
 }
@@ -180,11 +244,12 @@ h1 {
 .explanation-details summary {
     cursor: pointer;
     font-weight: 600;
-    color: #333;
-    padding: 0.8rem 1rem; /* Increased left padding to accommodate the custom marker */
-    position: relative; /* Needed for potential pseudo-elements */
+    color: var(--color-text-primary);
+    /* Padding adjusted: top/bottom=xs, right=md, left=xl for marker */
+    padding: var(--space-xs) var(--space-md) var(--space-xs) var(--space-xl);
+    position: relative; /* Needed for pseudo-element marker */
     outline: none; /* Remove focus outline */
-    list-style: none; /* Hide default marker */
+    list-style: none; /* Hide default browser marker */
 }
 /* Hide default marker for WebKit browsers */
 .explanation-details summary::-webkit-details-marker {
@@ -192,15 +257,15 @@ h1 {
 }
 /* Custom Marker (+/-) using ::before pseudo-element */
 .explanation-details summary::before {
-    content: '+'; /* Default marker */
+    content: '+'; /* Default marker (closed state) */
     position: absolute;
-    left: 0.5rem;
+    left: var(--space-xs);
     top: 50%;
     transform: translateY(-50%);
     font-weight: bold;
-    margin-right: 0.5rem;
+    margin-right: var(--space-xs);
     display: inline-block;
-    width: 1em;
+    width: 1em; /* Ensure consistent spacing */
     text-align: center;
 }
 
@@ -209,55 +274,105 @@ h1 {
     content: '−'; /* Use the minus sign when open */
 }
 
-/* Add padding to the summary text itself to make space for the ::before pseudo-element */
-.explanation-details summary {
-    cursor: pointer;
-    font-weight: 600;
-    color: #333;
-    /* Increase left padding to accommodate the marker */
-    padding: 0.8rem 1rem 0.8rem 2rem; /* Example: Increased left padding */
-    position: relative;
-    outline: none;
-    list-style: none;
-}
-/* Hide default marker for WebKit browsers */
-.explanation-details summary::-webkit-details-marker {
-    display: none;
-}
-
 /* Add visual separation and spacing when open */
 .explanation-details[open] summary {
-    border-bottom: 1px solid #e0e0e0;
-    margin-bottom: 0.5rem;
+    border-bottom: 1px solid var(--border-color-light);
+    margin-bottom: var(--space-xs); /* Space between summary and content */
 }
 
 /* Style the content elements (p, ul) inside */
 .explanation-details > *:not(summary) {
-    padding: 0 1rem 0.8rem 1rem; /* Padding for content area */
-    font-size: 0.875rem; /* Slightly smaller than main text */
+    /* Padding for content area */
+    padding: 0 var(--space-md) var(--space-xs) var(--space-md);
+    font-size: var(--font-size-sm);
     line-height: 1.6;
-    color: #555;
+    color: var(--color-text-secondary);
 }
 
 .explanation-details ul {
-    padding-left: 1.5rem; /* Indent list */
-    margin-top: 0.5rem;
+    padding-left: var(--space-lg); /* Indent list */
+    margin-top: var(--space-xs);
     margin-bottom: 0; /* Remove default bottom margin */
 }
 
 .explanation-details li {
-    margin-bottom: 0.4rem;
+    margin-bottom: var(--space-xxs); /* Space between list items */
 }
 
+/* Remove bottom margin from the very last content element inside details */
 .explanation-details p:last-child,
 .explanation-details ul:last-child {
-     margin-bottom: 0; /* Remove bottom margin from last content element */
+     margin-bottom: 0;
 }
+
+/* --- Color Key Styles --- */
+.color-key {
+    /* margin-top: var(--space-lg); REMOVED */
+    margin-bottom: var(--space-lg); /* ADDED: Space below color key */
+    padding: var(--space-xs) var(--space-md);
+    border: 1px solid var(--border-color-light);
+    border-radius: var(--border-radius-md);
+    background-color: var(--color-background-subtle);
+    max-width: 450px; /* Match explanation/results width */
+    width: 90%;
+    box-sizing: border-box;
+    text-align: left;
+}
+
+.color-key h3 {
+    font-size: 0.95rem; /* Keep specific */
+    font-weight: 600;
+    margin-top: 0;
+    margin-bottom: var(--space-sm);
+    color: var(--color-text-primary);
+}
+
+.color-key ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex; /* Allow wrapping */
+    flex-wrap: wrap;
+    gap: var(--space-xs) var(--space-md); /* Vertical and horizontal gap */
+}
+
+.color-key li {
+    display: flex;
+    align-items: center;
+    font-size: var(--font-size-sm);
+    color: var(--color-text-secondary);
+}
+
+.key-color {
+    display: inline-block;
+    width: 14px; /* Size of the color swatch (Keep specific) */
+    height: 14px; /* Size of the color swatch (Keep specific) */
+    margin-right: var(--space-xs);
+    border: 1px solid var(--color-key-swatch-border);
+    border-radius: 2px; /* Keep specific */
+    flex-shrink: 0; /* Prevent shrinking */
+}
+
+/* Add background colors matching the JS constants */
+/* Colors are kept specific here */
+.key-color.stage-infancy { background-color: #FFB6C1; }
+.key-color.stage-toddler { background-color: #FFA07A; }
+.key-color.stage-earlychildhood { background-color: #FFDA63; }
+.key-color.stage-middlechildhood { background-color: #9ACD32; }
+.key-color.stage-adolescence { background-color: #48D1CC; }
+.key-color.stage-youngadult { background-color: #6495ED; }
+.key-color.stage-adulthood { background-color: #9370DB; }
+.key-color.stage-middleadulthood { background-color: #DA70D6; }
+.key-color.stage-earlysenior { background-color: #C0C0C0; }
+.key-color.stage-midsenior { background-color: #B0C4DE; }
+.key-color.stage-latesenior { background-color: #D8BFD8; }
+
 
 /* --- Life Grid Styles --- */
 /* Default (Desktop / Widest): Based on 10px week blocks */
 .life-grid-container {
-    margin-top: 2rem;
+    /* margin-top: var(--space-xl); REMOVED */
+    margin-bottom: var(--space-lg); /* ADDED: Space below grid */
     width: 100%; /* Takes width from parent .container */
 
     /* KEY LAYOUT: Fixed max-width based on the default (Week) view */
@@ -266,35 +381,36 @@ h1 {
     box-sizing: border-box;
     display: flex;
     flex-direction: column; /* Stack year rows vertically */
-    gap: 3px; /* Vertical gap between year rows */
+    gap: 3px; /* Vertical gap between year rows (Keep specific) */
     overflow-x: auto; /* Allow horizontal scrolling if content exceeds max-width (eg. smaller screens) */
-    padding: 10px;
-    background-color: #e9ecef;
-    border: 1px solid #ced4da;
-    border-radius: 5px;
+    padding: 10px; /* Grid container padding (Keep specific) */
+    background-color: var(--color-grid-background);
+    border: 1px solid var(--border-color-medium);
+    border-radius: var(--border-radius-md);
     -webkit-overflow-scrolling: touch; /* Improve scrolling on touch devices */
 }
 
 /* Base style for all rows (weeks, months, years) */
-.year-row {
+.year-row { /* Also used for month-row, decade-row */
     display: flex;
     flex-wrap: nowrap; /* Ensure blocks stay in a single horizontal line */
-    gap: 2px; /* Default horizontal gap (used by week view) */
+    gap: 2px; /* Default horizontal gap (used by week view) (Keep specific) */
 }
 
 /* Base style for week blocks */
 .week-block {
-    width: 10px;
-    height: 10px;
+    width: 10px; /* Default block size (Keep specific) */
+    height: 10px; /* Default block size (Keep specific) */
     flex-shrink: 0; /* Prevent blocks from shrinking */
-    border-radius: 1px;
+    border-radius: 1px; /* Slight rounding (Keep specific) */
     transition: background-color 0.2s ease-in-out, border-color 0.2s ease-in-out, opacity 0.2s ease-in-out;
     box-sizing: border-box;
-    border: 1px solid transparent;
+    border: 1px solid transparent; /* Base border */
 }
 
 /* --- Life Stage Color Styles --- */
 /* Applies background colors based on .stage-* classes */
+/* Colors are kept specific here, matching JS constants */
 .week-block.stage-infancy, .month-block.stage-infancy, .year-block.stage-infancy { background-color: #FFB6C1; } /* LightPink */
 .week-block.stage-toddler, .month-block.stage-toddler, .year-block.stage-toddler { background-color: #FFA07A; } /* LightSalmon */
 .week-block.stage-earlychildhood, .month-block.stage-earlychildhood, .year-block.stage-earlychildhood { background-color: #FFDA63; } /* Medium Gold */
@@ -312,23 +428,24 @@ h1 {
 /* Applied to all block types (.week-block, .month-block, .year-block) */
 .week-block.past, .month-block.past, .year-block.past {
     /* Inherits stage background-color */
-    border-color: rgba(0, 0, 0, 0.3);
+    border-color: rgba(0, 0, 0, 0.3); /* Transparent Dark Gray Border (Keep specific) */
     opacity: 0.7; /* Fade past blocks */
 }
 
 .week-block.present, .month-block.present, .year-block.present {
-    background-color: #FF4500; /* Override background: OrangeRed - stands out */
-    border-color: rgba(0, 0, 0, 0.7);
-    box-shadow: 0 0 0 1px #ffffff, inset 0 0 0 1px rgba(0,0,0,0.4); /* Highlight effect */
+    background-color: var(--color-present-highlight);
+    border-color: rgba(0, 0, 0, 0.7); /* Darker Transparent Gray Border (Keep specific) */
+    /* White outline + Inner Shadow effect */
+    box-shadow: 0 0 0 1px var(--color-background-container), inset 0 0 0 1px rgba(0,0,0,0.4);
     z-index: 1; /* Ensure it's above others if overlapping slightly */
-    position: relative;
-    opacity: 1;
+    position: relative; /* Needed for z-index */
+    opacity: 1; /* Ensure present block is fully opaque */
 }
 
 .week-block.future, .month-block.future, .year-block.future {
     /* Override stage color for a neutral future look */
-    background-color: #ffffff;
-    border-color: #ced4da;
+    background-color: var(--color-background-container); /* White */
+    border-color: var(--border-color-medium); /* Medium Border Gray */
     opacity: 1;
 }
 
@@ -336,8 +453,8 @@ h1 {
 .week-block.out-of-bounds {
     /* Overrides all other styles to indicate weeks outside the lifespan */
     /* !important is used here deliberately to ensure this style wins */
-    background-color: #e9ecef !important;
-    border-color: #e9ecef !important;
+    background-color: var(--color-grid-background) !important;
+    border-color: var(--color-grid-background) !important;
     opacity: 0.3 !important;
     box-shadow: none !important;
 }
@@ -346,29 +463,29 @@ h1 {
 .month-block {
     /* Base styles shared with other blocks */
     flex-shrink: 0;
-    border-radius: 2px;
+    border-radius: 2px; /* Keep specific */
     transition: background-color 0.2s ease-in-out, border-color 0.2s ease-in-out, opacity 0.2s ease-in-out;
     box-sizing: border-box;
     border: 1px solid transparent;
-    /* Dynamic width/height set below */
+    /* Dynamic width/height set via view-specific rules */
 }
 
 /* === Year Block Styles === */
 .year-block {
     /* Base styles shared with other blocks */
     flex-shrink: 0;
-    border-radius: 3px;
+    border-radius: var(--border-radius-sm);
     transition: background-color 0.2s ease-in-out, border-color 0.2s ease-in-out, opacity 0.2s ease-in-out;
     box-sizing: border-box;
     border: 1px solid transparent;
-    /* Dynamic width/height set below */
+    /* Dynamic width/height set via view-specific rules */
 }
 
 /* === View-Specific Layout Adjustments (Month & Year Views) === */
 
 /* --- Month View --- */
 .life-grid-container.grid-view-months .month-row {
-     gap: 2px; /* Horizontal gap between month blocks */
+     gap: 2px; /* Horizontal gap between month blocks (Keep specific) */
 }
 /* KEY TECHNIQUE: Calculate month block size to fill container width */
 .life-grid-container.grid-view-months .month-block {
@@ -381,7 +498,7 @@ h1 {
 
 /* --- Year View --- */
 .life-grid-container.grid-view-years .decade-row {
-     gap: 3px; /* Horizontal gap between year blocks */
+     gap: 3px; /* Horizontal gap between year blocks (Keep specific) */
 }
 /* KEY TECHNIQUE: Calculate year block size to fill container width */
 .life-grid-container.grid-view-years .year-block {
@@ -390,137 +507,81 @@ h1 {
     width: calc((100% - 27px) / 10);
     /* Force block to be square by setting aspect ratio */
     aspect-ratio: 1 / 1;
-
 }
-
-/* --- Color Key Styles --- */
-.color-key {
-    margin-top: 1.5rem;
-    padding: 0.8rem 1rem;
-    border: 1px solid #e0e0e0;
-    border-radius: 5px;
-    background-color: #f9f9f9;
-    max-width: 450px; /* Match explanation/results width */
-    width: 90%;
-    box-sizing: border-box;
-    text-align: left;
-}
-
-.color-key h3 {
-    font-size: 0.95rem;
-    font-weight: 600;
-    margin-top: 0;
-    margin-bottom: 0.75rem;
-    color: #333;
-}
-
-.color-key ul {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    display: flex; /* Allow wrapping */
-    flex-wrap: wrap;
-    gap: 0.5rem 1rem; /* Row and column gap */
-}
-
-.color-key li {
-    display: flex;
-    align-items: center;
-    font-size: 0.875rem;
-    color: #555;
-}
-
-.key-color {
-    display: inline-block;
-    width: 14px; /* Size of the color swatch */
-    height: 14px;
-    margin-right: 0.5rem;
-    border: 1px solid rgba(0,0,0,0.2); /* Slight border on swatch */
-    border-radius: 2px;
-    flex-shrink: 0; /* Prevent shrinking */
-}
-
-/* Add background colors matching the JS constants */
-.key-color.stage-infancy { background-color: #FFB6C1; }
-.key-color.stage-toddler { background-color: #FFA07A; }
-.key-color.stage-earlychildhood { background-color: #FFDA63; }
-.key-color.stage-middlechildhood { background-color: #9ACD32; }
-.key-color.stage-adolescence { background-color: #48D1CC; }
-.key-color.stage-youngadult { background-color: #6495ED; }
-.key-color.stage-adulthood { background-color: #9370DB; }
-.key-color.stage-middleadulthood { background-color: #DA70D6; }
-.key-color.stage-earlysenior { background-color: #C0C0C0; }
-.key-color.stage-midsenior { background-color: #B0C4DE; }
-.key-color.stage-latesenior { background-color: #D8BFD8; }
 
 /* --- Responsive Media Queries --- */
 /* Tiered approach: Adjust grid container AND block sizes/gaps at breakpoints */
 
 /* Tier 2: Medium Screens (~Tablet) - Target width < 656px */
 @media (max-width: 655px) {
-    /* Only apply week adjustments if NOT in month view */
+    /* Adjust grid container for medium screens */
     .life-grid-container {
         /* Precise max-width for 53 * (8px block + 1px gap) + 2 * 5px padding */
         max-width: 487px;
-        padding: 5px;
-        gap: 2px; /* Vertical gap */
+        padding: 5px; /* Keep specific */
+        gap: 2px; /* Vertical gap (Keep specific) */
     }
-    /* Adjust week row gap and block size */
+    /* Adjust week row gap and block size for Week view */
     .life-grid-container .year-row {
-        gap: 1px; /* Gap between blocks */
+        gap: 1px; /* Gap between blocks (Keep specific) */
     }
     .life-grid-container .week-block {
-        width: 8px; /* Block size */
-        height: 8px;
+        width: 8px; /* Block size (Keep specific) */
+        height: 8px; /* Block size (Keep specific) */
     }
     /* Adjust overall page padding */
     .container {
-        padding: 1.5rem 0.5rem;
+        padding: var(--space-lg) var(--space-xs);
     }
 }
 
 /* Tier 3: Smaller Screens (~Phone) - Target width < 487px */
 @media (max-width: 486px) {
-    /* Adjust container size for ALL views based on 6px week blocks */
+    /* Adjust grid container for smaller screens */
     .life-grid-container {
         /* Calculation: 53 * (6px block + 1px gap) + 2 * 4px padding = 379px */
         max-width: 379px;
-        padding: 4px;
-        gap: 1.5px; /* Vertical gap */
+        padding: 4px; /* Keep specific */
+        gap: 1.5px; /* Vertical gap (Keep specific) */
     }
-    /* Adjust week row gap and block size */
+    /* Adjust week row gap and block size for Week view */
     .life-grid-container .year-row {
-        gap: 1px; /* Gap between blocks */
+        gap: 1px; /* Gap between blocks (Keep specific) */
     }
     .life-grid-container .week-block {
-        width: 6px; /* Block size */
-        height: 6px;
+        width: 6px; /* Block size (Keep specific) */
+        height: 6px; /* Block size (Keep specific) */
+    }
+
+    /* Make button full-width on small screens */
+    .calculate-btn {
+        width: 100%;
     }
 }
 
 /* Tier 4: Smallest Screens - Target width < 379px */
 @media (max-width: 378px) {
-    /* Adjust container size for ALL views based on 5px week blocks */
+    /* Adjust grid container for smallest screens */
     .life-grid-container {
         /* Calculation: 53 * (5px block + 1px gap) + 2 * 3px padding = 324px */
         max-width: 324px;
-        padding: 3px;
-        gap: 1px; /* Vertical gap */
+        padding: 3px; /* Keep specific */
+        gap: 1px; /* Vertical gap (Keep specific) */
     }
-    /* Adjust week row gap and block size */
+    /* Adjust week row gap and block size for Week view */
     .life-grid-container .year-row {
-        gap: 1px; /* Gap between blocks */
+        gap: 1px; /* Gap between blocks (Keep specific) */
     }
     .life-grid-container .week-block {
-        width: 5px; /* Block size */
-        height: 5px;
+        width: 5px; /* Block size (Keep specific) */
+        height: 5px; /* Block size (Keep specific) */
     }
      /* Adjust container padding and font sizes for very small screens */
      .container {
-        padding: 1rem 0.25rem;
+        padding: var(--space-md) var(--space-xxs);
     }
-     h1 { font-size: 1.6rem; }
-     .calculate-btn { font-size: 1rem; }
+     h1 { font-size: 1.6rem; /* Keep specific */ }
+     .calculate-btn { font-size: var(--font-size-base); }
 }
 
 /* Below ~324px, overflow-x: auto on .life-grid-container handles scrolling */
@@ -532,7 +593,7 @@ h1 {
 /* Month View Responsiveness */
 @media (max-width: 400px) {
     .life-grid-container.grid-view-months .month-row {
-        gap: 1px; /* Reduce gap */
+        gap: 1px; /* Reduce gap (Keep specific) */
     }
     .life-grid-container.grid-view-months .month-block {
         /* Recalculate width based on new gap: 11 gaps * 1px = 11px */
@@ -547,7 +608,7 @@ h1 {
 /* Year View Responsiveness */
 @media (max-width: 300px) { /* Adjust breakpoint as needed */
     .life-grid-container.grid-view-years .decade-row {
-        gap: 2px; /* Reduce gap */
+        gap: 2px; /* Reduce gap (Keep specific) */
     }
     .life-grid-container.grid-view-years .year-block {
         /* Recalculate width: 9 gaps * 2px = 18px */
@@ -557,7 +618,7 @@ h1 {
 
 @media (max-width: 250px) {
     .life-grid-container.grid-view-years .decade-row {
-        gap: 1px; /* Further reduce gap */
+        gap: 1px; /* Further reduce gap (Keep specific) */
     }
     .life-grid-container.grid-view-years .year-block {
         /* Recalculate width: 9 gaps * 1px = 9px */
@@ -566,3 +627,4 @@ h1 {
 }
 
 /* Below smallest years grid width (~137px), overflow-x will handle scrolling */
+
