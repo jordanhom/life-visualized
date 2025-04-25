@@ -34,13 +34,29 @@
             <button type="submit" class="calculate-btn" id="calculate-btn">Calculate & Visualize</button>
         </form>
 
+        <!-- Results Heading -->
+        <!-- Initially hidden. Revealed by JS with results/errors. -->
+        <h2 id="results-heading" class="section-heading hidden">Results</h2>
+
         <!-- Results Display Area -->
         <!-- Initially hidden. Revealed by JS to show calculation results or errors. -->
         <!-- aria-live="polite" ensures screen readers announce updates -->
         <div id="results-area" class="results-area hidden" aria-live="polite">
             <!-- Content (results or errors) is dynamically updated by ui.js -->
-            <!-- Initial placeholder text (usually not seen due to JS update) -->
-            <p>Please enter your details above.</p>
+        </div>
+
+        <!-- Visualization Heading -->
+        <!-- MOVED HERE - Before Grid -->
+        <!-- Initially hidden. Revealed by JS with the grid after successful calculation. -->
+        <h2 id="visualization-heading" class="section-heading hidden">Visualization</h2>
+
+        <!-- Grid Placeholder -->
+        <!-- MOVED HERE - After Results/Visualization Heading for prominence -->
+        <!-- Initially hidden. Revealed by JS after successful calculation. -->
+        <!-- This container is populated with the grid by gridRenderer.js -->
+        <!-- aria-label provides context for screen readers -->
+        <div id="life-grid-container" class="life-grid-container hidden" aria-label="Life grid visualization">
+            <!-- The life grid will be generated here by JavaScript -->
         </div>
 
         <!-- View Toggle Controls -->
@@ -102,15 +118,6 @@
                 </ul>
             </div>
         </details>
-
-
-        <!-- Grid Placeholder -->
-        <!-- Initially hidden. Revealed by JS after successful calculation. -->
-        <!-- This container is populated with the grid by gridRenderer.js -->
-        <!-- aria-label provides context for screen readers -->
-        <div id="life-grid-container" class="life-grid-container hidden" aria-label="Life grid visualization">
-            <!-- The life grid will be generated here by JavaScript -->
-        </div>
 
         <!-- Disclaimer Section -->
         <!-- Always visible. -->

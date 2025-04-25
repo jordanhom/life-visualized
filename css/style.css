@@ -6,6 +6,7 @@
  * 4. Utility Classes (.hidden) - General utility styles.
  * 5. UI Components - Styles for distinct interface elements:
  *    - Form Styles (.input-form, .form-group, .calculate-btn)
+ *    - Section Headings (.section-heading) // NEW
  *    - Results & Disclaimer Styles (.results-area, .disclaimer)
  *    - View Toggle Styles (.view-toggle)
  *    - Explanation Details Styles (.explanation-details)
@@ -36,6 +37,7 @@
     --font-size-base: 1rem;   /* 16px */
     --font-size-md: 1.05rem;  /* 16.8px */
     --font-size-lg: 1.8rem;   /* 28.8px */
+    --font-size-xl: 1.25rem;  /* 20px (For section headings) */
 
     /* Borders */
     --border-radius-sm: 3px;
@@ -160,6 +162,23 @@ h1 {
     background-color: var(--color-primary-dark);
 }
 
+/* --- Section Headings --- */ /* NEW SECTION */
+/* Styles for H2 headings used for Results and Visualization */
+/* Initially hidden via .hidden class */
+.section-heading {
+    font-size: var(--font-size-xl); /* Slightly larger than base text */
+    font-weight: 600; /* Match h1 and legend weight */
+    color: var(--color-heading); /* Match h1 color */
+    margin-top: 0; /* Remove default top margin */
+    margin-bottom: var(--space-xs); /* Space below heading, before content */
+    /* Ensure it respects the centering of the main container */
+    width: 100%;
+    max-width: 656px; /* Match grid container max-width */
+    text-align: left; /* Align heading text left */
+    box-sizing: border-box; /* Include padding if added later */
+}
+
+
 /* --- Results & Disclaimer Styles --- */
 .results-area {
     /* Styles for the box displaying calculation results or errors */
@@ -169,13 +188,15 @@ h1 {
     border: 1px solid var(--border-color-light);
     border-radius: var(--border-radius-md);
     background-color: var(--color-background-subtle);
-    width: 100%;
-    max-width: 450px; /* Keep results area constrained */
     box-sizing: border-box;
-    min-height: 50px; /* Ensure it has some height */
+    min-height: 50px;
     text-align: left;
     line-height: 1.6;
     font-size: var(--font-size-base);
+
+    /* Constrain width to match grid */
+    max-width: 656px; /* Match grid container max-width */
+    width: 100%; /* Allow shrinking below max-width */
 }
 .results-area p {
     margin: var(--space-xs) 0;
@@ -203,12 +224,16 @@ h1 {
     border: 1px solid var(--border-color-light);
     border-radius: var(--border-radius-md);
     padding: var(--space-xs) var(--space-md);
-    display: inline-flex; /* Align items nicely */
-    flex-direction: column; /* Stack legend and options */
-    align-items: flex-start; /* Align left */
+    display: inline-flex; /* Use inline-flex if we want it to shrink-wrap horizontally */
+    flex-direction: column;
+    align-items: flex-start;
     gap: var(--space-xs);
     background-color: var(--color-background-subtle);
-    max-width: 450px; /* Constrain width */
+    box-sizing: border-box;
+
+    /* Constrain width to match grid */
+    max-width: 656px; /* Match grid container max-width */
+    width: 100%; /* Allow shrinking below max-width */
 }
 .view-toggle legend {
     font-weight: 600;
@@ -236,8 +261,8 @@ h1 {
 .explanation-details {
     /* Sizing and Spacing */
     margin-bottom: var(--space-lg); /* Space below details */
-    max-width: 450px; /* Match disclaimer or adjust as needed */
-    width: 90%; /* Allow shrinking on smaller viewports */
+    max-width: 656px; /* Match grid container max-width */
+    width: 100%;
     box-sizing: border-box;
 
     /* Appearance */
@@ -320,8 +345,8 @@ h1 {
 .color-key-details {
     /* Sizing and Spacing */
     margin-bottom: var(--space-lg); /* Space below color key */
-    max-width: 450px; /* Match explanation/results width */
-    width: 90%;
+    max-width: 656px; /* Match grid container max-width */
+    width: 100%;
     box-sizing: border-box;
 
     /* Appearance */
@@ -587,6 +612,17 @@ h1 {
     .container {
         padding: var(--space-lg) var(--space-xs);
     }
+    /* Adjust section heading width */
+    .section-heading {
+        max-width: 487px; /* Match grid */
+    }
+    /* Adjust results/toggle/details width */
+    .results-area,
+    .view-toggle,
+    .explanation-details,
+    .color-key-details {
+        max-width: 487px; /* Match grid */
+    }
 }
 
 /* Tier 3: Smaller Screens (~Phone) - Target width < 487px */
@@ -610,6 +646,17 @@ h1 {
     /* Make button full-width on small screens */
     .calculate-btn {
         width: 100%;
+    }
+    /* Adjust section heading width */
+    .section-heading {
+        max-width: 379px; /* Match grid */
+    }
+    /* Adjust results/toggle/details width */
+    .results-area,
+    .view-toggle,
+    .explanation-details,
+    .color-key-details {
+        max-width: 379px; /* Match grid */
     }
 }
 
@@ -636,6 +683,18 @@ h1 {
     }
      h1 { font-size: 1.6rem; /* Keep specific */ }
      .calculate-btn { font-size: var(--font-size-base); }
+     /* Adjust section heading width */
+     .section-heading {
+        max-width: 324px; /* Match grid */
+        font-size: var(--font-size-md); /* Reduce heading size */
+     }
+     /* Adjust results/toggle/details width */
+     .results-area,
+     .view-toggle,
+     .explanation-details,
+     .color-key-details {
+        max-width: 324px; /* Match grid */
+     }
 }
 
 /* Below ~324px, overflow-x: auto on .life-grid-container handles scrolling */

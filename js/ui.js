@@ -20,12 +20,14 @@ const form = document.getElementById('life-input-form');
 const birthdateInput = document.getElementById('birthdate');
 const sexInput = document.getElementById('sex');
 const resultsArea = document.getElementById('results-area');
-const viewToggleRadios = document.querySelectorAll('input[name="viewType"]');
 // References for Progressive Reveal
-const viewToggle = document.querySelector('.view-toggle'); // The fieldset containing view radio buttons
-const explanationDetails = document.getElementById('explanation'); // The collapsible explanation section
-const colorKeyDetails = document.getElementById('color-key-details'); // The collapsible color key section
-const gridContainer = document.getElementById('life-grid-container'); // Container for the visualization grid
+const resultsHeading = document.getElementById('results-heading'); // <<< ADDED Heading Ref
+const viewToggle = document.querySelector('.view-toggle');
+const explanationDetails = document.getElementById('explanation');
+const colorKeyDetails = document.getElementById('color-key-details');
+const visualizationHeading = document.getElementById('visualization-heading'); // <<< ADDED Heading Ref
+const gridContainer = document.getElementById('life-grid-container');
+const viewToggleRadios = document.querySelectorAll('input[name="viewType"]');
 
 // --- State Variables ---
 // Tracks the currently selected grid view type
@@ -86,16 +88,17 @@ function handleCalculation(event) {
 
     // --- Progressive Reveal Logic: Reset UI before new calculation ---
     // Hide elements that should only show after successful calculation.
-    // This ensures a clean state if the user recalculates or encounters an error.
+    resultsHeading.classList.add('hidden'); // <<< HIDE Heading
+    resultsArea.classList.add('hidden');
     viewToggle.classList.add('hidden');
     explanationDetails.classList.add('hidden');
     colorKeyDetails.classList.add('hidden');
+    visualizationHeading.classList.add('hidden'); // <<< HIDE Heading
     gridContainer.classList.add('hidden');
     // Clear previous results/errors visually and ensure results area is ready.
     resultsArea.innerHTML = '';
     resultsArea.classList.remove('error-message');
-    // Always show the results area container, as it will display either results or an error message.
-    resultsArea.classList.remove('hidden'); // <<< SHOW RESULTS AREA
+    // No need to explicitly show resultsArea container yet, handled below
 
     // Clear previous calculation data before starting new calculation
     lastCalcData.birthDate = null;
@@ -103,10 +106,11 @@ function handleCalculation(event) {
 
     // --- Input Validation ---
     if (!birthdateStr || !sex) {
-        // Use displayError helper for consistency
         displayError('Please fill in both your birth date and sex.');
+        resultsHeading.classList.remove('hidden'); // <<< SHOW Results Heading for error
+        resultsArea.classList.remove('hidden'); // <<< SHOW Results Area for error
         renderCurrentView(); // Clear grid if validation fails
-        return; // Exit, leaving only results area visible
+        return; // Exit, leaving only results heading/area visible
      }
 
     // Create Date object from input string
@@ -121,56 +125,54 @@ function handleCalculation(event) {
     birthDateUTC.setMinutes(birthDateUTC.getMinutes() + birthDateUTC.getTimezoneOffset());
 
     const now = new Date();
-    // Use local 'now' for comparison, as user enters date relative to their local time.
+    // Use local 'now' for comparison...
     const nowLocalMidnight = new Date(now.getFullYear(), now.getMonth(), now.getDate());
 
     // Check validity *after* potential normalization and ensure date is in the past.
     if (isNaN(birthDateUTC.getTime()) || birthDateUTC >= nowLocalMidnight) {
-        // Use displayError helper for consistency
         displayError('Please enter a valid birth date in the past (YYYY-MM-DD).');
+        resultsHeading.classList.remove('hidden'); // <<< SHOW Results Heading for error
+        resultsArea.classList.remove('hidden'); // <<< SHOW Results Area for error
         renderCurrentView(); // Clear grid if validation fails
-        return; // Exit, leaving only results area visible
+        return; // Exit, leaving only results heading/area visible
     }
 
     // --- Perform Calculations (Wrapped in try/catch) ---
     try {
-        // calculateCurrentAge works correctly with the UTC date object representing the birth day.
+        // ... (calculations) ...
         const currentAge = calculateCurrentAge(birthDateUTC);
         const remainingYears = getRemainingExpectancy(currentAge, sex);
 
-        // Handle cases where data might be missing for the given age/sex
         if (remainingYears === null) {
-            // Use throw new Error to jump to catch block for consistent error handling
             throw new Error(`Could not retrieve life expectancy data for the selected sex or age (${currentAge}). Please check the input.`);
         }
-        // Calculate total lifespan, rounding for display might be slightly different than internal use
         const totalEstimatedLifespan = parseFloat((currentAge + remainingYears).toFixed(1));
 
         // --- Store Calculation Results ---
-        // Store the UTC-normalized Date object and the calculated lifespan
         lastCalcData.birthDate = birthDateUTC;
         lastCalcData.totalLifespanYearsEst = totalEstimatedLifespan;
 
         // --- Display Results ---
-        // Use helper function to populate the results area
-        displayResults(currentAge, remainingYears, totalEstimatedLifespan);
+        displayResults(currentAge, remainingYears, totalEstimatedLifespan); // Updates resultsArea CONTENT
 
         // --- Render the Grid ---
-        // Use the currently selected view setting (or default 'age')
         renderCurrentView();
 
         // --- Progressive Reveal Logic: Show elements on success ---
-        // Only reveal these sections if calculation and rendering were successful
-        viewToggle.classList.remove('hidden');       // <<< SHOW VIEW TOGGLE
-        explanationDetails.classList.remove('hidden'); // <<< SHOW EXPLANATION
-        colorKeyDetails.classList.remove('hidden'); // <<< SHOW COLOR KEY
-        gridContainer.classList.remove('hidden');  // <<< SHOW GRID CONTAINER
+        resultsHeading.classList.remove('hidden'); // <<< SHOW Results Heading
+        resultsArea.classList.remove('hidden'); // <<< SHOW Results Area
+        viewToggle.classList.remove('hidden');
+        explanationDetails.classList.remove('hidden');
+        colorKeyDetails.classList.remove('hidden');
+        visualizationHeading.classList.remove('hidden'); // <<< SHOW Visualization Heading
+        gridContainer.classList.remove('hidden');
 
     } catch (error) {
         // --- Handle Errors from Calculation or Rendering ---
         console.error("Calculation or Display Error:", error);
-        // Use displayError helper for consistency
-        displayError(error.message || 'An unexpected error occurred.');
+        displayError(error.message || 'An unexpected error occurred.'); // Updates resultsArea CONTENT
+        resultsHeading.classList.remove('hidden'); // <<< SHOW Results Heading for error
+        resultsArea.classList.remove('hidden'); // <<< SHOW Results Area for error
         renderCurrentView(); // Clear grid on error
         // Other elements remain hidden (handled by reset at start)
     }
@@ -193,14 +195,13 @@ function displayResults(currentAge, remainingYears, totalEstimatedLifespan) {
 }
 
 /**
- * Displays an error message in the results area. // ADDED helper function
+ * Displays an error message in the results area.
  * @param {string} message - The error message to display.
  */
 function displayError(message) {
     resultsArea.innerHTML = `<p>${message}</p>`;
     resultsArea.classList.add('error-message');
-    // No need to explicitly hide other elements here, as they were hidden
-    // at the start of handleCalculation.
+    // Visibility of resultsArea/resultsHeading is handled in handleCalculation
 }
 
 

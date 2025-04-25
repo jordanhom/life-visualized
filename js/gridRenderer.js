@@ -14,9 +14,10 @@
 
 
 // --- Constants ---
-const UTC_TIMEZONE = 'UTC';
+const UTC_TIMEZONE = 'UTC'; // Define UTC timezone string for clarity
 
 // Life Stage Definitions (Used for styling blocks)
+// Defines the age boundaries and corresponding CSS class keys/colors for different life stages.
 const LIFE_STAGES = [
     // Colors chosen for more visibility, sequence roughly follows spectrum
     { key: 'infancy', name: 'Infancy', maxAge: 0, color: '#FFB6C1' }, // LightPink (Birth-1)
@@ -62,7 +63,6 @@ function checkDateFns() {
 // --- Helper: Calculate age at a specific date ---
 // Needed for determining life stage in calendar/month views where the block's
 // corresponding date changes relative to the birth date. Uses UTC methods.
-
 function calculateAgeAtDate(currentDateUTC, birthDateUTC) {
     let age = currentDateUTC.getUTCFullYear() - birthDateUTC.getUTCFullYear();
     const monthDiff = currentDateUTC.getUTCMonth() - birthDateUTC.getUTCMonth();
@@ -74,7 +74,7 @@ function calculateAgeAtDate(currentDateUTC, birthDateUTC) {
 
 /**
  * Renders the life grid based on years of age (Age View).
- * Each row represents one year of age.
+ * Each row represents one year of age. Uses DocumentFragment for performance.
  * @param {Date} inputBirthDate - User's birth date object (UTC normalized).
  * @param {number} totalLifespanYearsEst - Estimated lifespan in years.
  * @param {HTMLElement} gridContainerElement - The DOM element for the grid.
@@ -98,7 +98,8 @@ function renderAgeGrid(inputBirthDate, totalLifespanYearsEst, gridContainerEleme
 
 
         // --- Grid Rendering ---
-        gridContainerElement.innerHTML = '';
+        gridContainerElement.innerHTML = ''; // Clear previous content
+        // Use a DocumentFragment to batch DOM updates for better performance
         const fragment = document.createDocumentFragment();
         let totalRenderedWeeks = 0;
         const totalYearsToRender = Math.ceil(totalLifespanYearsEst);
@@ -137,28 +138,12 @@ function renderAgeGrid(inputBirthDate, totalLifespanYearsEst, gridContainerEleme
                     dateFns.isBefore(weekStart, ageEndDateExclusiveUTC)
                 );
 
-                // OPTIONAL: Log comparison
-                // if (weeksInAgeYearRaw.length !== weeksInAgeYearFiltered.length) {
-                //     console.log(`Age ${age}: Filter removed ${weeksInAgeYearRaw.length - weeksInAgeYearFiltered.length} week(s). Raw: ${weeksInAgeYearRaw.length}, Filtered: ${weeksInAgeYearFiltered.length}`);
-                // }
-
                 // Step 3: Enforce max 53 weeks visually
                 weeksInAgeYearFinal = [...weeksInAgeYearFiltered]; // Copy the array
-                // Apply the pop correction if needed
                 if (weeksInAgeYearFinal.length === 54) {
                     console.warn(`Age ${age}: Filtered list had 54 weeks. Removing the last week (${dateFns.format(weeksInAgeYearFinal[weeksInAgeYearFinal.length - 1], 'yyyy-MM-dd')}) to enforce max 53.`);
                     weeksInAgeYearFinal.pop(); // Remove the last element
                 }
-
-                /* Final check on length after potential correction (optional)
-                // if (weeksInAgeYearFinal.length > 53) {
-                //      console.error(`Age ${age}: FINAL count is ${weeksInAgeYearFinal.length} AFTER CORRECTION.`);
-                // } else if (weeksInAgeYearFinal.length < 52 && weeksInAgeYearFinal.length > 0) { // Allow 0 for last partial year
-                //      console.warn(`Age ${age}: FINAL count is ${weeksInAgeYearFinal.length}.`);
-                // } else {
-                //      console.log(`Age ${age}: Final week count is ${weeksInAgeYearFinal.length}.`);
-                // }
-                */
             } else {
                  console.warn(`Age ${age}: Start date not before end date. Skipping row.`);
             }
@@ -195,6 +180,7 @@ function renderAgeGrid(inputBirthDate, totalLifespanYearsEst, gridContainerEleme
             if (ageRow.hasChildNodes()) fragment.appendChild(ageRow);
         }
 
+        // Append the completed fragment to the DOM
         gridContainerElement.appendChild(fragment);
         gridContainerElement.setAttribute('aria-label', `Life grid (Age View) showing estimated lifespan from Age 0 to ${totalYearsToRender - 1}.`);
         console.log(`Total weeks rendered in age grid: ${totalRenderedWeeks}`);
@@ -209,6 +195,7 @@ function renderAgeGrid(inputBirthDate, totalLifespanYearsEst, gridContainerEleme
 /**
  * Renders the life grid based on ISO Calendar Years (Calendar View).
  * Each row represents one ISO year. Includes 'out-of-bounds' styling.
+ * Uses DocumentFragment for performance.
  * @param {Date} inputBirthDate - User's birth date object (UTC normalized).
  * @param {number} totalLifespanYearsEst - Estimated lifespan in years.
  * @param {HTMLElement} gridContainerElement - The DOM element for the grid.
@@ -235,7 +222,8 @@ function renderCalendarGrid(inputBirthDate, totalLifespanYearsEst, gridContainer
         const currentActualWeekStartDateUTC = dateFns.startOfISOWeek(nowUTC);
 
         // --- Grid Rendering ---
-        gridContainerElement.innerHTML = '';
+        gridContainerElement.innerHTML = ''; // Clear previous content
+        // Use a DocumentFragment to batch DOM updates for better performance
         const fragment = document.createDocumentFragment();
         let totalRenderedWeeks = 0;
 
@@ -302,6 +290,7 @@ function renderCalendarGrid(inputBirthDate, totalLifespanYearsEst, gridContainer
             }
         }
 
+        // Append the completed fragment to the DOM
         gridContainerElement.appendChild(fragment);
         gridContainerElement.setAttribute('aria-label', `Life grid (Calendar View) showing estimated lifespan from ${startISOYear} to ${endISOYear}.`);
         console.log(`Total weeks rendered in calendar grid: ${totalRenderedWeeks}`);
@@ -314,7 +303,7 @@ function renderCalendarGrid(inputBirthDate, totalLifespanYearsEst, gridContainer
 
 /**
  * Renders the life grid based on months (Months View).
- * Each row represents one year (12 months).
+ * Each row represents one year (12 months). Uses DocumentFragment for performance.
  * @param {Date} inputBirthDate - User's birth date object (UTC normalized).
  * @param {number} totalLifespanYearsEst - Estimated lifespan in years.
  * @param {HTMLElement} gridContainerElement - The DOM element for the grid.
@@ -341,7 +330,8 @@ function renderMonthsGrid(inputBirthDate, totalLifespanYearsEst, gridContainerEl
         const totalEstimatedMonths = Math.ceil(totalLifespanYearsEst * 12);
 
         // --- Grid Rendering ---
-        gridContainerElement.innerHTML = '';
+        gridContainerElement.innerHTML = ''; // Clear previous content
+        // Use a DocumentFragment to batch DOM updates for better performance
         const fragment = document.createDocumentFragment();
         let totalRenderedMonths = 0;
         let currentMonthRow = null;
@@ -392,7 +382,6 @@ function renderMonthsGrid(inputBirthDate, totalLifespanYearsEst, gridContainerEl
             }
 
             // Apply state class (past/present/future)
-            // Note: 'out-of-bounds' isn't really applicable here like in calendar view
             if (stateClass) monthBlock.classList.add(stateClass);
 
             monthBlock.title = title;
@@ -405,6 +394,7 @@ function renderMonthsGrid(inputBirthDate, totalLifespanYearsEst, gridContainerEl
             }
         }
 
+        // Append the completed fragment to the DOM
         gridContainerElement.appendChild(fragment);
         gridContainerElement.setAttribute('aria-label', `Life grid (Months View) showing estimated ${totalEstimatedMonths} months.`);
         console.log(`Total months rendered in grid: ${totalRenderedMonths}`);
@@ -417,7 +407,7 @@ function renderMonthsGrid(inputBirthDate, totalLifespanYearsEst, gridContainerEl
 
 /**
  * Renders the life grid based on years (Years View).
- * Each row represents one decade (10 years).
+ * Each row represents one decade (10 years). Uses DocumentFragment for performance.
  * @param {Date} inputBirthDate - User's birth date object (UTC normalized).
  * @param {number} totalLifespanYearsEst - Estimated lifespan in years.
  * @param {HTMLElement} gridContainerElement - The DOM element for the grid.
@@ -444,7 +434,8 @@ function renderYearsGrid(inputBirthDate, totalLifespanYearsEst, gridContainerEle
         const totalEstimatedYears = Math.ceil(totalLifespanYearsEst);
 
         // --- Grid Rendering ---
-        gridContainerElement.innerHTML = '';
+        gridContainerElement.innerHTML = ''; // Clear previous content
+        // Use a DocumentFragment to batch DOM updates for better performance
         const fragment = document.createDocumentFragment();
         let totalRenderedYears = 0;
         let currentDecadeRow = null;
@@ -505,6 +496,7 @@ function renderYearsGrid(inputBirthDate, totalLifespanYearsEst, gridContainerEle
             }
         }
 
+        // Append the completed fragment to the DOM
         gridContainerElement.appendChild(fragment);
         gridContainerElement.setAttribute('aria-label', `Life grid (Years View) showing estimated ${totalEstimatedYears} years, grouped by decade.`);
         console.log(`Total years rendered in grid: ${totalRenderedYears}`);
