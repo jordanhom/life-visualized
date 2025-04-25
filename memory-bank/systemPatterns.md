@@ -39,11 +39,19 @@
 *   **Calculation Flow:**
     1.  User submits form (`index.html`).
     2.  `ui.js` (`handleCalculation`) validates input, normalizes date to UTC.
-    3.  `ui.js` calls `calculator.js` (`calculateCurrentAge`, `getRemainingExpectancy`).
-    4.  `calculator.js` reads data from `data.js`.
-    5.  `calculator.js` returns results to `ui.js`.
-    6.  `ui.js` stores results in `lastCalcData` and updates `#results-area`.
-    7.  `ui.js` calls `renderCurrentView()`.
+    3.  `ui.js` resets visibility of post-calculation UI elements, shows results area.
+    4.  `ui.js` calls `calculator.js` (`calculateCurrentAge`, `getRemainingExpectancy`).
+    5.  `calculator.js` reads data from `data.js`.
+    6.  `calculator.js` returns results (or throws error) to `ui.js`.
+    7.  **On Success:**
+        *   `ui.js` stores results in `lastCalcData`.
+        *   `ui.js` updates `#results-area` via `displayResults`.
+        *   `ui.js` calls `renderCurrentView()`.
+        *   `ui.js` reveals view toggle, explanation, color key, and grid container.
+    8.  **On Error:**
+        *   `ui.js` updates `#results-area` via `displayError`.
+        *   `ui.js` calls `renderCurrentView()` (to clear grid).
+        *   Other elements remain hidden.
 *   **Rendering Flow:**
     1.  `ui.js` (`renderCurrentView`) determines the view type (`currentView`).
     2.  `ui.js` calls the appropriate function in `gridRenderer.js` (e.g., `renderMonthsGrid`), passing `lastCalcData`.
@@ -61,3 +69,8 @@
 *   **`gridRenderer.js` - Age View Week Logic:** Uses `eachWeekOfInterval` + `filter(isBefore)` + `.pop()` (if length 54) to accurately determine the ISO weeks starting within each year of life, ensuring visual consistency (max 53 weeks/row).
 *   **`gridRenderer.js` - Calendar View:** Uses `getISOWeeksInYear` and correctly handles the 52/53 week variation. Applies `out-of-bounds` styling based on comparison with `firstWeekStartDateUTC` and `estimatedEndDateUTC`.
 *   **CSS `calc()` + `aspect-ratio`:** The core mechanism for ensuring Month/Year blocks fill the fixed container width while remaining square. Formulas must be updated in media queries if gaps change.
+
+## 5. UI/Interaction Patterns
+
+*   **Progressive Reveal:** Initially hide non-essential UI elements (results, grid, controls, key, explanation) using a `.hidden` class (`display: none !important;`). Reveal these elements via JavaScript (`ui.js`) upon successful calculation completion. This provides a cleaner initial view focused on the input form. The results area is always revealed on calculation attempt to show success or error messages.
+*   **Collapsible Sections (`<details>`):** The Explanation and Color Key sections use the native HTML `<details>` element, styled consistently, to keep secondary information accessible but visually tidy until the user chooses to expand them. (NEW - Explicit mention of consistency)

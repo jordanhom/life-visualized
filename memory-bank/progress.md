@@ -1,61 +1,60 @@
-# Progress: Life Visualized (YYYY-MM-DD)
+# Progress Log - Life Visualized
 
-## 1. Current Status
+## MVP - Complete (Functionally) / Pending Final Review
 
-The project has reached its initial Minimum Viable Product (MVP) state as defined in `projectbrief.md`. All core requirements for calculation, visualization (across all four views: Weeks-Age, Weeks-Calendar, Months, Years), UI interaction, and basic presentation are implemented and functional. A comprehensive documentation pass (code comments, Memory Bank initialization) has also been completed.
+**Status:** All core features defined in `projectbrief.md` are implemented and functional. Visual cleanup/refactoring and progressive reveal implementation are complete. The application now presents a clean initial interface and reveals results/visualizations upon successful calculation. The next step is final review and testing before declaring the MVP officially complete.
 
-## 2. What Works (Completed Features)
+**Completed Tasks:**
 
-*   **Input & Calculation:**
-    *   User input for birth date and sex.
-    *   Calculation of current age.
-    *   Lookup of estimated remaining lifespan using `data.js` (US CDC 2021 data).
-    *   Calculation of total estimated lifespan.
-    *   Display of calculated results.
-    *   Basic input validation and error handling.
-*   **Grid Visualization:**
-    *   Rendering of all four specified views:
-        *   Weeks (Age-based) - Handles 52/53 week variations per age year.
-        *   Weeks (Calendar-based) - Handles 52/53 ISO weeks per calendar year, includes `out-of-bounds` styling.
-        *   Months (Age-based, 12 per row).
-        *   Years (Age-based, 10 per row - decades).
-    *   Accurate color-coding of blocks based on defined life stages.
-    *   Clear visual distinction between past, present, and future blocks.
-*   **User Interface:**
-    *   Functional form for input.
-    *   Clear display area for results/errors (`aria-live` enabled).
-    *   Working view toggle radio buttons allowing seamless switching between grid types.
-    *   Fixed-width grid container preventing layout shifts during view changes.
-    *   Dynamic block sizing for Month/Year views to fill container width.
-    *   Expandable explanation section for visualization details.
-    *   Color key legend.
-    *   Disclaimer text.
-*   **Technical Foundation:**
-    *   Modular vanilla JS structure.
-    *   Robust UTC-based date handling using `date-fns`.
-    *   Responsive design implemented across multiple breakpoints.
-    *   Cleaned and documented codebase (JS, HTML, CSS).
-    *   Initialized Cline Memory Bank files (`projectbrief`, `productContext`, `systemPatterns`, `techContext`, `activeContext`, `progress`).
+*   **Core Functionality:**
+    *   User input form (DOB, Sex).
+    *   Calculation logic based on actuarial data (US CDC 2021).
+    *   Display of calculated results (age, remaining years, total estimate).
+    *   Grid rendering logic.
+*   **Visualizations:**
+    *   Weeks-Age View implemented.
+    *   Weeks-Calendar View implemented.
+    *   Months View implemented.
+    *   Years View implemented.
+*   **Layout & Styling:**
+    *   Basic HTML structure and CSS styling.
+    *   Fixed-width grid container with dynamic block sizing (`calc()`, `aspect-ratio`) for Month/Year views.
+    *   Responsive design tiers implemented via media queries.
+*   **Documentation & Refinement:**
+    *   Initial JSDoc comments added to JS modules.
+    *   HTML semantic improvements.
+    *   CSS rule consolidation and cleanup.
+    *   Accessibility improvements (labels, fieldsets, aria-live).
+    *   **Visual Cleanup & CSS Refactoring:**
+        *   Introduced CSS variables (`:root`) for spacing, typography, borders, and key colors. Replaced hardcoded values.
+        *   Standardized vertical spacing between major sections using `margin-bottom`.
+        *   Made calculate button full-width on mobile.
+        *   Reorganized CSS file structure for better readability.
+        *   Added file structure overview comment and improved comment consistency.
+        *   Converted specific `h1`, grid background, and key swatch border colors to variables.
+    *   **Progressive Reveal Implementation:** (NEW)
+        *   Added intro text below heading.
+        *   Added `.hidden` utility class to CSS.
+        *   Applied `hidden` class initially to results, view toggle, explanation, color key, and grid container in HTML.
+        *   Updated `ui.js` (`handleCalculation`) to manage element visibility based on calculation success/failure.
+        *   Refactored Color Key into a collapsible `<details>` element for consistency and placed it before the grid.
+        *   Updated comments across HTML, CSS, JS to reflect changes.
+*   **Memory Bank:**
+    *   Initialized core memory bank files.
+    *   Updated memory bank after MVP feature completion.
+    *   Updated memory bank after visual cleanup.
+    *   Updated memory bank after progressive reveal implementation. (NEW)
 
-## 3. What's Left to Build (Potential Future Work)
+**Next Steps:**
 
-These items are currently considered **Out of Scope** for the MVP but represent potential future enhancements:
+*   Perform final review and testing of all features and the progressive reveal flow across different views and screen sizes. (NEW)
+*   Declare MVP officially complete.
 
-*   Adding user-defined milestones or events to the grid.
-*   Allowing selection of different actuarial datasets (e.g., different countries, years, cohort vs. period tables).
-*   User accounts or local storage persistence to save user data/preferences.
-*   More advanced UI customization options (e.g., color themes).
-*   More sophisticated error handling or user guidance.
-*   Automated testing suite (unit, integration, e2e).
-*   Performance optimization if grid sizes become significantly larger (though current approach with `DocumentFragment` is reasonably efficient).
+**Out of Scope (Post-MVP):**
 
-## 4. Known Issues
-
-*   **None currently identified.** The application appears stable and functional according to the MVP requirements. (Future testing might uncover issues).
-
-## 5. Evolution of Project Decisions
-
-*   **Layout:** Shifted from potentially variable grid container width to a fixed width (based on Week view) for UI stability, necessitating dynamic block sizing (`calc()` + `aspect-ratio`) for Month/Year views.
-*   **Week Calculation (Age View):** Refined the logic using `date-fns` (`eachWeekOfInterval` + `filter` + `pop`) to accurately handle edge cases around year boundaries and 54-week overlaps.
-*   **Documentation:** Moved from potentially large header comments to concise headers + detailed inline comments for better maintainability.
-*   **Accessibility:** Added `aria-live` and row `aria-label` attributes during refinement phase.
+*   Fetching real actuarial data.
+*   More sophisticated life stage calculations/coloring.
+*   Saving/loading user data.
+*   Advanced UI features (tooltips on blocks, zooming, etc.).
+*   Internationalization (i18n).
+*   Build process/bundling.
