@@ -3,20 +3,21 @@
  * 1. CSS Variables (:root) - Defines reusable values (spacing, colors, fonts).
  * 2. Basic Styles (html, body) - Global resets and base typography/background.
  * 3. Main Layout (.container, h1) - Core page structure and main heading.
- * 4. UI Components - Styles for distinct interface elements:
+ * 4. Utility Classes (.hidden) - General utility styles.
+ * 5. UI Components - Styles for distinct interface elements:
  *    - Form Styles (.input-form, .form-group, .calculate-btn)
  *    - Results & Disclaimer Styles (.results-area, .disclaimer)
  *    - View Toggle Styles (.view-toggle)
  *    - Explanation Details Styles (.explanation-details)
- *    - Color Key Styles (.color-key)
- * 5. Life Grid Styles - Complex styles for the visualization grid:
+ *    - Color Key Details Styles (.color-key-details, .color-key)
+ * 6. Life Grid Styles - Complex styles for the visualization grid:
  *    - Grid Container (.life-grid-container)
  *    - Row Styles (.year-row, etc.)
  *    - Block Base Styles (.week-block, .month-block, .year-block)
  *    - Life Stage Colors (.stage-*)
  *    - Block State Styles (.past, .present, .future, .out-of-bounds)
  *    - View-Specific Adjustments (Month/Year block sizing)
- * 6. Responsive Media Queries (@media) - Adjustments for different screen sizes.
+ * 7. Responsive Media Queries (@media) - Adjustments for different screen sizes.
  */
 
 /* --- CSS Variables --- */
@@ -55,7 +56,7 @@
     --color-error: #e74c3c;           /* Error Red */
     --color-present-highlight: #FF4500; /* OrangeRed */
 
-    /* ADDED: Specific Colors as Variables */
+    /* Specific Colors as Variables */
     --color-heading: #2c3e50;           /* Dark Blue-Gray */
     --color-grid-background: #e9ecef;   /* Grid Background Gray */
     --color-key-swatch-border: rgba(0,0,0,0.2); /* Subtle Border */
@@ -98,6 +99,12 @@ h1 {
     margin-bottom: var(--space-lg);
     font-weight: 600;
     color: var(--color-heading);
+}
+
+/* --- Utility Classes --- */
+/* Utility class to hide elements (used for progressive reveal) */
+.hidden {
+    display: none !important; /* !important ensures override */
 }
 
 /* --- Form Styles --- */
@@ -156,8 +163,8 @@ h1 {
 /* --- Results & Disclaimer Styles --- */
 .results-area {
     /* Styles for the box displaying calculation results or errors */
-    /* margin-top: var(--space-lg); REMOVED */
-    margin-bottom: var(--space-lg); /* ADDED: Space below results */
+    /* Initially hidden via .hidden class */
+    margin-bottom: var(--space-lg); /* Space below results */
     padding: var(--space-md);
     border: 1px solid var(--border-color-light);
     border-radius: var(--border-radius-md);
@@ -173,12 +180,13 @@ h1 {
 .results-area p {
     margin: var(--space-xs) 0;
 }
+/* Added dynamically by JS when an error occurs */
 .error-message {
     color: var(--color-error);
     font-weight: bold;
 }
 .disclaimer {
-    /* margin-top: var(--space-xl); REMOVED */
+    /* Always visible */
     font-size: 0.85rem; /* Keep specific */
     color: var(--color-text-muted);
     font-style: italic;
@@ -188,10 +196,10 @@ h1 {
 }
 
 /* --- View Toggle Styles --- */
+/* Styles for the fieldset containing view selection radios */
+/* Initially hidden via .hidden class */
 .view-toggle {
-    /* margin-top: var(--space-lg); REMOVED */
-    /* margin-bottom: var(--space-xs); REMOVED */
-    margin-bottom: var(--space-lg); /* ADDED: Space below toggle */
+    margin-bottom: var(--space-lg); /* Space below toggle */
     border: 1px solid var(--border-color-light);
     border-radius: var(--border-radius-md);
     padding: var(--space-xs) var(--space-md);
@@ -223,11 +231,11 @@ h1 {
 }
 
 /* --- Explanation Details Styles --- */
+/* Styles for the collapsible explanation section */
+/* Initially hidden via .hidden class */
 .explanation-details {
     /* Sizing and Spacing */
-    /* margin-top: var(--space-lg); REMOVED */
-    /* margin-bottom: var(--space-md); REMOVED */
-    margin-bottom: var(--space-lg); /* ADDED: Space below details */
+    margin-bottom: var(--space-lg); /* Space below details */
     max-width: 450px; /* Match disclaimer or adjust as needed */
     width: 90%; /* Allow shrinking on smaller viewports */
     box-sizing: border-box;
@@ -305,26 +313,70 @@ h1 {
      margin-bottom: 0;
 }
 
-/* --- Color Key Styles --- */
-.color-key {
-    /* margin-top: var(--space-lg); REMOVED */
-    margin-bottom: var(--space-lg); /* ADDED: Space below color key */
-    padding: var(--space-xs) var(--space-md);
-    border: 1px solid var(--border-color-light);
-    border-radius: var(--border-radius-md);
-    background-color: var(--color-background-subtle);
+/* --- Color Key Details Styles --- */
+/* Styles for the collapsible color key section */
+/* Initially hidden via .hidden class */
+/* Mirroring .explanation-details for consistency */
+.color-key-details {
+    /* Sizing and Spacing */
+    margin-bottom: var(--space-lg); /* Space below color key */
     max-width: 450px; /* Match explanation/results width */
     width: 90%;
     box-sizing: border-box;
+
+    /* Appearance */
+    border: 1px solid var(--border-color-light);
+    border-radius: var(--border-radius-md);
+    background-color: var(--color-background-subtle);
     text-align: left;
+    transition: background-color 0.2s ease-in-out;
 }
 
-.color-key h3 {
-    font-size: 0.95rem; /* Keep specific */
+/* Style the summary (clickable header) */
+/* Mirroring .explanation-details summary */
+.color-key-details summary {
+    cursor: pointer;
     font-weight: 600;
-    margin-top: 0;
-    margin-bottom: var(--space-sm);
     color: var(--color-text-primary);
+    padding: var(--space-xs) var(--space-md) var(--space-xs) var(--space-xl); /* Padding for marker */
+    position: relative;
+    outline: none;
+    list-style: none; /* Hide default marker */
+}
+/* Hide default marker for WebKit browsers */
+.color-key-details summary::-webkit-details-marker {
+    display: none;
+}
+/* Custom Marker (+/-) using ::before pseudo-element */
+/* Mirroring .explanation-details summary::before */
+.color-key-details summary::before {
+    content: '+'; /* Default marker (closed state) */
+    position: absolute;
+    left: var(--space-xs);
+    top: 50%;
+    transform: translateY(-50%);
+    font-weight: bold;
+    margin-right: var(--space-xs);
+    display: inline-block;
+    width: 1em;
+    text-align: center;
+}
+/* Change marker when details element is open */
+/* Mirroring .explanation-details[open] summary::before */
+.color-key-details[open] summary::before {
+    content: '−'; /* Use the minus sign when open */
+}
+/* Add visual separation and spacing when open */
+/* Mirroring .explanation-details[open] summary */
+.color-key-details[open] summary {
+    border-bottom: 1px solid var(--border-color-light);
+    margin-bottom: var(--space-xs); /* Space between summary and content */
+}
+
+/* Styles for the inner div containing the key list */
+.color-key {
+    /* Padding for the content area inside details */
+    padding: 0 var(--space-md) var(--space-xs) var(--space-md);
 }
 
 .color-key ul {
@@ -339,7 +391,7 @@ h1 {
 .color-key li {
     display: flex;
     align-items: center;
-    font-size: var(--font-size-sm);
+    font-size: var(--font-size-sm); /* Use smaller font consistent with explanation */
     color: var(--color-text-secondary);
 }
 
@@ -353,7 +405,7 @@ h1 {
     flex-shrink: 0; /* Prevent shrinking */
 }
 
-/* Add background colors matching the JS constants */
+/* Background colors for key swatches */
 /* Colors are kept specific here */
 .key-color.stage-infancy { background-color: #FFB6C1; }
 .key-color.stage-toddler { background-color: #FFA07A; }
@@ -369,10 +421,10 @@ h1 {
 
 
 /* --- Life Grid Styles --- */
-/* Default (Desktop / Widest): Based on 10px week blocks */
+/* Styles for the grid container */
+/* Initially hidden via .hidden class */
 .life-grid-container {
-    /* margin-top: var(--space-xl); REMOVED */
-    margin-bottom: var(--space-lg); /* ADDED: Space below grid */
+    margin-bottom: var(--space-lg); /* Space below grid */
     width: 100%; /* Takes width from parent .container */
 
     /* KEY LAYOUT: Fixed max-width based on the default (Week) view */
@@ -484,6 +536,7 @@ h1 {
 /* === View-Specific Layout Adjustments (Month & Year Views) === */
 
 /* --- Month View --- */
+/* Added dynamically to grid container when month view is active */
 .life-grid-container.grid-view-months .month-row {
      gap: 2px; /* Horizontal gap between month blocks (Keep specific) */
 }
@@ -497,6 +550,7 @@ h1 {
 }
 
 /* --- Year View --- */
+/* Added dynamically to grid container when year view is active */
 .life-grid-container.grid-view-years .decade-row {
      gap: 3px; /* Horizontal gap between year blocks (Keep specific) */
 }
@@ -627,4 +681,3 @@ h1 {
 }
 
 /* Below smallest years grid width (~137px), overflow-x will handle scrolling */
-

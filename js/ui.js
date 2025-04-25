@@ -2,6 +2,7 @@
  * @module ui
  * @description Manages UI interactions, state, and orchestrates the application flow.
  * Connects user inputs (form, view toggle) to calculations and grid rendering.
+ * Handles progressive reveal of UI elements after calculation.
  *
  * Exports: `setupEventListeners`.
  *
@@ -19,8 +20,12 @@ const form = document.getElementById('life-input-form');
 const birthdateInput = document.getElementById('birthdate');
 const sexInput = document.getElementById('sex');
 const resultsArea = document.getElementById('results-area');
-const gridContainer = document.getElementById('life-grid-container');
 const viewToggleRadios = document.querySelectorAll('input[name="viewType"]');
+// References for Progressive Reveal
+const viewToggle = document.querySelector('.view-toggle'); // The fieldset containing view radio buttons
+const explanationDetails = document.getElementById('explanation'); // The collapsible explanation section
+const colorKeyDetails = document.getElementById('color-key-details'); // The collapsible color key section
+const gridContainer = document.getElementById('life-grid-container'); // Container for the visualization grid
 
 // --- State Variables ---
 // Tracks the currently selected grid view type
@@ -34,6 +39,7 @@ let lastCalcData = {
 /**
  * Renders the grid using the currently selected view type and stored calculation data.
  * Clears the grid container and calls the appropriate function from gridRenderer.js.
+ * Note: This function assumes the gridContainer itself is already visible when called.
  */
 function renderCurrentView() {
     // Ensure we have data from a previous calculation
@@ -69,14 +75,27 @@ function renderCurrentView() {
 
 /**
  * Handles the form submission: validates input, performs calculations,
- * updates results display, stores data, and triggers the initial grid render.
+ * updates results display, stores data, triggers grid render, and manages
+ * progressive reveal of UI elements.
  * @param {Event} event - The form submission event.
  */
 function handleCalculation(event) {
     event.preventDefault(); // Prevent default form submission
     const birthdateStr = birthdateInput.value;
     const sex = sexInput.value;
-    resultsArea.innerHTML = ''; // Clear previous results/errors
+
+    // --- Progressive Reveal Logic: Reset UI before new calculation ---
+    // Hide elements that should only show after successful calculation.
+    // This ensures a clean state if the user recalculates or encounters an error.
+    viewToggle.classList.add('hidden');
+    explanationDetails.classList.add('hidden');
+    colorKeyDetails.classList.add('hidden');
+    gridContainer.classList.add('hidden');
+    // Clear previous results/errors visually and ensure results area is ready.
+    resultsArea.innerHTML = '';
+    resultsArea.classList.remove('error-message');
+    // Always show the results area container, as it will display either results or an error message.
+    resultsArea.classList.remove('hidden'); // <<< SHOW RESULTS AREA
 
     // Clear previous calculation data before starting new calculation
     lastCalcData.birthDate = null;
@@ -84,9 +103,10 @@ function handleCalculation(event) {
 
     // --- Input Validation ---
     if (!birthdateStr || !sex) {
-        resultsArea.innerHTML = '<p class="error-message">Please fill in both your birth date and sex.</p>';
+        // Use displayError helper for consistency
+        displayError('Please fill in both your birth date and sex.');
         renderCurrentView(); // Clear grid if validation fails
-        return;
+        return; // Exit, leaving only results area visible
      }
 
     // Create Date object from input string
@@ -106,40 +126,83 @@ function handleCalculation(event) {
 
     // Check validity *after* potential normalization and ensure date is in the past.
     if (isNaN(birthDateUTC.getTime()) || birthDateUTC >= nowLocalMidnight) {
-        resultsArea.innerHTML = '<p class="error-message">Please enter a valid birth date in the past.</p>';
+        // Use displayError helper for consistency
+        displayError('Please enter a valid birth date in the past (YYYY-MM-DD).');
         renderCurrentView(); // Clear grid if validation fails
-        return;
+        return; // Exit, leaving only results area visible
     }
 
-    // --- Perform Calculations ---
-    // calculateCurrentAge works correctly with the UTC date object representing the birth day.
-    const currentAge = calculateCurrentAge(birthDateUTC);
-    const remainingYears = getRemainingExpectancy(currentAge, sex);
+    // --- Perform Calculations (Wrapped in try/catch) ---
+    try {
+        // calculateCurrentAge works correctly with the UTC date object representing the birth day.
+        const currentAge = calculateCurrentAge(birthDateUTC);
+        const remainingYears = getRemainingExpectancy(currentAge, sex);
 
-    if (remainingYears === null) {
-        resultsArea.innerHTML = `<p class="error-message">Could not retrieve life expectancy data for the selected sex or age (${currentAge}). Please check the input.</p>`;
-        renderCurrentView(); // Clear grid if calculation fails
-        return;
-     }
-    // Calculate total lifespan, rounding for display might be slightly different than internal use
-    const totalEstimatedLifespan = parseFloat((currentAge + remainingYears).toFixed(1));
+        // Handle cases where data might be missing for the given age/sex
+        if (remainingYears === null) {
+            // Use throw new Error to jump to catch block for consistent error handling
+            throw new Error(`Could not retrieve life expectancy data for the selected sex or age (${currentAge}). Please check the input.`);
+        }
+        // Calculate total lifespan, rounding for display might be slightly different than internal use
+        const totalEstimatedLifespan = parseFloat((currentAge + remainingYears).toFixed(1));
 
-    // --- Store Calculation Results ---
-    // Store the UTC-normalized Date object and the calculated lifespan
-    lastCalcData.birthDate = birthDateUTC;
-    lastCalcData.totalLifespanYearsEst = totalEstimatedLifespan;
+        // --- Store Calculation Results ---
+        // Store the UTC-normalized Date object and the calculated lifespan
+        lastCalcData.birthDate = birthDateUTC;
+        lastCalcData.totalLifespanYearsEst = totalEstimatedLifespan;
 
-    // --- Display Results ---
+        // --- Display Results ---
+        // Use helper function to populate the results area
+        displayResults(currentAge, remainingYears, totalEstimatedLifespan);
+
+        // --- Render the Grid ---
+        // Use the currently selected view setting (or default 'age')
+        renderCurrentView();
+
+        // --- Progressive Reveal Logic: Show elements on success ---
+        // Only reveal these sections if calculation and rendering were successful
+        viewToggle.classList.remove('hidden');       // <<< SHOW VIEW TOGGLE
+        explanationDetails.classList.remove('hidden'); // <<< SHOW EXPLANATION
+        colorKeyDetails.classList.remove('hidden'); // <<< SHOW COLOR KEY
+        gridContainer.classList.remove('hidden');  // <<< SHOW GRID CONTAINER
+
+    } catch (error) {
+        // --- Handle Errors from Calculation or Rendering ---
+        console.error("Calculation or Display Error:", error);
+        // Use displayError helper for consistency
+        displayError(error.message || 'An unexpected error occurred.');
+        renderCurrentView(); // Clear grid on error
+        // Other elements remain hidden (handled by reset at start)
+    }
+}
+
+/**
+ * Displays the calculated results in the results area.
+ * @param {number} currentAge - The calculated current age in years.
+ * @param {number} remainingYears - The estimated remaining years.
+ * @param {number} totalEstimatedLifespan - The total estimated lifespan.
+ */
+function displayResults(currentAge, remainingYears, totalEstimatedLifespan) {
+    // Ensure error styling is removed (handled by reset, but good practice)
+    resultsArea.classList.remove('error-message');
     resultsArea.innerHTML = `
         <p>Your current age: <strong>${currentAge} years</strong></p>
         <p>Estimated remaining lifespan (avg., based on US 2021 data): <strong>${remainingYears} years</strong></p>
         <p>Total estimated lifespan (avg.): <strong>${totalEstimatedLifespan} years</strong></p>
     `;
-
-    // --- Render the Grid ---
-    // Use the currently selected view setting (or default 'age')
-    renderCurrentView();
 }
+
+/**
+ * Displays an error message in the results area. // ADDED helper function
+ * @param {string} message - The error message to display.
+ */
+function displayError(message) {
+    resultsArea.innerHTML = `<p>${message}</p>`;
+    resultsArea.classList.add('error-message');
+    // No need to explicitly hide other elements here, as they were hidden
+    // at the start of handleCalculation.
+}
+
 
 /**
  * Handles changes to the view type radio buttons. Updates the currentView state
