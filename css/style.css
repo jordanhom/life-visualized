@@ -6,11 +6,11 @@
  * 4. Utility Classes (.hidden) - General utility styles.
  * 5. UI Components - Styles for distinct interface elements:
  *    - Form Styles (.input-form, .form-group, .calculate-btn)
- *    - Section Headings (.section-heading) // NEW
  *    - Results & Disclaimer Styles (.results-area, .disclaimer)
+ *    - Grid Guide Details Styles (.grid-guide-details, etc.)
  *    - View Toggle Styles (.view-toggle)
- *    - Explanation Details Styles (.explanation-details)
- *    - Color Key Details Styles (.color-key-details, .color-key)
+ *    - Explanation Details Styles (Part of Grid Guide)
+ *    - Color Key Details Styles (Part of Grid Guide)
  * 6. Life Grid Styles - Complex styles for the visualization grid:
  *    - Grid Container (.life-grid-container)
  *    - Row Styles (.year-row, etc.)
@@ -162,23 +162,6 @@ h1 {
     background-color: var(--color-primary-dark);
 }
 
-/* --- Section Headings --- */ /* NEW SECTION */
-/* Styles for H2 headings used for Results and Visualization */
-/* Initially hidden via .hidden class */
-.section-heading {
-    font-size: var(--font-size-xl); /* Slightly larger than base text */
-    font-weight: 600; /* Match h1 and legend weight */
-    color: var(--color-heading); /* Match h1 color */
-    margin-top: 0; /* Remove default top margin */
-    margin-bottom: var(--space-xs); /* Space below heading, before content */
-    /* Ensure it respects the centering of the main container */
-    width: 100%;
-    max-width: 656px; /* Match grid container max-width */
-    text-align: left; /* Align heading text left */
-    box-sizing: border-box; /* Include padding if added later */
-}
-
-
 /* --- Results & Disclaimer Styles --- */
 .results-area {
     /* Styles for the box displaying calculation results or errors */
@@ -215,6 +198,166 @@ h1 {
     line-height: 1.5;
     /* No margin needed as it's the last element */
 }
+
+/* --- Grid Guide Details Styles --- */
+.grid-guide-details {
+    /* Sizing and Spacing */
+    margin-bottom: var(--space-lg); /* Space below details */
+    max-width: 656px; /* Match grid container max-width */
+    width: 100%;
+    box-sizing: border-box;
+
+    /* Appearance */
+    border: 1px solid var(--border-color-light);
+    border-radius: var(--border-radius-md);
+    background-color: var(--color-background-subtle);
+    text-align: left;
+    transition: background-color 0.2s ease-in-out; /* Subtle transition */
+}
+
+/* Style the summary (clickable header) */
+.grid-guide-details summary {
+    cursor: pointer;
+    font-weight: 600;
+    color: var(--color-text-primary);
+    /* Padding adjusted: top/bottom=xs, right=md, left=xl for marker */
+    padding: var(--space-xs) var(--space-md) var(--space-xs) var(--space-xl);
+    position: relative; /* Needed for pseudo-element marker */
+    outline: none; /* Remove focus outline */
+    list-style: none; /* Hide default browser marker */
+    /* Implicit font-size: var(--font-size-base) */
+}
+/* Hide default marker for WebKit browsers */
+.grid-guide-details summary::-webkit-details-marker {
+    display: none;
+}
+/* Custom Marker (+/-) using ::before pseudo-element */
+.grid-guide-details summary::before {
+    content: '+'; /* Default marker (closed state) */
+    position: absolute;
+    left: var(--space-xs);
+    top: 50%;
+    transform: translateY(-50%);
+    font-weight: bold;
+    margin-right: var(--space-xs);
+    display: inline-block;
+    width: 1em; /* Ensure consistent spacing */
+    text-align: center;
+}
+
+/* Change marker when details element is open */
+.grid-guide-details[open] summary::before {
+    content: '−'; /* Use the minus sign when open */
+}
+
+/* Add visual separation and spacing when open */
+.grid-guide-details[open] summary {
+    border-bottom: 1px solid var(--border-color-light);
+    margin-bottom: var(--space-md); /* More space between summary and content wrapper */
+}
+
+/* Style the inner content wrapper */
+.guide-content-wrapper {
+    display: flex;
+    flex-direction: row; /* Side-by-side columns */
+    gap: var(--space-lg); /* Wider gap between columns */
+    padding: 0 var(--space-md) var(--space-xs) var(--space-md); /* Padding for wrapper */
+}
+
+/* Style the columns */
+.explanation-column {
+    flex: 2; /* Takes 2/3 space */
+    min-width: 0; /* Allow shrinking */
+}
+.color-key-column {
+    flex: 1; /* Takes 1/3 space */
+    min-width: 0; /* Allow shrinking */
+}
+
+/* Style internal headings */
+.guide-content-wrapper h3 {
+    font-size: var(--font-size-sm); /* Use smaller font size */
+    font-weight: 600; /* Keep bold */
+    color: var(--color-text-primary);
+    margin-top: 0;
+    margin-bottom: var(--space-sm);
+    border-bottom: 1px solid var(--border-color-light);
+    padding-bottom: var(--space-xxs);
+}
+
+/* Style content within columns */
+.guide-content-wrapper p,
+.guide-content-wrapper ul {
+    font-size: var(--font-size-sm);
+    line-height: 1.6;
+    color: var(--color-text-secondary);
+    margin-top: 0;
+    margin-bottom: var(--space-sm);
+}
+.guide-content-wrapper ul {
+    padding-left: var(--space-lg); /* Indent list */
+}
+/* Specific indentation for explanation list */
+.explanation-column ul {
+    padding-left: var(--space-lg);
+}
+
+.guide-content-wrapper li {
+    margin-bottom: var(--space-xxs); /* Space between list items */
+}
+/* Remove bottom margin from last element in each column */
+.guide-content-wrapper p:last-child,
+.guide-content-wrapper ul:last-child {
+     margin-bottom: 0;
+}
+
+/* Re-use existing color key list styles */
+.color-key {
+    padding: 0; /* Remove padding from inner div */
+}
+.color-key ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column; /* Stack color key items vertically */
+}
+.color-key li {
+    display: flex;
+    align-items: center;
+    font-size: var(--font-size-sm);
+    color: var(--color-text-secondary);
+    white-space: normal; /* Allow wrapping within list item */
+    /* Add small bottom margin if default is removed or insufficient */
+    margin-bottom: var(--space-xxs); /* Example: Use smallest spacing */
+}
+/* Ensure last item has no bottom margin */
+.color-key li:last-child {
+    margin-bottom: 0;
+}
+
+.key-color {
+    display: inline-block;
+    width: 14px;
+    height: 14px;
+    margin-right: var(--space-xs);
+    border: 1px solid var(--color-key-swatch-border);
+    border-radius: 2px;
+    flex-shrink: 0;
+}
+/* Background colors for key swatches */
+.key-color.stage-infancy { background-color: #FFB6C1; }
+.key-color.stage-toddler { background-color: #FFA07A; }
+.key-color.stage-earlychildhood { background-color: #FFDA63; }
+.key-color.stage-middlechildhood { background-color: #9ACD32; }
+.key-color.stage-adolescence { background-color: #48D1CC; }
+.key-color.stage-youngadult { background-color: #6495ED; }
+.key-color.stage-adulthood { background-color: #9370DB; }
+.key-color.stage-middleadulthood { background-color: #DA70D6; }
+.key-color.stage-earlysenior { background-color: #C0C0C0; }
+.key-color.stage-midsenior { background-color: #B0C4DE; }
+.key-color.stage-latesenior { background-color: #D8BFD8; }
+
 
 /* --- View Toggle Styles --- */
 /* Styles for the fieldset containing view selection radios */
@@ -255,194 +398,6 @@ h1 {
     margin: 0; /* Reset default margin */
 }
 
-/* --- Explanation Details Styles --- */
-/* Styles for the collapsible explanation section */
-/* Initially hidden via .hidden class */
-.explanation-details {
-    /* Sizing and Spacing */
-    margin-bottom: var(--space-lg); /* Space below details */
-    max-width: 656px; /* Match grid container max-width */
-    width: 100%;
-    box-sizing: border-box;
-
-    /* Appearance */
-    border: 1px solid var(--border-color-light);
-    border-radius: var(--border-radius-md);
-    background-color: var(--color-background-subtle);
-    text-align: left;
-    transition: background-color 0.2s ease-in-out; /* Subtle transition */
-}
-
-/* Style the summary (clickable header) */
-.explanation-details summary {
-    cursor: pointer;
-    font-weight: 600;
-    color: var(--color-text-primary);
-    /* Padding adjusted: top/bottom=xs, right=md, left=xl for marker */
-    padding: var(--space-xs) var(--space-md) var(--space-xs) var(--space-xl);
-    position: relative; /* Needed for pseudo-element marker */
-    outline: none; /* Remove focus outline */
-    list-style: none; /* Hide default browser marker */
-}
-/* Hide default marker for WebKit browsers */
-.explanation-details summary::-webkit-details-marker {
-    display: none;
-}
-/* Custom Marker (+/-) using ::before pseudo-element */
-.explanation-details summary::before {
-    content: '+'; /* Default marker (closed state) */
-    position: absolute;
-    left: var(--space-xs);
-    top: 50%;
-    transform: translateY(-50%);
-    font-weight: bold;
-    margin-right: var(--space-xs);
-    display: inline-block;
-    width: 1em; /* Ensure consistent spacing */
-    text-align: center;
-}
-
-/* Change marker when details element is open */
-.explanation-details[open] summary::before {
-    content: '−'; /* Use the minus sign when open */
-}
-
-/* Add visual separation and spacing when open */
-.explanation-details[open] summary {
-    border-bottom: 1px solid var(--border-color-light);
-    margin-bottom: var(--space-xs); /* Space between summary and content */
-}
-
-/* Style the content elements (p, ul) inside */
-.explanation-details > *:not(summary) {
-    /* Padding for content area */
-    padding: 0 var(--space-md) var(--space-xs) var(--space-md);
-    font-size: var(--font-size-sm);
-    line-height: 1.6;
-    color: var(--color-text-secondary);
-}
-
-.explanation-details ul {
-    padding-left: var(--space-lg); /* Indent list */
-    margin-top: var(--space-xs);
-    margin-bottom: 0; /* Remove default bottom margin */
-}
-
-.explanation-details li {
-    margin-bottom: var(--space-xxs); /* Space between list items */
-}
-
-/* Remove bottom margin from the very last content element inside details */
-.explanation-details p:last-child,
-.explanation-details ul:last-child {
-     margin-bottom: 0;
-}
-
-/* --- Color Key Details Styles --- */
-/* Styles for the collapsible color key section */
-/* Initially hidden via .hidden class */
-/* Mirroring .explanation-details for consistency */
-.color-key-details {
-    /* Sizing and Spacing */
-    margin-bottom: var(--space-lg); /* Space below color key */
-    max-width: 656px; /* Match grid container max-width */
-    width: 100%;
-    box-sizing: border-box;
-
-    /* Appearance */
-    border: 1px solid var(--border-color-light);
-    border-radius: var(--border-radius-md);
-    background-color: var(--color-background-subtle);
-    text-align: left;
-    transition: background-color 0.2s ease-in-out;
-}
-
-/* Style the summary (clickable header) */
-/* Mirroring .explanation-details summary */
-.color-key-details summary {
-    cursor: pointer;
-    font-weight: 600;
-    color: var(--color-text-primary);
-    padding: var(--space-xs) var(--space-md) var(--space-xs) var(--space-xl); /* Padding for marker */
-    position: relative;
-    outline: none;
-    list-style: none; /* Hide default marker */
-}
-/* Hide default marker for WebKit browsers */
-.color-key-details summary::-webkit-details-marker {
-    display: none;
-}
-/* Custom Marker (+/-) using ::before pseudo-element */
-/* Mirroring .explanation-details summary::before */
-.color-key-details summary::before {
-    content: '+'; /* Default marker (closed state) */
-    position: absolute;
-    left: var(--space-xs);
-    top: 50%;
-    transform: translateY(-50%);
-    font-weight: bold;
-    margin-right: var(--space-xs);
-    display: inline-block;
-    width: 1em;
-    text-align: center;
-}
-/* Change marker when details element is open */
-/* Mirroring .explanation-details[open] summary::before */
-.color-key-details[open] summary::before {
-    content: '−'; /* Use the minus sign when open */
-}
-/* Add visual separation and spacing when open */
-/* Mirroring .explanation-details[open] summary */
-.color-key-details[open] summary {
-    border-bottom: 1px solid var(--border-color-light);
-    margin-bottom: var(--space-xs); /* Space between summary and content */
-}
-
-/* Styles for the inner div containing the key list */
-.color-key {
-    /* Padding for the content area inside details */
-    padding: 0 var(--space-md) var(--space-xs) var(--space-md);
-}
-
-.color-key ul {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    display: flex; /* Allow wrapping */
-    flex-wrap: wrap;
-    gap: var(--space-xs) var(--space-md); /* Vertical and horizontal gap */
-}
-
-.color-key li {
-    display: flex;
-    align-items: center;
-    font-size: var(--font-size-sm); /* Use smaller font consistent with explanation */
-    color: var(--color-text-secondary);
-}
-
-.key-color {
-    display: inline-block;
-    width: 14px; /* Size of the color swatch (Keep specific) */
-    height: 14px; /* Size of the color swatch (Keep specific) */
-    margin-right: var(--space-xs);
-    border: 1px solid var(--color-key-swatch-border);
-    border-radius: 2px; /* Keep specific */
-    flex-shrink: 0; /* Prevent shrinking */
-}
-
-/* Background colors for key swatches */
-/* Colors are kept specific here */
-.key-color.stage-infancy { background-color: #FFB6C1; }
-.key-color.stage-toddler { background-color: #FFA07A; }
-.key-color.stage-earlychildhood { background-color: #FFDA63; }
-.key-color.stage-middlechildhood { background-color: #9ACD32; }
-.key-color.stage-adolescence { background-color: #48D1CC; }
-.key-color.stage-youngadult { background-color: #6495ED; }
-.key-color.stage-adulthood { background-color: #9370DB; }
-.key-color.stage-middleadulthood { background-color: #DA70D6; }
-.key-color.stage-earlysenior { background-color: #C0C0C0; }
-.key-color.stage-midsenior { background-color: #B0C4DE; }
-.key-color.stage-latesenior { background-color: #D8BFD8; }
 
 
 /* --- Life Grid Styles --- */
@@ -591,6 +546,19 @@ h1 {
 /* --- Responsive Media Queries --- */
 /* Tiered approach: Adjust grid container AND block sizes/gaps at breakpoints */
 
+/* Tier 1.5: Adjust Grid Guide Details for smaller desktops/large tablets */
+@media (max-width: 768px) { /* Example breakpoint, adjust as needed */
+    .guide-content-wrapper {
+        flex-direction: column; /* Stack internal columns vertically */
+        gap: var(--space-md); /* Adjust gap for vertical stacking */
+    }
+    /* Add margin below explanation column when stacked */
+    .explanation-column {
+        margin-bottom: var(--space-md);
+    }
+}
+
+
 /* Tier 2: Medium Screens (~Tablet) - Target width < 656px */
 @media (max-width: 655px) {
     /* Adjust grid container for medium screens */
@@ -612,15 +580,10 @@ h1 {
     .container {
         padding: var(--space-lg) var(--space-xs);
     }
-    /* Adjust section heading width */
-    .section-heading {
-        max-width: 487px; /* Match grid */
-    }
     /* Adjust results/toggle/details width */
     .results-area,
     .view-toggle,
-    .explanation-details,
-    .color-key-details {
+    .grid-guide-details { /* Target combined details */
         max-width: 487px; /* Match grid */
     }
 }
@@ -647,15 +610,10 @@ h1 {
     .calculate-btn {
         width: 100%;
     }
-    /* Adjust section heading width */
-    .section-heading {
-        max-width: 379px; /* Match grid */
-    }
     /* Adjust results/toggle/details width */
     .results-area,
     .view-toggle,
-    .explanation-details,
-    .color-key-details {
+    .grid-guide-details { /* Target combined details */
         max-width: 379px; /* Match grid */
     }
 }
@@ -683,16 +641,10 @@ h1 {
     }
      h1 { font-size: 1.6rem; /* Keep specific */ }
      .calculate-btn { font-size: var(--font-size-base); }
-     /* Adjust section heading width */
-     .section-heading {
-        max-width: 324px; /* Match grid */
-        font-size: var(--font-size-md); /* Reduce heading size */
-     }
      /* Adjust results/toggle/details width */
      .results-area,
      .view-toggle,
-     .explanation-details,
-     .color-key-details {
+     .grid-guide-details { /* Target combined details */
         max-width: 324px; /* Match grid */
      }
 }

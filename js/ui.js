@@ -21,13 +21,13 @@ const birthdateInput = document.getElementById('birthdate');
 const sexInput = document.getElementById('sex');
 const resultsArea = document.getElementById('results-area');
 // References for Progressive Reveal
-const resultsHeading = document.getElementById('results-heading'); // <<< ADDED Heading Ref
 const viewToggle = document.querySelector('.view-toggle');
-const explanationDetails = document.getElementById('explanation');
-const colorKeyDetails = document.getElementById('color-key-details');
-const visualizationHeading = document.getElementById('visualization-heading'); // <<< ADDED Heading Ref
+// const explanationDetails = document.getElementById('explanation'); // MODIFIED: Removed
+// const colorKeyDetails = document.getElementById('color-key-details'); // MODIFIED: Removed
+const gridGuideDetails = document.getElementById('grid-guide-details'); // MODIFIED: Added
 const gridContainer = document.getElementById('life-grid-container');
 const viewToggleRadios = document.querySelectorAll('input[name="viewType"]');
+
 
 // --- State Variables ---
 // Tracks the currently selected grid view type
@@ -88,12 +88,11 @@ function handleCalculation(event) {
 
     // --- Progressive Reveal Logic: Reset UI before new calculation ---
     // Hide elements that should only show after successful calculation.
-    resultsHeading.classList.add('hidden'); // <<< HIDE Heading
     resultsArea.classList.add('hidden');
     viewToggle.classList.add('hidden');
-    explanationDetails.classList.add('hidden');
-    colorKeyDetails.classList.add('hidden');
-    visualizationHeading.classList.add('hidden'); // <<< HIDE Heading
+    // explanationDetails.classList.add('hidden'); // MODIFIED: Removed
+    // colorKeyDetails.classList.add('hidden'); // MODIFIED: Removed
+    gridGuideDetails.classList.add('hidden'); // MODIFIED: Added
     gridContainer.classList.add('hidden');
     // Clear previous results/errors visually and ensure results area is ready.
     resultsArea.innerHTML = '';
@@ -107,10 +106,9 @@ function handleCalculation(event) {
     // --- Input Validation ---
     if (!birthdateStr || !sex) {
         displayError('Please fill in both your birth date and sex.');
-        resultsHeading.classList.remove('hidden'); // <<< SHOW Results Heading for error
         resultsArea.classList.remove('hidden'); // <<< SHOW Results Area for error
         renderCurrentView(); // Clear grid if validation fails
-        return; // Exit, leaving only results heading/area visible
+        return; // Exit, leaving only results area visible
      }
 
     // Create Date object from input string
@@ -131,10 +129,9 @@ function handleCalculation(event) {
     // Check validity *after* potential normalization and ensure date is in the past.
     if (isNaN(birthDateUTC.getTime()) || birthDateUTC >= nowLocalMidnight) {
         displayError('Please enter a valid birth date in the past (YYYY-MM-DD).');
-        resultsHeading.classList.remove('hidden'); // <<< SHOW Results Heading for error
         resultsArea.classList.remove('hidden'); // <<< SHOW Results Area for error
         renderCurrentView(); // Clear grid if validation fails
-        return; // Exit, leaving only results heading/area visible
+        return; // Exit, leaving only results area visible
     }
 
     // --- Perform Calculations (Wrapped in try/catch) ---
@@ -159,19 +156,17 @@ function handleCalculation(event) {
         renderCurrentView();
 
         // --- Progressive Reveal Logic: Show elements on success ---
-        resultsHeading.classList.remove('hidden'); // <<< SHOW Results Heading
         resultsArea.classList.remove('hidden'); // <<< SHOW Results Area
         viewToggle.classList.remove('hidden');
-        explanationDetails.classList.remove('hidden');
-        colorKeyDetails.classList.remove('hidden');
-        visualizationHeading.classList.remove('hidden'); // <<< SHOW Visualization Heading
+        // explanationDetails.classList.remove('hidden'); // MODIFIED: Removed
+        // colorKeyDetails.classList.remove('hidden'); // MODIFIED: Removed
+        gridGuideDetails.classList.remove('hidden'); // MODIFIED: Added
         gridContainer.classList.remove('hidden');
 
     } catch (error) {
         // --- Handle Errors from Calculation or Rendering ---
         console.error("Calculation or Display Error:", error);
         displayError(error.message || 'An unexpected error occurred.'); // Updates resultsArea CONTENT
-        resultsHeading.classList.remove('hidden'); // <<< SHOW Results Heading for error
         resultsArea.classList.remove('hidden'); // <<< SHOW Results Area for error
         renderCurrentView(); // Clear grid on error
         // Other elements remain hidden (handled by reset at start)
@@ -201,7 +196,7 @@ function displayResults(currentAge, remainingYears, totalEstimatedLifespan) {
 function displayError(message) {
     resultsArea.innerHTML = `<p>${message}</p>`;
     resultsArea.classList.add('error-message');
-    // Visibility of resultsArea/resultsHeading is handled in handleCalculation
+    // Visibility of resultsArea is handled in handleCalculation
 }
 
 
