@@ -28,3 +28,4 @@
 *   Combining related context (explanation, key) into a single collapsible element with internal structure provides a good balance for this application.
 *   User-oriented phrasing for labels and headings ("How to Read...", "Understanding the Grid", "What the Colors Mean") improves clarity.
 *   Relying on default list item margins can sometimes be visually preferable to explicit small gaps.
+*   **Commit Message Preference:** User prefers the 'Standard' format for commit messages, which balances conciseness with sufficient detail about the changes made. (NEW)
