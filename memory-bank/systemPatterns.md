@@ -27,8 +27,8 @@
     *   **Pattern:** Direct DOM manipulation using `document.createElement` and leveraging `DocumentFragment` for efficient batch appends to minimize browser reflows.
     *   **Rationale:** Performant enough for the current grid sizes; avoids introducing rendering library dependencies.
 *   **CSS Layout Strategy:**
-    *   **Pattern:** Fixed-width grid container (`#life-grid-container`) based on Week view requirements, combined with dynamic block sizing (`calc()` + `aspect-ratio: 1 / 1`) for Month/Year views.
-    *   **Rationale:** Provides visual consistency across views (no layout shifts) while allowing Month/Year blocks to fill the space effectively. Responsiveness is handled via tiered media queries adjusting container `max-width` and block sizes/gaps.
+    *   **Pattern:** Fixed-width grid container (`#life-grid-container`) based on Week view requirements, combined with dynamic block sizing (`calc()` + `aspect-ratio: 1 / 1`) for Month/Year views. Results, Grid Guide (`#grid-guide-details`), and View Toggle sections share the same `max-width` as the grid for visual alignment.
+    *   **Rationale:** Provides visual consistency across views (no layout shifts) while allowing Month/Year blocks to fill the space effectively. Responsiveness is handled via tiered media queries adjusting container `max-width` and block sizes/gaps, as well as the `max-width` of the aligned sections.
 *   **Dependency Management:**
     *   **Pattern:** `date-fns` library is loaded via CDN. `gridRenderer.js` includes a check (`checkDateFns`) for its presence.
     *   **Rationale:** Simple integration for a key dependency.
@@ -39,7 +39,7 @@
 *   **Calculation Flow:**
     1.  User submits form (`index.html`).
     2.  `ui.js` (`handleCalculation`) validates input, normalizes date to UTC.
-    3.  `ui.js` resets visibility of post-calculation UI elements, shows results area.
+    3.  `ui.js` resets visibility of post-calculation UI elements (results, grid guide, toggle, grid).
     4.  `ui.js` calls `calculator.js` (`calculateCurrentAge`, `getRemainingExpectancy`).
     5.  `calculator.js` reads data from `data.js`.
     6.  `calculator.js` returns results (or throws error) to `ui.js`.
@@ -47,9 +47,10 @@
         *   `ui.js` stores results in `lastCalcData`.
         *   `ui.js` updates `#results-area` via `displayResults`.
         *   `ui.js` calls `renderCurrentView()`.
-        *   `ui.js` reveals view toggle, explanation, color key, and grid container.
+        *   `ui.js` reveals Results Area, Grid Guide (`#grid-guide-details`), View Toggle, and Grid Container. (FINAL Order)
     8.  **On Error:**
         *   `ui.js` updates `#results-area` via `displayError`.
+        *   `ui.js` reveals Results Area.
         *   `ui.js` calls `renderCurrentView()` (to clear grid).
         *   Other elements remain hidden.
 *   **Rendering Flow:**
@@ -72,5 +73,13 @@
 
 ## 5. UI/Interaction Patterns
 
-*   **Progressive Reveal:** Initially hide non-essential UI elements (results, grid, controls, key, explanation) using a `.hidden` class (`display: none !important;`). Reveal these elements via JavaScript (`ui.js`) upon successful calculation completion. This provides a cleaner initial view focused on the input form. The results area is always revealed on calculation attempt to show success or error messages.
-*   **Collapsible Sections (`<details>`):** The Explanation and Color Key sections use the native HTML `<details>` element, styled consistently, to keep secondary information accessible but visually tidy until the user chooses to expand them. (NEW - Explicit mention of consistency)
+*   **Progressive Reveal:** Initially hide non-essential UI elements (results, grid guide, toggle, grid) using a `.hidden` class (`display: none !important;`). Reveal these elements via JavaScript (`ui.js`) upon successful calculation completion. This provides a cleaner initial view focused on the input form. The results area is always revealed on calculation attempt to show success or error messages.
+*   **Consolidated Collapsible Section (`<details>`):** (FINAL) The grid explanation and color key are combined into a single `<details id="grid-guide-details">` element.
+    *   The `<summary>` is "How to Read This Visualization".
+    *   Internally, it uses Flexbox (`.guide-content-wrapper`) to display two columns (`.explanation-column`, `.color-key-column`) side-by-side on wider screens (2:1 ratio).
+    *   Internal `<h3>` headings ("Understanding the Grid", "What the Colors Mean") label the content within each column, styled with `font-size: var(--font-size-sm)`.
+    *   On smaller screens (<= 768px), the internal columns stack vertically via media query.
+    *   The vertical spacing for the color key list items relies on default `li` margins.
+    *   This keeps secondary information accessible but visually tidy until the user chooses to expand it.
+*   **No Section Headings:** Explicit `<h2>` headings for "Results" and "Visualization" were removed as the content flow makes their purpose clear, reducing visual noise.
+*   **Constrained Width Alignment:** Key content sections (Results, Grid Guide, View Toggle, Grid) share the same `max-width` and are centered within the main container, creating a visually cohesive block post-calculation.

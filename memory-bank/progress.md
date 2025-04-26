@@ -2,7 +2,7 @@
 
 ## MVP - Complete (Functionally) / Pending Final Review
 
-**Status:** All core features defined in `projectbrief.md` are implemented and functional. Visual cleanup/refactoring and progressive reveal implementation are complete. The application now presents a clean initial interface and reveals results/visualizations upon successful calculation. The next step is final review and testing before declaring the MVP officially complete.
+**Status:** All core features defined in `projectbrief.md` are implemented and functional. Visual cleanup/refactoring, progressive reveal, layout refinements (including the final consolidation of guide/key), and final comment review are complete. The application now presents a clean initial interface, reveals results/visualizations logically upon successful calculation, and maintains visual consistency. The next step is final review and testing before declaring the MVP officially complete.
 
 **Completed Tasks:**
 
@@ -32,22 +32,31 @@
         *   Reorganized CSS file structure for better readability.
         *   Added file structure overview comment and improved comment consistency.
         *   Converted specific `h1`, grid background, and key swatch border colors to variables.
-    *   **Progressive Reveal Implementation:** (NEW)
+    *   **Progressive Reveal & Layout Refinement:** (UPDATED)
         *   Added intro text below heading.
         *   Added `.hidden` utility class to CSS.
-        *   Applied `hidden` class initially to results, view toggle, explanation, color key, and grid container in HTML.
+        *   Applied `hidden` class initially to results, grid guide, view toggle, and grid container in HTML.
         *   Updated `ui.js` (`handleCalculation`) to manage element visibility based on calculation success/failure.
-        *   Refactored Color Key into a collapsible `<details>` element for consistency and placed it before the grid.
-        *   Updated comments across HTML, CSS, JS to reflect changes.
+        *   Removed explicit "Results" and "Visualization" `<h2>` headings.
+        *   Reordered revealed elements in HTML (Results -> Guide -> Toggle -> Grid).
+        *   Constrained width of Results, Guide, Toggle sections to match grid width via CSS.
+        *   **Consolidated Grid Guide/Key (Final):** Replaced separate Explanation and Color Key `<details>` with a single `<details id="grid-guide-details">`.
+            *   Set `<summary>` to "How to Read This Visualization".
+            *   Implemented internal 2-column layout (Flexbox) with responsive stacking.
+            *   Added internal `<h3>` headings ("Understanding the Grid", "What the Colors Mean") styled with smaller font size (`--font-size-sm`).
+            *   Removed explicit `gap` from vertical color key list, relying on default margins.
+        *   Performed final comment review and update across all project files.
 *   **Memory Bank:**
     *   Initialized core memory bank files.
     *   Updated memory bank after MVP feature completion.
     *   Updated memory bank after visual cleanup.
-    *   Updated memory bank after progressive reveal implementation. (NEW)
+    *   Updated memory bank after progressive reveal implementation.
+    *   Updated memory bank after initial layout refinements and comment review.
+    *   Updated memory bank after final layout consolidation and refinement. (NEW)
 
 **Next Steps:**
 
-*   Perform final review and testing of all features and the progressive reveal flow across different views and screen sizes. (NEW)
+*   Perform final review and testing of all features and the progressive reveal flow across different views and screen sizes.
 *   Declare MVP officially complete.
 
 **Out of Scope (Post-MVP):**

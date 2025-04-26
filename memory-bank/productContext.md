@@ -19,35 +19,35 @@ It is **not** intended as a precise predictive tool but rather as a thought-prov
 *   **Experience Goals:**
     *   **Clarity:** The visualization should be immediately understandable. The grid, colors, and states (past/present/future) should be intuitive. Explanations and keys should be easily accessible when needed.
     *   **Simplicity:** The initial interaction should be focused and straightforward (enter details, calculate). Complexity is revealed progressively.
-    *   **Impact:** The visualization should be striking and encourage contemplation.
+    *   **Impact:** The visualization should be striking and encourage contemplation. Placing the grid prominently after results enhances impact.
     *   **Accuracy (within scope):** Calculations should correctly reflect age and use the specified actuarial data. Date handling (especially across timezones/DST) must be robust (achieved via UTC normalization and calculation).
     *   **Responsiveness:** The experience should be seamless across desktop, tablet, and mobile devices.
     *   **Transparency:** Explanations for visualization nuances (53-week years, calendar view) and a clear disclaimer about the nature of the estimates are essential.
 
-## 3. How It Should Work (User Flow) - Updated for Progressive Reveal
+## 3. How It Should Work (User Flow) - Updated for Final Layout
 
 1.  **Initial Load:**
     *   User visits the web application.
     *   The page displays the Title, a brief introductory sentence, the Input Form (DOB, Sex, Calculate button), and the Disclaimer.
-    *   The Results Area, View Toggle, Explanation section, Color Key section, and Grid Container are hidden.
+    *   Results Area, Grid Guide section (`<details id="grid-guide-details">`), View Toggle, and Grid Container are hidden.
 2.  **User Interaction:**
     *   User enters their birth date and selects their sex from the form.
     *   User clicks the "Calculate & Visualize" button.
 3.  **Calculation Attempt & Results Display:**
     *   The application attempts to validate input and perform calculations.
     *   The Results Area becomes visible.
-    *   **If Error:** A clear error message is displayed in the Results Area. The View Toggle, Explanation, Color Key, and Grid remain hidden. The grid area is cleared if it previously contained content.
+    *   **If Error:** A clear error message is displayed in the Results Area. The Grid Guide, Grid, and View Toggle remain hidden. The grid area is cleared if it previously contained content.
     *   **If Success:**
         *   The calculated results (current age, remaining years, total estimate) are displayed clearly in the Results Area.
         *   The application generates the life grid visualization (defaulting to "Weeks by Age").
+        *   The Grid Guide section (`<details id="grid-guide-details">` with summary "How to Read This Visualization") becomes visible (collapsed by default).
         *   The View Toggle controls become visible.
-        *   The Explanation section (collapsible) becomes visible.
-        *   The Color Key section (collapsible) becomes visible.
         *   The Grid Container becomes visible, displaying the rendered grid.
+        *   (Order of revealed elements after Form: Results Area -> Grid Guide -> View Toggle -> Grid Container -> Disclaimer)
 4.  **Post-Calculation Interaction:**
     *   The user can select different view types (Weeks by Calendar, Months, Years) using the now-visible radio buttons.
     *   Selecting a different view instantly updates the grid visualization *without* requiring recalculation.
-    *   The user can expand/collapse the Explanation and Color Key sections for context.
+    *   The user can expand/collapse the "How to Read This Visualization" section (`<details>`) to view the explanation ("Understanding the Grid") and color key ("What the Colors Mean"), presented in side-by-side columns (which stack vertically on smaller screens).
 5.  **Re-Calculation:** If the user changes inputs and clicks "Calculate & Visualize" again, the flow repeats from Step 2/3 (relevant sections are hidden again before the new attempt).
 
 ## 4. Key Product Decisions (Rationale)
@@ -58,5 +58,7 @@ It is **not** intended as a precise predictive tool but rather as a thought-prov
 *   **Dynamic Block Sizing (Months/Years):** Makes the less granular views (Months, Years) visually fill the available space effectively within the fixed container, enhancing their impact.
 *   **Clear Disclaimer & Explanations:** Manages user expectations regarding the estimate's nature and clarifies potential points of confusion in the visualization.
 *   **UTC Date Handling:** Chosen to ensure calculations are consistent and free from local timezone/DST ambiguities, critical for accurate grid rendering across users.
-*   **Progressive Reveal:** (NEW) Hiding results, controls, and the grid initially creates a cleaner, less overwhelming starting point focused solely on the required input. Reveals information contextually after the primary action (calculation) is performed.
-*   **Collapsible Explanation/Key:** (NEW) Keeps secondary information accessible but visually tidy, reducing clutter even after reveal.
+*   **Progressive Reveal:** Hiding results, controls, and the grid initially creates a cleaner, less overwhelming starting point focused solely on the required input. Reveals information contextually after the primary action (calculation) is performed.
+*   **Consolidated & Collapsible Guide/Key:** (FINAL) Combining the explanation and color key into a single `<details>` element keeps secondary information accessible but visually tidy, reducing initial vertical clutter post-calculation. The side-by-side internal layout (on wider screens) presents the information efficiently once expanded. The trade-off is that the expanded height is still significant, but collapsibility mitigates this. User-oriented headings ("Understanding the Grid", "What the Colors Mean") are used internally.
+*   **Grid Prominence & Width Alignment:** Placing the grid immediately after results/guide/toggle and constraining the width of these sections to match the grid creates a more cohesive and focused visual structure post-calculation.
+*   **No Section Headings:** Explicit "Results" and "Visualization" headings were removed as the content is self-explanatory within the flow, reducing visual clutter.
