@@ -3,16 +3,16 @@
  * 1. CSS Variables (:root) - Defines reusable values (spacing, colors, fonts).
  * 2. Basic Styles (html, body) - Global resets and base typography/background.
  * 3. Main Layout (.container, h1) - Core page structure and main heading.
- * 4. Utility Classes (.hidden) - General utility styles.
+ * 4. Utility Classes (.hidden, .visually-hidden) - General utility styles.
  * 5. UI Components - Styles for distinct interface elements:
  *    - Form Styles (.input-form, .form-group, .calculate-btn)
  *    - Results & Disclaimer Styles (.results-area, .disclaimer)
- *    - Grid Guide Details Styles (.grid-guide-details, etc.)
- *    - View Toggle Styles (.view-toggle)
- *    - Explanation Details Styles (Part of Grid Guide)
- *    - Color Key Details Styles (Part of Grid Guide)
+ *    - Grid Guide Details Styles (.grid-guide-details, etc.) - Inside grid container
+ *    - Grid Controls Header & View Switcher (#grid-controls-header, #view-switcher, .view-button) - Inside grid container
+ *    - (Old View Toggle Styles - .view-toggle - are now unused)
  * 6. Life Grid Styles - Complex styles for the visualization grid:
- *    - Grid Container (.life-grid-container)
+ *    - Grid Container (.life-grid-container) - Contains header, guide, and content area
+ *    - Grid Content Area (#grid-content-area) - Holds the actual grid blocks
  *    - Row Styles (.year-row, etc.)
  *    - Block Base Styles (.week-block, .month-block, .year-block)
  *    - Life Stage Colors (.stage-*)
@@ -55,6 +55,7 @@
     --color-background-subtle: #f9f9f9; /* Subtle Gray / Off-White */
     --color-primary: #4a90e2;        /* Primary Blue */
     --color-primary-dark: #3a7ac0;    /* Darker Primary Blue (Hover) */
+    --color-primary-light: #e0f0ff;   /* Lighter Primary Blue (Hover for non-active buttons) */
     --color-error: #e74c3c;           /* Error Red */
     --color-present-highlight: #FF4500; /* OrangeRed */
 
@@ -104,6 +105,14 @@ h1 {
 }
 
 /* --- Utility Classes --- */
+/* Add this class for accessible hiding */
+.visually-hidden {
+    position: absolute !important;
+    height: 1px; width: 1px;
+    overflow: hidden;
+    clip: rect(1px, 1px, 1px, 1px);
+    white-space: nowrap; /* prevent line breaks */
+}
 /* Utility class to hide elements (used for progressive reveal) */
 .hidden {
     display: none !important; /* !important ensures override */
@@ -200,12 +209,16 @@ h1 {
 }
 
 /* --- Grid Guide Details Styles --- */
+/* Styles for the <details> element containing explanation and color key */
+/* Now positioned INSIDE the grid container */
 .grid-guide-details {
-    /* Sizing and Spacing */
-    margin-bottom: var(--space-lg); /* Space below details */
-    max-width: 656px; /* Match grid container max-width */
-    width: 100%;
+    /* Sizing and Spacing (Now inside grid container) */
+    /* margin-bottom removed */
+    /* max-width removed */
+    /* width removed */
     box-sizing: border-box;
+    margin-top: var(--space-md); /* Space above guide, below controls */
+    margin-bottom: var(--space-md); /* Space below guide, above grid content */
 
     /* Appearance */
     border: 1px solid var(--border-color-light);
@@ -283,6 +296,7 @@ h1 {
     margin-bottom: var(--space-sm);
     border-bottom: 1px solid var(--border-color-light);
     padding-bottom: var(--space-xxs);
+    text-align: left; /* Ensure left alignment */
 }
 
 /* Style content within columns */
@@ -358,53 +372,143 @@ h1 {
 .key-color.stage-midsenior { background-color: #B0C4DE; }
 .key-color.stage-latesenior { background-color: #D8BFD8; }
 
+/* Add specific styles for key swatches mimicking grid states */
+.color-key .key-color.past {
+    background-color: var(--color-background-container); /* Or a representative gray */
+    border-color: rgba(0, 0, 0, 0.3);
+    opacity: 0.7;
+}
+.color-key .key-color.present {
+    background-color: var(--color-present-highlight);
+    border-color: rgba(0, 0, 0, 0.7);
+}
+.color-key .key-color.out-of-bounds {
+     background-color: var(--color-grid-background);
+     border-color: var(--color-grid-background);
+     opacity: 0.5; /* Make it visible but distinct */
+}
 
-/* --- View Toggle Styles --- */
+
+/* ==========================================================================
+   Grid Controls Header & View Switcher (NEW)
+   ========================================================================== */
+
+/* Controls header, inside grid container */
+#grid-controls-header {
+    display: flex;
+    justify-content: center; /* Center-align switcher */
+    align-items: center;
+    padding: var(--space-sm) var(--space-xs); /* Add horizontal padding */
+    border-bottom: 1px solid var(--border-color-light);
+    gap: var(--space-md);
+    flex-wrap: wrap;
+    box-sizing: border-box;
+
+    /* Make header sticky inside grid container */
+    position: sticky;
+    top: 0; /* Stick to the top of the scrolling container */
+    z-index: 1; /* Ensure it stays above grid content */
+    background-color: var(--color-grid-background); /* Match grid container background */
+}
+
+#view-switcher {
+    display: inline-flex; /* Group buttons together */
+    border-radius: var(--border-radius-sm);
+    overflow: hidden; /* Ensures children conform to border-radius */
+}
+
+.view-button {
+    padding: var(--space-xs) var(--space-sm);
+    border: 1px solid var(--color-primary);
+    background-color: var(--color-background-container);
+    color: var(--color-primary);
+    font-size: var(--font-size-sm);
+    cursor: pointer;
+    transition: background-color 0.2s ease, color 0.2s ease;
+    line-height: 1.4;
+    white-space: normal; /* Allow wrapping */
+    text-align: center; /* Center text horizontally */
+
+    /* Ensure consistent height accommodating wrapped text */
+    min-height: 56px; /* Adjust value as needed based on inspection */
+    /* Use flexbox to vertically center text within the button */
+    display: inline-flex; /* Make button a flex container */
+    align-items: center; /* Vertically center content */
+}
+
+/* Remove left border for adjacent buttons */
+.view-button + .view-button {
+    border-left: none;
+}
+
+/* Hover/Focus effect */
+.view-button:not(.active):hover,
+.view-button:not(.active):focus {
+    background-color: var(--color-primary-light, #e0f0ff); /* Define --color-primary-light if needed */
+}
+.view-button:focus-visible {
+     outline: 2px solid var(--color-primary-dark);
+     outline-offset: 1px;
+     z-index: 1;
+}
+
+/* Active state */
+.view-button.active {
+    background-color: var(--color-primary);
+    color: var(--color-background-container);
+    cursor: default;
+    font-weight: 600;
+}
+
+/* ========================================================================== */
+
+
+/* --- Old View Toggle Styles (Unused) --- */
 /* Styles for the fieldset containing view selection radios */
 /* Initially hidden via .hidden class */
+/* Kept for reference, but not actively used */
+/*
 .view-toggle {
-    margin-bottom: var(--space-lg); /* Space below toggle */
+    margin-bottom: var(--space-lg);
     border: 1px solid var(--border-color-light);
     border-radius: var(--border-radius-md);
     padding: var(--space-xs) var(--space-md);
-    display: inline-flex; /* Use inline-flex if we want it to shrink-wrap horizontally */
+    display: inline-flex;
     flex-direction: column;
     align-items: flex-start;
     gap: var(--space-xs);
     background-color: var(--color-background-subtle);
     box-sizing: border-box;
-
-    /* Constrain width to match grid */
-    max-width: 656px; /* Match grid container max-width */
-    width: 100%; /* Allow shrinking below max-width */
+    max-width: 656px;
+    width: 100%;
 }
 .view-toggle legend {
     font-weight: 600;
     padding: 0 var(--space-xxs);
-    font-size: 0.95rem; /* Keep specific */
+    font-size: 0.95rem;
     color: var(--color-text-primary);
 }
-.view-toggle div { /* Each radio button + label pair */
+.view-toggle div {
     display: flex;
     align-items: center;
     gap: var(--space-xxs);
 }
 .view-toggle label {
     cursor: pointer;
-    font-size: 0.9rem; /* Keep specific */
+    font-size: 0.9rem;
 }
 .view-toggle input[type="radio"] {
     cursor: pointer;
-    margin: 0; /* Reset default margin */
+    margin: 0;
 }
-
+*/
 
 
 /* --- Life Grid Styles --- */
 /* Styles for the grid container */
 /* Initially hidden via .hidden class */
 .life-grid-container {
-    margin-bottom: var(--space-lg); /* Space below grid */
+    /* margin-bottom removed */
     width: 100%; /* Takes width from parent .container */
 
     /* KEY LAYOUT: Fixed max-width based on the default (Week) view */
@@ -412,15 +516,25 @@ h1 {
     max-width: 656px;
     box-sizing: border-box;
     display: flex;
-    flex-direction: column; /* Stack year rows vertically */
-    gap: 3px; /* Vertical gap between year rows (Keep specific) */
+    flex-direction: column; /* Stack header, guide, content area vertically */
+    /* gap removed - spacing handled by margins on children */
     overflow-x: auto; /* Allow horizontal scrolling if content exceeds max-width (eg. smaller screens) */
-    padding: 10px; /* Grid container padding (Keep specific) */
+    /* Padding adjusted: Top removed, others kept specific */
+    padding: 0 10px 10px 10px;
     background-color: var(--color-grid-background);
     border: 1px solid var(--border-color-medium);
     border-radius: var(--border-radius-md);
     -webkit-overflow-scrolling: touch; /* Improve scrolling on touch devices */
 }
+
+/* NEW: Container for the actual grid blocks */
+#grid-content-area {
+    display: flex;
+    flex-direction: column;
+    gap: 3px; /* Vertical gap between year rows (Keep specific) */
+    /* No padding needed here, handled by parent */
+}
+
 
 /* Base style for all rows (weeks, months, years) */
 .year-row { /* Also used for month-row, decade-row */
@@ -521,7 +635,8 @@ h1 {
      gap: 2px; /* Horizontal gap between month blocks (Keep specific) */
 }
 /* KEY TECHNIQUE: Calculate month block size to fill container width */
-.life-grid-container.grid-view-months .month-block {
+/* Target blocks within the content area */
+.life-grid-container.grid-view-months #grid-content-area .month-block {
     /* Width = (100% container width - total gap space) / number of blocks */
     /* 12 blocks, 11 gaps of 2px each = 22px total gap space */
     width: calc((100% - 22px) / 12);
@@ -535,7 +650,8 @@ h1 {
      gap: 3px; /* Horizontal gap between year blocks (Keep specific) */
 }
 /* KEY TECHNIQUE: Calculate year block size to fill container width */
-.life-grid-container.grid-view-years .year-block {
+/* Target blocks within the content area */
+.life-grid-container.grid-view-years #grid-content-area .year-block {
     /* Width = (100% container width - total gap space) / number of blocks */
     /* 10 blocks, 9 gaps of 3px each = 27px total gap space */
     width: calc((100% - 27px) / 10);
@@ -556,6 +672,21 @@ h1 {
     .explanation-column {
         margin-bottom: var(--space-md);
     }
+
+    /* Responsive styles for Grid Controls Header */
+    #grid-controls-header {
+        flex-direction: column; /* Stack title and switcher vertically */
+        align-items: center; /* Center items horizontally when stacked */
+        gap: var(--space-sm); /* Reduce gap when stacked */
+        padding-left: var(--space-xs); /* Add slight padding if needed */
+        padding-right: var(--space-xs);
+        /* max-width matches grid via media queries below */
+    }
+
+    .view-button {
+        padding: var(--space-xs) var(--space-xs);
+        font-size: calc(var(--font-size-sm) * 0.95);
+    }
 }
 
 
@@ -565,7 +696,11 @@ h1 {
     .life-grid-container {
         /* Precise max-width for 53 * (8px block + 1px gap) + 2 * 5px padding */
         max-width: 487px;
-        padding: 5px; /* Keep specific */
+        padding: 0 5px 5px 5px; /* Keep specific, top padding 0 */
+        /* gap removed from container */
+    }
+    /* Adjust grid content area gap */
+    #grid-content-area {
         gap: 2px; /* Vertical gap (Keep specific) */
     }
     /* Adjust week row gap and block size for Week view */
@@ -580,10 +715,8 @@ h1 {
     .container {
         padding: var(--space-lg) var(--space-xs);
     }
-    /* Adjust results/toggle/details width */
-    .results-area,
-    .view-toggle,
-    .grid-guide-details { /* Target combined details */
+    /* Adjust results width */
+    .results-area { /* REMOVED .grid-guide-details, #grid-controls-header */
         max-width: 487px; /* Match grid */
     }
 }
@@ -594,7 +727,11 @@ h1 {
     .life-grid-container {
         /* Calculation: 53 * (6px block + 1px gap) + 2 * 4px padding = 379px */
         max-width: 379px;
-        padding: 4px; /* Keep specific */
+        padding: 0 4px 4px 4px; /* Keep specific, top padding 0 */
+        /* gap removed from container */
+    }
+    /* Adjust grid content area gap */
+    #grid-content-area {
         gap: 1.5px; /* Vertical gap (Keep specific) */
     }
     /* Adjust week row gap and block size for Week view */
@@ -610,13 +747,22 @@ h1 {
     .calculate-btn {
         width: 100%;
     }
-    /* Adjust results/toggle/details width */
-    .results-area,
-    .view-toggle,
-    .grid-guide-details { /* Target combined details */
+    /* Adjust results width */
+    .results-area { /* REMOVED .grid-guide-details, #grid-controls-header */
         max-width: 379px; /* Match grid */
     }
 }
+
+/* NEW: Further adjustments for very small screens */
+@media (max-width: 480px) {
+    .view-button {
+        padding: var(--space-xs) calc(var(--space-xs) * 0.75);
+        font-size: calc(var(--font-size-sm) * 0.9);
+    }
+    /* Adjust header max-width if needed, matching grid */
+    /* Not needed as it inherits from parent */
+}
+
 
 /* Tier 4: Smallest Screens - Target width < 379px */
 @media (max-width: 378px) {
@@ -624,7 +770,11 @@ h1 {
     .life-grid-container {
         /* Calculation: 53 * (5px block + 1px gap) + 2 * 3px padding = 324px */
         max-width: 324px;
-        padding: 3px; /* Keep specific */
+        padding: 0 3px 3px 3px; /* Keep specific, top padding 0 */
+        /* gap removed from container */
+    }
+    /* Adjust grid content area gap */
+    #grid-content-area {
         gap: 1px; /* Vertical gap (Keep specific) */
     }
     /* Adjust week row gap and block size for Week view */
@@ -641,10 +791,8 @@ h1 {
     }
      h1 { font-size: 1.6rem; /* Keep specific */ }
      .calculate-btn { font-size: var(--font-size-base); }
-     /* Adjust results/toggle/details width */
-     .results-area,
-     .view-toggle,
-     .grid-guide-details { /* Target combined details */
+     /* Adjust results width */
+     .results-area { /* REMOVED .grid-guide-details, #grid-controls-header */
         max-width: 324px; /* Match grid */
      }
 }
@@ -660,7 +808,7 @@ h1 {
     .life-grid-container.grid-view-months .month-row {
         gap: 1px; /* Reduce gap (Keep specific) */
     }
-    .life-grid-container.grid-view-months .month-block {
+    .life-grid-container.grid-view-months #grid-content-area .month-block {
         /* Recalculate width based on new gap: 11 gaps * 1px = 11px */
         width: calc((100% - 11px) / 12); /* Aspect ratio is inherited */
     }
@@ -675,7 +823,7 @@ h1 {
     .life-grid-container.grid-view-years .decade-row {
         gap: 2px; /* Reduce gap (Keep specific) */
     }
-    .life-grid-container.grid-view-years .year-block {
+    .life-grid-container.grid-view-years #grid-content-area .year-block {
         /* Recalculate width: 9 gaps * 2px = 18px */
         width: calc((100% - 18px) / 10); /* Aspect ratio is inherited */
     }
@@ -685,7 +833,7 @@ h1 {
     .life-grid-container.grid-view-years .decade-row {
         gap: 1px; /* Further reduce gap (Keep specific) */
     }
-    .life-grid-container.grid-view-years .year-block {
+    .life-grid-container.grid-view-years #grid-content-area .year-block {
         /* Recalculate width: 9 gaps * 1px = 9px */
         width: calc((100% - 9px) / 10); /* Aspect ratio is inherited */
     }

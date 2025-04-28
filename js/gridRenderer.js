@@ -9,7 +9,7 @@
  * Relies on the global `dateFns` object (v4.1.0+) for UTC-based date calculations.
  * Expects input `birthDate` to be pre-normalized to UTC midnight by the calling module.
  * Defines `LIFE_STAGES` and helper functions internally. Uses `DocumentFragment` for
- * efficient DOM manipulation.
+ * efficient DOM manipulation. Renders content into a specific `gridContentAreaElement`.
  */
 
 
@@ -77,14 +77,14 @@ function calculateAgeAtDate(currentDateUTC, birthDateUTC) {
  * Each row represents one year of age. Uses DocumentFragment for performance.
  * @param {Date} inputBirthDate - User's birth date object (UTC normalized).
  * @param {number} totalLifespanYearsEst - Estimated lifespan in years.
- * @param {HTMLElement} gridContainerElement - The DOM element for the grid.
+ * @param {HTMLElement} gridContentAreaElement - The DOM element to render the grid blocks into.
  */
-function renderAgeGrid(inputBirthDate, totalLifespanYearsEst, gridContainerElement) {
+function renderAgeGrid(inputBirthDate, totalLifespanYearsEst, gridContentAreaElement) {
     if (!checkDateFns()) {
-        if (gridContainerElement) gridContainerElement.innerHTML = '<p class="error-message">Error: Date library failed to load.</p>';
+        if (gridContentAreaElement) gridContentAreaElement.innerHTML = '<p class="error-message">Error: Date library failed to load.</p>';
         return;
     }
-    if (!gridContainerElement) { console.error("Grid container not provided."); return; }
+    if (!gridContentAreaElement) { console.error("Grid content area element not provided."); return; }
 
     console.log("Rendering Age Grid...");
     try {
@@ -98,7 +98,7 @@ function renderAgeGrid(inputBirthDate, totalLifespanYearsEst, gridContainerEleme
 
 
         // --- Grid Rendering ---
-        gridContainerElement.innerHTML = ''; // Clear previous content
+        gridContentAreaElement.innerHTML = ''; // Clear previous content from the specific area
         // Use a DocumentFragment to batch DOM updates for better performance
         const fragment = document.createDocumentFragment();
         let totalRenderedWeeks = 0;
@@ -180,14 +180,15 @@ function renderAgeGrid(inputBirthDate, totalLifespanYearsEst, gridContainerEleme
             if (ageRow.hasChildNodes()) fragment.appendChild(ageRow);
         }
 
-        // Append the completed fragment to the DOM
-        gridContainerElement.appendChild(fragment);
-        gridContainerElement.setAttribute('aria-label', `Life grid (Age View) showing estimated lifespan from Age 0 to ${totalYearsToRender - 1}.`);
+        // Append the completed fragment to the specific content area
+        gridContentAreaElement.appendChild(fragment);
+        // Set aria-label on the main grid container (#life-grid-container) for overall context
+        gridContentAreaElement.parentElement?.setAttribute('aria-label', `Life grid (Age View) showing estimated lifespan from Age 0 to ${totalYearsToRender - 1}.`);
         console.log(`Total weeks rendered in age grid: ${totalRenderedWeeks}`);
 
     } catch (error) {
         console.error("Error during age-based grid rendering:", error);
-        gridContainerElement.innerHTML = '<p class="error-message">Error generating age-based grid.</p>';
+        gridContentAreaElement.innerHTML = '<p class="error-message">Error generating age-based grid.</p>';
     }
 }
 
@@ -198,14 +199,14 @@ function renderAgeGrid(inputBirthDate, totalLifespanYearsEst, gridContainerEleme
  * Uses DocumentFragment for performance.
  * @param {Date} inputBirthDate - User's birth date object (UTC normalized).
  * @param {number} totalLifespanYearsEst - Estimated lifespan in years.
- * @param {HTMLElement} gridContainerElement - The DOM element for the grid.
+ * @param {HTMLElement} gridContentAreaElement - The DOM element to render the grid blocks into.
  */
-function renderCalendarGrid(inputBirthDate, totalLifespanYearsEst, gridContainerElement) {
+function renderCalendarGrid(inputBirthDate, totalLifespanYearsEst, gridContentAreaElement) {
     if (!checkDateFns()) {
-        if (gridContainerElement) gridContainerElement.innerHTML = '<p class="error-message">Error: Date library failed to load.</p>';
+        if (gridContentAreaElement) gridContentAreaElement.innerHTML = '<p class="error-message">Error: Date library failed to load.</p>';
         return;
     }
-     if (!gridContainerElement) { console.error("Grid container not provided."); return; }
+     if (!gridContentAreaElement) { console.error("Grid content area element not provided."); return; }
 
     console.log("Rendering Calendar Grid...");
     try {
@@ -222,7 +223,7 @@ function renderCalendarGrid(inputBirthDate, totalLifespanYearsEst, gridContainer
         const currentActualWeekStartDateUTC = dateFns.startOfISOWeek(nowUTC);
 
         // --- Grid Rendering ---
-        gridContainerElement.innerHTML = ''; // Clear previous content
+        gridContentAreaElement.innerHTML = ''; // Clear previous content from the specific area
         // Use a DocumentFragment to batch DOM updates for better performance
         const fragment = document.createDocumentFragment();
         let totalRenderedWeeks = 0;
@@ -290,14 +291,15 @@ function renderCalendarGrid(inputBirthDate, totalLifespanYearsEst, gridContainer
             }
         }
 
-        // Append the completed fragment to the DOM
-        gridContainerElement.appendChild(fragment);
-        gridContainerElement.setAttribute('aria-label', `Life grid (Calendar View) showing estimated lifespan from ${startISOYear} to ${endISOYear}.`);
+        // Append the completed fragment to the specific content area
+        gridContentAreaElement.appendChild(fragment);
+        // Set aria-label on the main grid container (#life-grid-container) for overall context
+        gridContentAreaElement.parentElement?.setAttribute('aria-label', `Life grid (Calendar View) showing estimated lifespan from ${startISOYear} to ${endISOYear}.`);
         console.log(`Total weeks rendered in calendar grid: ${totalRenderedWeeks}`);
 
     } catch (error) {
         console.error("Error during calendar-based grid rendering:", error);
-        gridContainerElement.innerHTML = '<p class="error-message">Error generating calendar-based grid.</p>';
+        gridContentAreaElement.innerHTML = '<p class="error-message">Error generating calendar-based grid.</p>';
     }
 }
 
@@ -306,14 +308,14 @@ function renderCalendarGrid(inputBirthDate, totalLifespanYearsEst, gridContainer
  * Each row represents one year (12 months). Uses DocumentFragment for performance.
  * @param {Date} inputBirthDate - User's birth date object (UTC normalized).
  * @param {number} totalLifespanYearsEst - Estimated lifespan in years.
- * @param {HTMLElement} gridContainerElement - The DOM element for the grid.
+ * @param {HTMLElement} gridContentAreaElement - The DOM element to render the grid blocks into.
  */
-function renderMonthsGrid(inputBirthDate, totalLifespanYearsEst, gridContainerElement) {
+function renderMonthsGrid(inputBirthDate, totalLifespanYearsEst, gridContentAreaElement) {
     if (!checkDateFns()) {
-        if (gridContainerElement) gridContainerElement.innerHTML = '<p class="error-message">Error: Date library failed to load.</p>';
+        if (gridContentAreaElement) gridContentAreaElement.innerHTML = '<p class="error-message">Error: Date library failed to load.</p>';
         return;
     }
-    if (!gridContainerElement) { console.error("Grid container not provided."); return; }
+    if (!gridContentAreaElement) { console.error("Grid content area element not provided."); return; }
 
     console.log("Rendering Months Grid...");
     try {
@@ -330,7 +332,7 @@ function renderMonthsGrid(inputBirthDate, totalLifespanYearsEst, gridContainerEl
         const totalEstimatedMonths = Math.ceil(totalLifespanYearsEst * 12);
 
         // --- Grid Rendering ---
-        gridContainerElement.innerHTML = ''; // Clear previous content
+        gridContentAreaElement.innerHTML = ''; // Clear previous content from the specific area
         // Use a DocumentFragment to batch DOM updates for better performance
         const fragment = document.createDocumentFragment();
         let totalRenderedMonths = 0;
@@ -394,14 +396,15 @@ function renderMonthsGrid(inputBirthDate, totalLifespanYearsEst, gridContainerEl
             }
         }
 
-        // Append the completed fragment to the DOM
-        gridContainerElement.appendChild(fragment);
-        gridContainerElement.setAttribute('aria-label', `Life grid (Months View) showing estimated ${totalEstimatedMonths} months.`);
+        // Append the completed fragment to the specific content area
+        gridContentAreaElement.appendChild(fragment);
+        // Set aria-label on the main grid container (#life-grid-container) for overall context
+        gridContentAreaElement.parentElement?.setAttribute('aria-label', `Life grid (Months View) showing estimated ${totalEstimatedMonths} months.`);
         console.log(`Total months rendered in grid: ${totalRenderedMonths}`);
 
     } catch (error) {
         console.error("Error during months-based grid rendering:", error);
-        gridContainerElement.innerHTML = '<p class="error-message">Error generating months-based grid.</p>';
+        gridContentAreaElement.innerHTML = '<p class="error-message">Error generating months-based grid.</p>';
     }
 }
 
@@ -410,14 +413,14 @@ function renderMonthsGrid(inputBirthDate, totalLifespanYearsEst, gridContainerEl
  * Each row represents one decade (10 years). Uses DocumentFragment for performance.
  * @param {Date} inputBirthDate - User's birth date object (UTC normalized).
  * @param {number} totalLifespanYearsEst - Estimated lifespan in years.
- * @param {HTMLElement} gridContainerElement - The DOM element for the grid.
+ * @param {HTMLElement} gridContentAreaElement - The DOM element to render the grid blocks into.
  */
-function renderYearsGrid(inputBirthDate, totalLifespanYearsEst, gridContainerElement) {
+function renderYearsGrid(inputBirthDate, totalLifespanYearsEst, gridContentAreaElement) {
     if (!checkDateFns()) {
-        if (gridContainerElement) gridContainerElement.innerHTML = '<p class="error-message">Error: Date library failed to load.</p>';
+        if (gridContentAreaElement) gridContentAreaElement.innerHTML = '<p class="error-message">Error: Date library failed to load.</p>';
         return;
     }
-    if (!gridContainerElement) { console.error("Grid container not provided."); return; }
+    if (!gridContentAreaElement) { console.error("Grid content area element not provided."); return; }
 
     console.log("Rendering Years Grid (Decades)...");
     try {
@@ -434,7 +437,7 @@ function renderYearsGrid(inputBirthDate, totalLifespanYearsEst, gridContainerEle
         const totalEstimatedYears = Math.ceil(totalLifespanYearsEst);
 
         // --- Grid Rendering ---
-        gridContainerElement.innerHTML = ''; // Clear previous content
+        gridContentAreaElement.innerHTML = ''; // Clear previous content from the specific area
         // Use a DocumentFragment to batch DOM updates for better performance
         const fragment = document.createDocumentFragment();
         let totalRenderedYears = 0;
@@ -496,14 +499,15 @@ function renderYearsGrid(inputBirthDate, totalLifespanYearsEst, gridContainerEle
             }
         }
 
-        // Append the completed fragment to the DOM
-        gridContainerElement.appendChild(fragment);
-        gridContainerElement.setAttribute('aria-label', `Life grid (Years View) showing estimated ${totalEstimatedYears} years, grouped by decade.`);
+        // Append the completed fragment to the specific content area
+        gridContentAreaElement.appendChild(fragment);
+        // Set aria-label on the main grid container (#life-grid-container) for overall context
+        gridContentAreaElement.parentElement?.setAttribute('aria-label', `Life grid (Years View) showing estimated ${totalEstimatedYears} years, grouped by decade.`);
         console.log(`Total years rendered in grid: ${totalRenderedYears}`);
 
     } catch (error) {
         console.error("Error during years-based grid rendering:", error);
-        gridContainerElement.innerHTML = '<p class="error-message">Error generating years-based grid.</p>';
+        gridContentAreaElement.innerHTML = '<p class="error-message">Error generating years-based grid.</p>';
     }
 }
 

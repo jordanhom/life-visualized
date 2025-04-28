@@ -41,70 +41,63 @@
             <!-- Content (results or errors) is dynamically updated by ui.js -->
         </div>
 
-        <details id="grid-guide-details" class="grid-guide-details hidden">
-            <summary>How to Read This Visualization</summary>
-            <div class="guide-content-wrapper">
-                <div class="explanation-column">
-                    <h3>Understanding the Grid</h3>
-                    <p>Each block represents a unit of time in your estimated lifespan. Colors indicate the general life stage for that period. Blocks fade for time already passed, and the current block is highlighted.</p>
-                    <ul>
-                        <li><strong>Weeks (by Age):</strong> Each row is one year of life (up to 53 weeks). Weeks align with your age progression.</li>
-                        <li><strong>Weeks (by Calendar):</strong> Each row is a calendar year. Weeks align with standard ISO calendar weeks. Some blocks may appear 'out of bounds' if your lifespan doesn't perfectly align with calendar year starts/ends.</li>
-                        <li><strong>Months:</strong> Each row is one year of life (12 months).</li>
-                        <li><strong>Years:</strong> Each row is one decade (10 years).</li>
-                    </ul>
-                </div>
-                <div class="color-key-column">
-                    <h3>What the Colors Mean</h3>
-                    <div class="color-key"> <!-- Re-use existing color-key class for list styling -->
-                        <ul>
-                            <li><span class="key-color stage-infancy"></span> Infancy (0-1)</li>
-                            <li><span class="key-color stage-toddler"></span> Toddler (1-3)</li>
-                            <li><span class="key-color stage-earlychildhood"></span> Early Childhood (3-6)</li>
-                            <li><span class="key-color stage-middlechildhood"></span> Middle Childhood (6-11)</li>
-                            <li><span class="key-color stage-adolescence"></span> Adolescence (11-18)</li>
-                            <li><span class="key-color stage-youngadult"></span> Young Adult (18-25)</li>
-                            <li><span class="key-color stage-adulthood"></span> Adulthood (25-40)</li>
-                            <li><span class="key-color stage-middleadulthood"></span> Middle Adulthood (40-65)</li>
-                            <li><span class="key-color stage-earlysenior"></span> Early Senior (65-75)</li>
-                            <li><span class="key-color stage-midsenior"></span> Mid Senior (75-85)</li>
-                            <li><span class="key-color stage-latesenior"></span> Late Senior (85+)</li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-        </details>
-
-
-        <!-- View Toggle Controls -->
-        <!-- Initially hidden. Revealed by JS after successful calculation. -->
-        <!-- Radio buttons to select the grid visualization type -->
-        <fieldset class="view-toggle hidden">
-            <legend>Grid View Type:</legend>
-            <div>
-                <input type="radio" id="view-age" name="viewType" value="age" checked>
-                <label for="view-age">Weeks (by Age)</label>
-            </div>
-            <div>
-                <input type="radio" id="view-calendar" name="viewType" value="calendar">
-                <label for="view-calendar">Weeks (by Calendar)</label>
-            </div>
-            <div>
-                <input type="radio" id="view-months" name="viewType" value="months">
-                <label for="view-months">Months</label>
-            </div>
-            <div>
-                <input type="radio" id="view-years" name="viewType" value="years">
-                <label for="view-years">Years (Decades)</label>
-            </div>
-        </fieldset>
-
         <!-- Grid Placeholder -->
         <!-- Initially hidden. Revealed by JS after successful calculation. -->
         <!-- This container is populated with the grid by gridRenderer.js -->
         <!-- aria-label provides context for screen readers -->
         <div id="life-grid-container" class="life-grid-container hidden" aria-label="Life grid visualization">
-            <!-- The life grid will be generated here by JavaScript -->
+
+            <!-- MOVED Grid Controls Header INSIDE grid container -->
+            <div id="grid-controls-header" class="hidden"> <!-- Removed grid-width-constraint as it's inside now -->
+                <!-- Note: h4 title removed -->
+                <div id="view-switcher" role="radiogroup" aria-labelledby="view-switcher-label">
+                     <span id="view-switcher-label" class="visually-hidden">Select grid view</span>
+                     <button role="radio" aria-checked="true" data-view="weeks-age" class="view-button active" title="View life in weeks by age">Weeks (Age)</button>
+                     <button role="radio" aria-checked="false" data-view="weeks-calendar" class="view-button" title="View life in weeks by calendar year">Weeks (Calendar)</button>
+                     <button role="radio" aria-checked="false" data-view="months" class="view-button" title="View life in months">Months</button>
+                     <button role="radio" aria-checked="false" data-view="years" class="view-button" title="View life in years">Years</button>
+                </div>
+            </div>
+
+            <!-- MOVED Grid Guide Details INSIDE grid container, AFTER controls -->
+            <details id="grid-guide-details" class="grid-guide-details hidden">
+                <summary>How to Read This Visualization</summary>
+                <div class="guide-content-wrapper">
+                    <div class="explanation-column">
+                        <h3>Understanding the Grid</h3>
+                        <p>Each block represents a unit of time in your estimated lifespan. Colors indicate the general life stage for that period. Blocks fade for time already passed, and the current block is highlighted.</p>
+                        <ul>
+                            <li><strong>Weeks (by Age):</strong> Each row is one year of life (up to 53 weeks). Weeks align with your age progression.</li>
+                            <li><strong>Weeks (by Calendar):</strong> Each row is a calendar year. Weeks align with standard ISO calendar weeks. Some blocks may appear 'out of bounds' if your lifespan doesn't perfectly align with calendar year starts/ends.</li>
+                            <li><strong>Months:</strong> Each row is one year of life (12 months).</li>
+                            <li><strong>Years:</strong> Each row is one decade (10 years).</li>
+                        </ul>
+                    </div>
+                    <div class="color-key-column">
+                        <h3>What the Colors Mean</h3>
+                        <div class="color-key"> <!-- Re-use existing color-key class for list styling -->
+                            <ul>
+                                <li><span class="key-color stage-infancy"></span> Infancy (0-1)</li>
+                                <li><span class="key-color stage-toddler"></span> Toddler (1-3)</li>
+                                <li><span class="key-color stage-earlychildhood"></span> Early Childhood (3-6)</li>
+                                <li><span class="key-color stage-middlechildhood"></span> Middle Childhood (6-11)</li>
+                                <li><span class="key-color stage-adolescence"></span> Adolescence (11-18)</li>
+                                <li><span class="key-color stage-youngadult"></span> Young Adult (18-25)</li>
+                                <li><span class="key-color stage-adulthood"></span> Adulthood (25-40)</li>
+                                <li><span class="key-color stage-middleadulthood"></span> Middle Adulthood (40-65)</li>
+                                <li><span class="key-color stage-earlysenior"></span> Early Senior (65-75)</li>
+                                <li><span class="key-color stage-midsenior"></span> Mid Senior (75-85)</li>
+                                <li><span class="key-color stage-latesenior"></span> Late Senior (85+)</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </details>
+
+            <!-- This div will specifically hold the grid blocks generated by gridRenderer -->
+            <div id="grid-content-area"></div>
+
+            <!-- Grid blocks generated by gridRenderer.js go inside #grid-content-area -->
         </div>
 
         <!-- Disclaimer Section -->

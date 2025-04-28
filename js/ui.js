@@ -20,57 +20,80 @@ const form = document.getElementById('life-input-form');
 const birthdateInput = document.getElementById('birthdate');
 const sexInput = document.getElementById('sex');
 const resultsArea = document.getElementById('results-area');
-// References for Progressive Reveal
-const viewToggle = document.querySelector('.view-toggle');
-// const explanationDetails = document.getElementById('explanation'); // MODIFIED: Removed
-// const colorKeyDetails = document.getElementById('color-key-details'); // MODIFIED: Removed
-const gridGuideDetails = document.getElementById('grid-guide-details'); // MODIFIED: Added
-const gridContainer = document.getElementById('life-grid-container');
-const viewToggleRadios = document.querySelectorAll('input[name="viewType"]');
+// References for Progressive Reveal & Moved Elements
+const gridGuideDetails = document.getElementById('grid-guide-details'); // Now inside gridContainer
+const gridContainer = document.getElementById('life-grid-container'); // The main container
+const gridContentArea = document.getElementById('grid-content-area'); // Inner container for grid blocks
+// References for New Header Bar (replaces old radio buttons)
+const gridControlsHeader = document.getElementById('grid-controls-header'); // Now inside gridContainer
+const viewSwitcherButtons = document.querySelectorAll('#view-switcher .view-button'); // Select new buttons
 
 
 // --- State Variables ---
 // Tracks the currently selected grid view type
-let currentView = 'age'; // Default view ('age', 'calendar', 'months', or 'years')
+let currentView = 'weeks-age'; // Default view ('weeks-age', 'weeks-calendar', 'months', or 'years') - Matches HTML default button data-view
 // Stores results of the last calculation to allow re-rendering on view change without recalculating
 let lastCalcData = {
     birthDate: null, // Stores the UTC-normalized birthDate object
     totalLifespanYearsEst: null
 };
 
+// DELETED: updateGridViewTitle function (no longer needed)
+
 /**
  * Renders the grid using the currently selected view type and stored calculation data.
- * Clears the grid container and calls the appropriate function from gridRenderer.js.
- * Note: This function assumes the gridContainer itself is already visible when called.
+ * Clears the specific grid content area and calls the appropriate function from gridRenderer.js.
+ * Assumes the main gridContainer and its children (header, guide) are already visible.
  */
 function renderCurrentView() {
-    // Ensure we have data from a previous calculation
-    if (!lastCalcData.birthDate || lastCalcData.totalLifespanYearsEst === null) {
-        console.log("No calculation data available to render grid.");
-        gridContainer.innerHTML = ''; // Clear grid if no data
-        // Ensure no view-specific classes remain if grid is empty
-        gridContainer.classList.remove('grid-view-age', 'grid-view-calendar', 'grid-view-months', 'grid-view-years');
+    // Ensure the dedicated content area exists
+    if (!gridContentArea) {
+        console.error("Grid content area (#grid-content-area) not found.");
+        // Optionally clear the main container if the inner one is missing
+        if (gridContainer) gridContainer.innerHTML = '<p class="error-message">Grid layout error.</p>';
         return;
     }
 
-    // Clear previous grid content before rendering new view
-    gridContainer.innerHTML = '';
-    // Update container class for potential view-specific CSS rules (e.g., block sizing/gap)
-    gridContainer.classList.remove('grid-view-age', 'grid-view-calendar', 'grid-view-months', 'grid-view-years'); // Clear previous
-    gridContainer.classList.add(`grid-view-${currentView}`); // Add current
+    // Ensure we have data from a previous calculation
+    if (!lastCalcData.birthDate || lastCalcData.totalLifespanYearsEst === null) {
+        console.log("No calculation data available to render grid.");
+        gridContentArea.innerHTML = ''; // Clear only the content area
+        // Ensure no view-specific classes remain on the main container if grid is empty
+        if (gridContainer) {
+            gridContainer.classList.remove('grid-view-weeks-age', 'grid-view-weeks-calendar', 'grid-view-months', 'grid-view-years');
+        }
+        return;
+    }
 
-    // Call the appropriate rendering function based on currentView state
-    if (currentView === 'age') {
-        renderAgeGrid(lastCalcData.birthDate, lastCalcData.totalLifespanYearsEst, gridContainer);
-    } else if (currentView === 'calendar') {
-        renderCalendarGrid(lastCalcData.birthDate, lastCalcData.totalLifespanYearsEst, gridContainer);
-    } else if (currentView === 'months') {
-        renderMonthsGrid(lastCalcData.birthDate, lastCalcData.totalLifespanYearsEst, gridContainer);
-    } else if (currentView === 'years') {
-        renderYearsGrid(lastCalcData.birthDate, lastCalcData.totalLifespanYearsEst, gridContainer);
-    } else {
-        console.error("Unknown view type selected:", currentView);
-        gridContainer.innerHTML = '<p class="error-message">Invalid view selected.</p>';
+    // Clear previous grid content from the dedicated area
+    gridContentArea.innerHTML = '';
+
+    // Update main container class for potential view-specific CSS rules (e.g., block sizing/gap)
+    // These classes might affect how the gridContentArea itself behaves if needed
+    if (gridContainer) {
+        gridContainer.classList.remove('grid-view-weeks-age', 'grid-view-weeks-calendar', 'grid-view-months', 'grid-view-years'); // Clear previous
+        gridContainer.classList.add(`grid-view-${currentView}`); // Add current (e.g., grid-view-weeks-age)
+    }
+
+    // Call the appropriate rendering function based on currentView state,
+    // passing the specific gridContentArea element.
+    try {
+        // Use new view names matching data-view attributes
+        if (currentView === 'weeks-age') {
+            renderAgeGrid(lastCalcData.birthDate, lastCalcData.totalLifespanYearsEst, gridContentArea);
+        } else if (currentView === 'weeks-calendar') {
+            renderCalendarGrid(lastCalcData.birthDate, lastCalcData.totalLifespanYearsEst, gridContentArea);
+        } else if (currentView === 'months') {
+            renderMonthsGrid(lastCalcData.birthDate, lastCalcData.totalLifespanYearsEst, gridContentArea);
+        } else if (currentView === 'years') {
+            renderYearsGrid(lastCalcData.birthDate, lastCalcData.totalLifespanYearsEst, gridContentArea);
+        } else {
+            console.error("Unknown view type selected:", currentView);
+            gridContentArea.innerHTML = '<p class="error-message">Invalid view selected.</p>';
+        }
+    } catch (renderError) {
+         console.error(`Error during ${currentView} grid rendering:`, renderError);
+         gridContentArea.innerHTML = `<p class="error-message">Error generating ${currentView} grid.</p>`;
     }
 }
 
@@ -88,16 +111,17 @@ function handleCalculation(event) {
 
     // --- Progressive Reveal Logic: Reset UI before new calculation ---
     // Hide elements that should only show after successful calculation.
+    // Note: gridControlsHeader and gridGuideDetails are inside gridContainer now,
+    // so hiding gridContainer hides them implicitly until revealed.
     resultsArea.classList.add('hidden');
-    viewToggle.classList.add('hidden');
-    // explanationDetails.classList.add('hidden'); // MODIFIED: Removed
-    // colorKeyDetails.classList.add('hidden'); // MODIFIED: Removed
-    gridGuideDetails.classList.add('hidden'); // MODIFIED: Added
-    gridContainer.classList.add('hidden');
+    gridContainer.classList.add('hidden'); // Hide the main container
+    // Also explicitly hide the inner elements in case they were somehow visible
+    if (gridControlsHeader) gridControlsHeader.classList.add('hidden');
+    if (gridGuideDetails) gridGuideDetails.classList.add('hidden');
+
     // Clear previous results/errors visually and ensure results area is ready.
     resultsArea.innerHTML = '';
     resultsArea.classList.remove('error-message');
-    // No need to explicitly show resultsArea container yet, handled below
 
     // Clear previous calculation data before starting new calculation
     lastCalcData.birthDate = null;
@@ -107,7 +131,7 @@ function handleCalculation(event) {
     if (!birthdateStr || !sex) {
         displayError('Please fill in both your birth date and sex.');
         resultsArea.classList.remove('hidden'); // <<< SHOW Results Area for error
-        renderCurrentView(); // Clear grid if validation fails
+        renderCurrentView(); // Clear grid content area if validation fails
         return; // Exit, leaving only results area visible
      }
 
@@ -115,28 +139,22 @@ function handleCalculation(event) {
     const birthDateLocal = new Date(birthdateStr);
 
     // **CRITICAL: Normalize date to UTC midnight.**
-    // The input 'YYYY-MM-DD' is parsed as local time midnight.
-    // We adjust it by the timezone offset to get the Date object representing
-    // midnight UTC on that calendar day. This ensures consistency when passing
-    // the date to gridRenderer, which performs calculations in UTC.
     const birthDateUTC = new Date(birthDateLocal.getTime()); // Clone first
     birthDateUTC.setMinutes(birthDateUTC.getMinutes() + birthDateUTC.getTimezoneOffset());
 
     const now = new Date();
-    // Use local 'now' for comparison...
     const nowLocalMidnight = new Date(now.getFullYear(), now.getMonth(), now.getDate());
 
     // Check validity *after* potential normalization and ensure date is in the past.
     if (isNaN(birthDateUTC.getTime()) || birthDateUTC >= nowLocalMidnight) {
         displayError('Please enter a valid birth date in the past (YYYY-MM-DD).');
         resultsArea.classList.remove('hidden'); // <<< SHOW Results Area for error
-        renderCurrentView(); // Clear grid if validation fails
+        renderCurrentView(); // Clear grid content area if validation fails
         return; // Exit, leaving only results area visible
     }
 
     // --- Perform Calculations (Wrapped in try/catch) ---
     try {
-        // ... (calculations) ...
         const currentAge = calculateCurrentAge(birthDateUTC);
         const remainingYears = getRemainingExpectancy(currentAge, sex);
 
@@ -153,23 +171,25 @@ function handleCalculation(event) {
         displayResults(currentAge, remainingYears, totalEstimatedLifespan); // Updates resultsArea CONTENT
 
         // --- Render the Grid ---
-        renderCurrentView();
+        renderCurrentView(); // Renders into #grid-content-area
 
         // --- Progressive Reveal Logic: Show elements on success ---
         resultsArea.classList.remove('hidden'); // <<< SHOW Results Area
-        viewToggle.classList.remove('hidden');
-        // explanationDetails.classList.remove('hidden'); // MODIFIED: Removed
-        // colorKeyDetails.classList.remove('hidden'); // MODIFIED: Removed
-        gridGuideDetails.classList.remove('hidden'); // MODIFIED: Added
+        // Reveal the main container, which now holds controls, guide, and content area
         gridContainer.classList.remove('hidden');
+        // Explicitly reveal header and guide as they also have .hidden initially
+        if (gridControlsHeader) gridControlsHeader.classList.remove('hidden');
+        if (gridGuideDetails) gridGuideDetails.classList.remove('hidden');
+
+        // DELETED: Call to updateGridViewTitle (title element removed)
 
     } catch (error) {
         // --- Handle Errors from Calculation or Rendering ---
         console.error("Calculation or Display Error:", error);
         displayError(error.message || 'An unexpected error occurred.'); // Updates resultsArea CONTENT
         resultsArea.classList.remove('hidden'); // <<< SHOW Results Area for error
-        renderCurrentView(); // Clear grid on error
-        // Other elements remain hidden (handled by reset at start)
+        renderCurrentView(); // Clear grid content area on error
+        // Other elements (gridContainer, etc.) remain hidden (handled by reset at start)
     }
 }
 
@@ -201,13 +221,32 @@ function displayError(message) {
 
 
 /**
- * Handles changes to the view type radio buttons. Updates the currentView state
- * and triggers a re-render of the grid using the stored calculation data.
- * @param {Event} event - The change event from the radio button.
+ * Handles clicks on the view switcher buttons. Updates the currentView state,
+ * button appearances, and triggers a re-render of the grid.
+ * @param {Event} event - The click event from the view switcher button.
  */
 function handleViewChange(event) {
-    currentView = event.target.value; // Update the state variable
+    // Ensure the click came from a button within the switcher
+    const clickedButton = event.target.closest('.view-button');
+    if (!clickedButton || !viewSwitcherButtons) return;
+
+    const newView = clickedButton.dataset.view;
+    if (!newView || newView === currentView) {
+        return; // No change needed if view is invalid or same as current
+    }
+
+    currentView = newView; // Update the state variable
     console.log("View changed to:", currentView);
+
+    // Update button states (active class and aria-checked)
+    viewSwitcherButtons.forEach(button => {
+        const isActive = button === clickedButton;
+        button.classList.toggle('active', isActive);
+        button.setAttribute('aria-checked', isActive ? 'true' : 'false');
+    });
+
+    // DELETED: Call to updateGridViewTitle (title element removed)
+
     // Re-render the grid with the new view setting.
     // This uses the data stored in `lastCalcData`, avoiding recalculation.
     renderCurrentView();
@@ -225,28 +264,34 @@ function setupEventListeners() {
         console.error("Form element (#life-input-form) not found.");
     }
 
-    // Attach listeners to all view toggle radio buttons
-    if (viewToggleRadios.length > 0) {
-        viewToggleRadios.forEach(radio => {
-            radio.addEventListener('change', handleViewChange);
+    // Attach listeners to all view switcher buttons
+    if (viewSwitcherButtons.length > 0) {
+        viewSwitcherButtons.forEach(button => {
+            // Use 'click' event for buttons instead of 'change'
+            button.addEventListener('click', handleViewChange);
         });
     } else {
-        console.error("View toggle radio buttons not found.");
+        console.error("View switcher buttons (.view-button) not found.");
     }
 
 
-    // Set initial view state based on the default checked radio button in HTML
-    const checkedRadio = document.querySelector('input[name="viewType"]:checked');
-    if (checkedRadio) {
-        currentView = checkedRadio.value;
+    // Set initial view state based on the default active button in HTML
+    const activeButton = document.querySelector('#view-switcher .view-button.active');
+    if (activeButton && activeButton.dataset.view) {
+        currentView = activeButton.dataset.view;
     } else {
-        // Fallback if HTML doesn't have a default checked (should not happen)
-        console.warn("No default view type checked in HTML. Defaulting to 'age'.");
-        currentView = 'age';
-        const ageRadio = document.getElementById('view-age');
-        if (ageRadio) ageRadio.checked = true; // Attempt to check the default
+        // Fallback if HTML doesn't have a default active button (should not happen)
+        console.warn("No default active view button found in HTML. Defaulting to 'weeks-age'.");
+        currentView = 'weeks-age';
+        // Attempt to visually set the default if needed (though HTML/CSS should handle initial state)
+        const defaultButton = document.querySelector('#view-switcher .view-button[data-view="weeks-age"]');
+        if (defaultButton && !activeButton) {
+             defaultButton.classList.add('active');
+             defaultButton.setAttribute('aria-checked', 'true');
+        }
     }
     console.log("Initial view set to:", currentView);
+    // No need to call updateGridViewTitle here, as it's called in handleCalculation on success (or rather, it's not needed at all now)
 }
 
 // Export setup function to be called by main.js
