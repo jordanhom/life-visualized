@@ -2,12 +2,12 @@
 
 **Current Goal:** Prepare for Final Review
 
-**Current Task:** Document the completed UI refinements and rendering fix in the Memory Bank.
+**Current Task:** Update Memory Bank after refining grid explanation text.
 
 **Recent Changes:**
 *   Implemented the "Integrated Header Bar" pattern for view controls.
-*   **Moved** the Grid Controls Header (`#grid-controls-header`) and the Grid Guide Details (`#grid-guide-details`) **inside** the main Grid Container (`#life-grid-container`).
-*   Added a dedicated inner container (`#grid-content-area`) inside `#life-grid-container` to hold *only* the grid blocks.
+*   Moved the Grid Controls Header (`#grid-controls-header`) and the Grid Guide Details (`#grid-guide-details`) inside the main Grid Container (`#life-grid-container`).
+*   Added a dedicated inner container (`#grid-content-area`) inside `#life-grid-container` to hold only the grid blocks.
 *   Refactored `js/ui.js` and `gridRenderer.js` to clear and render grid blocks into `#grid-content-area`, resolving the issue where moving elements inside the container caused them to be cleared.
 *   Removed the dynamic view title (`#grid-view-title`) from the header.
 *   Added descriptive tooltips (`title` attribute) to the view switcher buttons (`.view-button`).
@@ -15,21 +15,22 @@
 *   Styled the `.view-button` elements to allow text wrapping (`white-space: normal`) and have a consistent minimum height (`min-height`) to accommodate wrapped labels.
 *   Ensured the centered alignment of the view switcher is maintained on smaller screens (`align-items: center` in responsive CSS).
 *   Completed a code review and applied minor changes for comment accuracy and CSS redundancy removal.
+*   **Refined the "Understanding the Grid" text within the guide details (`index.html`) for maximum conciseness and user-friendliness.** (NEW)
 
-**Next Action:** Perform final review and testing of all features, including the updated UI layout, sticky header, view switching, and progressive reveal flow, across different inputs and screen sizes.
+**Next Action:** Perform final review and testing of all features, including the updated UI layout, sticky header, view switching, progressive reveal flow, and refined guide text, across different inputs and screen sizes. (UPDATED)
 
 **Blockers:** None.
 
 **Relevant Files Recently Modified:**
 
-*   `index.html` (Moved header/details inside grid container, added `#grid-content-area`, removed title, added button tooltips) (UPDATED)
-*   `css/style.css` (Styled sticky header, adjusted padding/margins for nested elements, styled wrapping buttons with min-height, fixed responsive centering, removed redundant CSS) (UPDATED)
-*   `js/ui.js` (Updated DOM references, removed title logic, updated render call to target `#grid-content-area`, added clarifying comment) (UPDATED)
-*   `js/gridRenderer.js` (Updated render functions to accept and target `gridContentAreaElement`, updated aria-label comments) (UPDATED)
+*   `index.html` (Moved header/details inside grid container, added `#grid-content-area`, removed title, added button tooltips, **refined guide text**) (UPDATED)
+*   `css/style.css` (Styled sticky header, adjusted padding/margins for nested elements, styled wrapping buttons with min-height, fixed responsive centering, removed redundant CSS)
+*   `js/ui.js` (Updated DOM references, removed title logic, updated render call to target `#grid-content-area`, added clarifying comment)
+*   `js/gridRenderer.js` (Updated render functions to accept and target `gridContentAreaElement`, updated aria-label comments)
 *   `activeContext.md` (This file) (UPDATED)
-*   `systemPatterns.md` (Will be updated to reflect new structure/patterns) (UPDATED)
-*   `productContext.md` (Will be updated to reflect new user flow/decisions) (UPDATED)
-*   `progress.md` (Will be updated to log completed refinements) (UPDATED)
+*   `systemPatterns.md` (Will be updated)
+*   `productContext.md` (Will be updated)
+*   `progress.md` (Will be updated)
 
 **Open Questions/Decisions:**
 
@@ -41,3 +42,4 @@
 *   Using `position: sticky` is effective for keeping controls visible within a scrollable container.
 *   Achieving consistent height for wrapping flex items requires setting a `min-height` and potentially using flex properties (`align-items: center`) on the items themselves for vertical alignment.
 *   Maintaining centering across responsive breakpoints requires checking `justify-content` (for `flex-direction: row`) and `align-items` (for `flex-direction: column`) on the flex container.
+*   Iterative refinement of explanatory text, focusing on user questions and conciseness, can significantly improve clarity without losing essential information. (NEW)

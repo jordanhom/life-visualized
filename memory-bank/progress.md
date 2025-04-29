@@ -1,10 +1,10 @@
 # Progress Log - Life Visualized
 
-## MVP - Complete (Functionally) / Pending Final Review
+## MVP - Functionally Complete / UX Refinements Pending
 
-**Status:** All core features defined in `projectbrief.md` are implemented and functional. Visual cleanup/refactoring, progressive reveal, and layout refinements are complete. The application now presents a clean initial interface, reveals results/visualizations logically upon successful calculation, and maintains visual consistency. The next step is final review and testing before declaring the MVP officially complete. (UPDATED)
+**Status:** All core features defined in `projectbrief.md` are implemented and functional. A comprehensive UX review (using Dr. Reed persona based on `prompt-ux-review.md`) has been completed, identifying critical refinements needed before launch. Development is currently **paused**.
 
-**Completed Tasks:**
+**Completed Tasks (MVP Build & Initial Refinements):**
 
 *   **Core Functionality:**
     *   User input form (DOB, Sex).
@@ -25,55 +25,31 @@
     *   HTML semantic improvements.
     *   CSS rule consolidation and cleanup.
     *   Accessibility improvements (labels, fieldsets, aria-live, roles).
-    *   **Visual Cleanup & CSS Refactoring:**
-        *   Introduced CSS variables (`:root`) for spacing, typography, borders, and key colors. Replaced hardcoded values.
-        *   Standardized vertical spacing between major sections using `margin-bottom`.
-        *   Made calculate button full-width on mobile.
-        *   Reorganized CSS file structure for better readability.
-        *   Added file structure overview comment and improved comment consistency.
-        *   Converted specific `h1`, grid background, and key swatch border colors to variables.
-    *   **Progressive Reveal & Layout Refinement:**
-        *   Added intro text below heading.
-        *   Added `.hidden` utility class to CSS.
-        *   Applied `hidden` class initially to results and the main grid container in HTML. (UPDATED)
-        *   Updated `ui.js` (`handleCalculation`) to manage element visibility based on calculation success/failure, including explicit reveal of nested elements. (UPDATED)
-        *   Removed explicit "Results" and "Visualization" `<h2>` headings.
-        *   Constrained width of Results area to match grid width via CSS. (UPDATED)
-        *   **Consolidated Grid Guide/Key:** Replaced separate Explanation and Color Key `<details>` with a single `<details id="grid-guide-details">`.
-            *   Set `<summary>` to "How to Read This Visualization".
-            *   Implemented internal 2-column layout (Flexbox) with responsive stacking.
-            *   Added internal `<h3>` headings ("Understanding the Grid", "What the Colors Mean") styled with smaller font size (`--font-size-sm`).
-            *   Removed explicit `gap` from vertical color key list, relying on default margins.
-        *   **Integrated Controls Header Refinement:** (UPDATED)
-            *   Moved the Grid Controls Header (`#grid-controls-header`) and the consolidated Grid Guide Details (`#grid-guide-details`) **inside** the main Grid Container (`#life-grid-container`). (UPDATED)
-            *   Added a dedicated inner container (`#grid-content-area`) inside `#life-grid-container` for grid blocks. (NEW)
-            *   Refactored `ui.js` and `gridRenderer.js` to clear and render into `#grid-content-area`. (NEW)
-            *   Removed the dynamic view title (`#grid-view-title`). (UPDATED)
-            *   Added tooltips (`title` attribute) to view switcher buttons. (NEW)
-            *   Styled `#grid-controls-header` as sticky within `#life-grid-container`. (NEW)
-            *   Styled `.view-button` for wrapping text and consistent `min-height`. (NEW)
-            *   Ensured centered alignment of the view switcher on smaller screens. (NEW)
-        *   Completed code review and applied minor changes (comment updates, CSS redundancy). (NEW)
+    *   **Visual Cleanup & CSS Refactoring:** Introduced CSS variables, standardized spacing, improved button styling, reorganized CSS.
+    *   **Progressive Reveal & Layout Refinement:** Implemented progressive reveal flow. Refined post-calculation layout (aligned widths, removed headings).
+    *   **Consolidated Grid Guide/Key:** Combined Explanation and Color Key into a single `<details>` element with 2-column layout.
+    *   **Integrated Controls Header Refinement:** Moved controls/guide inside grid container, added `#grid-content-area`, implemented sticky header, added tooltips, refined button styles.
+    *   **Refined Grid Explanation Text:** Iteratively refined the "Understanding the Grid" text within the guide details for clarity and user-friendliness, particularly clarifying the Weeks (Calendar) view. *(Last code change before pause)*.
 *   **Memory Bank:**
     *   Initialized core memory bank files.
-    *   Updated memory bank after MVP feature completion.
-    *   Updated memory bank after visual cleanup.
-    *   Updated memory bank after progressive reveal implementation.
-    *   Updated memory bank after initial layout refinements and comment review.
-    *   Updated memory bank after final layout consolidation and refinement.
-    *   Updated memory bank after implementing integrated controls header.
-    *   Updated memory bank after implementing nested controls/guide, rendering fix, sticky header, and button styling refinements. (NEW)
+    *   Maintained updates throughout MVP development, including major refactors and feature additions.
+    *   Updated to reflect UX review outcome and pause status.
+*   **Supporting Files:**
+    *   Added prompt files (`prompt-*.md`) used for UX review and privacy instructions to the repository.
 
-**Next Steps:**
+**Next Steps (Upon Resuming Development):**
 
-*   Perform final review and testing of all features, including the updated UI layout, sticky header, view switching, and progressive reveal flow, across different inputs and screen sizes. (UPDATED)
-*   Declare MVP officially complete.
+Implement the **critical UX refinements** identified in the review before considering the MVP ready for launch/testing:
+1.  **Feedback & Input Handling:** Implement loading states during calculation and input validation logic (disable button until valid).
+2.  **Core Clarity - Guide Visual Aid:** Add the recommended visual aid (diagram/image) to the guide to further clarify View B's alignment.
+3.  **Accessibility Foundations:** Implement keyboard navigation for the view switcher (`tablist` pattern), verify/fix critical color contrast issues, and ensure visible focus indicators.
+4.  **Tone & Framing:** Review UI text for neutral language and ensure the disclaimer/reassurance message is prominent and clear.
 
 **Out of Scope (Post-MVP):**
 
-*   Fetching real actuarial data.
+*   Fetching real-time or alternative actuarial datasets.
 *   More sophisticated life stage calculations/coloring.
-*   Saving/loading user data.
+*   Saving/loading user data or preferences.
 *   Advanced UI features (tooltips on blocks, zooming, etc.).
 *   Internationalization (i18n).
 *   Build process/bundling.
