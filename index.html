@@ -10,28 +10,38 @@
 <body>
     <!-- Main content container, centered with max-width -->
     <div class="container">
-        <h1>Visualize Your Life</h1>
-        <!-- Introductory text displayed on initial load -->
-        <p class="intro-text">See your estimated lifespan visualized. Enter your details below to begin.</p>
+        <h1>
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 0.5em; vertical-align: -0.2em; position: relative; top: -1px;">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                <circle cx="12" cy="12" r="3"></circle>
+            </svg>Visualize Your Life
+        </h1>
 
+        <!-- Container for the introductory text block -->
+        <div class="intro-block-container">
+            <p class="intro-text">Explore your timeline. Reflect on your journey.</p>
+            <p class="intro-disclaimer"><strong>Important:</strong> For reflection only. Not a lifespan predictor.</p>
+        </div>
+        
         <!-- Input Form Section -->
         <form id="life-input-form" class="input-form">
             <div class="form-group">
                 <label for="birthdate">Your Birth Date:</label>
-                <input type="date" id="birthdate" name="birthdate" required>
+                <p class="label-supplement">Starting point for age and timeline.</p>
+                <input type="date" id="birthdate" name="birthdate" required placeholder="YYYY-MM-DD">
             </div>
 
             <div class="form-group">
-                <label for="sex">Sex (for actuarial estimate):</label>
-                <select id="sex" name="sex" required>
-                    <option value="" disabled selected>-- Select --</option>
+                <label for="sex">Biological Sex:</label>
+                <p class="label-supplement">Input for statistical timeline estimate.</p>
+                <select id="sex" name="sex" required placeholder="Select...">
+                    <option value="" disabled selected>Select...</option>
                     <option value="male">Male</option>
                     <option value="female">Female</option>
-                    <!-- Add other options if your data source supports them -->
                 </select>
             </div>
 
-            <button type="submit" class="calculate-btn" id="calculate-btn">Calculate & Visualize</button>
+            <button type="submit" class="calculate-btn" id="calculate-btn" title="Please fill in both fields." disabled>Calculate & Visualize</button>
         </form>
 
         <!-- Results Display Area -->

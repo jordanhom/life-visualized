@@ -5,6 +5,7 @@
  * 3. Main Layout (.container, h1) - Core page structure and main heading.
  * 4. Utility Classes (.hidden, .visually-hidden) - General utility styles.
  * 5. UI Components - Styles for distinct interface elements:
+ *    - Introductory Text Styles (.intro-block-container, .intro-text, .intro-disclaimer)
  *    - Form Styles (.input-form, .form-group, .calculate-btn)
  *    - Results & Disclaimer Styles (.results-area, .disclaimer)
  *    - Grid Guide Details Styles (.grid-guide-details, etc.) - Inside grid container
@@ -104,6 +105,44 @@ h1 {
     color: var(--color-heading);
 }
 
+/* Styles for introductory text block */
+.intro-block-container {
+    width: 100%;
+    max-width: 600px; /* Constrain line length for readability */
+    margin-top: 0; /* Follows h1's margin-bottom */
+    margin-bottom: var(--space-lg); /* Space before the form */
+    text-align: center; /* Center-align the text within this block */
+    padding: 0 var(--space-md); /* Add horizontal padding */
+    box-sizing: border-box; /* Ensure padding is included in width/max-width */
+    display: flex;
+    flex-direction: column;
+}
+
+.intro-text {
+    margin-top: 0; /* First child in new container */
+    margin-bottom: 0.3em; /* Reduced space between main intro and disclaimer */
+    font-size: 0.95rem; /* Slightly smaller than base body text */
+    color: var(--color-text-secondary); /* Softer color */
+    line-height: 1.6;
+    font-style: italic; /* Suggestion: Italicize for a softer feel */
+    /* max-width, width, and text-align are now handled by .intro-block-container */
+}
+
+.intro-disclaimer {
+    margin-top: 0.2em; /* Reduced space from .intro-text above */
+    margin-bottom: 0; /* Last child in new container; parent handles overall bottom margin */
+    font-size: 0.85rem; /* Suggestion: Slightly smaller for the disclaimer text */
+    /* background-color: var(--color-background-alt, #f8f9fa); */ /* REMOVED to make it less blocky */
+    /* padding: 0.75em 1em; */ /* REMOVED */
+    /* border-radius: var(--border-radius-sm, 4px); */ /* REMOVED */
+    color: var(--color-text-muted); /* Muted color for the disclaimer text */
+    /* max-width, width, and text-align are now handled by .intro-block-container */
+}
+
+.intro-disclaimer strong {
+    color: var(--color-text-primary); /* Make "Important!" stand out more */
+}
+
 /* --- Utility Classes --- */
 /* Add this class for accessible hiding */
 .visually-hidden {
@@ -135,9 +174,17 @@ h1 {
 }
 .form-group label {
     font-weight: 500;
-    margin-bottom: var(--space-xxs);
-    color: var(--color-text-secondary);
+    margin-bottom: 0; /* Adjust margin as helper text is now between label and input */
+    color: var(--color-text-primary); /* Emphasize label with primary text color */
+    font-weight: 600; /* Emphasize label with bolder font */
     font-size: 0.95rem; /* Keep specific */
+}
+.form-group .label-supplement { /* New style for helper text above input */
+    font-size: 0.8rem; /* Make it smaller */
+    color: var(--color-text-muted); /* Keep it muted */
+    margin-top: var(--space-xxs); /* Small space below label */
+    margin-bottom: var(--space-xs); /* Space above input */
+    line-height: 1.3;
 }
 .form-group input[type="date"],
 .form-group select {
@@ -149,6 +196,8 @@ h1 {
     box-sizing: border-box;
     background-color: var(--color-background-container);
 }
+/* .form-group .helper-text is no longer used */
+
 .form-group input[type="date"]:focus,
 .form-group select:focus {
     outline: none;
@@ -169,6 +218,12 @@ h1 {
 }
 .calculate-btn:hover {
     background-color: var(--color-primary-dark);
+}
+.calculate-btn:disabled {
+    background-color: #cccccc; /* Lighter gray for disabled state */
+    color: #666666;           /* Darker gray text for disabled state */
+    cursor: not-allowed;
+    opacity: 0.7;
 }
 
 /* --- Results & Disclaimer Styles --- */
