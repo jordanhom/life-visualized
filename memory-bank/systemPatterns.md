@@ -29,6 +29,8 @@
 * **CSS Layout Strategy:**
   * **Pattern:** Fixed-width main grid container (`#life-grid-container`) based on Week view requirements, combined with dynamic block sizing (`calc()` + `aspect-ratio: 1 / 1`) for Month/Year views. The Results area (`#results-area`) shares the same `max-width` as the grid for visual alignment. The Grid Controls Header (`#grid-controls-header`) and Grid Guide Details (`#grid-guide-details`) are nested *inside* `#life-grid-container` and inherit its width constraints. (UPDATED)
   * **Rationale:** Provides visual consistency across views (no layout shifts) while allowing Month/Year blocks to fill the space effectively. Responsiveness is handled via tiered media queries adjusting container `max-width` and block sizes/gaps. The nested header uses Flexbox for internal layout and becomes columnar on smaller screens, while the nested guide uses Flexbox for a 2-column layout that stacks responsively. (UPDATED)
+  * The results statistics are displayed in a 2-column grid (`.results-stats-grid`) with `grid-template-columns: auto auto` and `width: fit-content`, centered within its container. Body padding and main container `max-width` have been adjusted for better large-screen layout. (NEW)
+  * Responsive CSS reduces vertical padding/margins in the results area and removes body top/bottom padding on small screens to optimize vertical space. (NEW)
 * **Dependency Management:**
   * **Pattern:** `date-fns` library is loaded via CDN. `gridRenderer.js` includes a check (`checkDateFns`) for its presence.
   * **Rationale:** Simple integration for a key dependency.
@@ -40,18 +42,22 @@
     1. User submits form (`index.html`).
     2. `ui.js` (`handleCalculation`) validates input, normalizes date to UTC.
     3. `ui.js` resets visibility of post-calculation UI elements (results, main grid container). Explicitly hides nested header/guide as they also have `.hidden` initially. (UPDATED)
-    4. `ui.js` calls `calculator.js` (`calculateCurrentAge`, `getRemainingExpectancy`).
-    5. `calculator.js` reads data from `data.js`.
-    6. `calculator.js` returns results (or throws error) to `ui.js`.
-    7. **On Success:**
+    4. `ui.js` displays loading indicators (button text, results area message). (NEW)
+    5. `ui.js` calls `calculator.js` (`calculateCurrentAge`, `getRemainingExpectancy`).
+    6. `calculator.js` reads data from `data.js`.
+    7. `calculator.js` returns results (or throws error) to `ui.js`.
+    8. **On Success:**
         * `ui.js` stores results in `lastCalcData`.
+        * `ui.js` hides the input form. (NEW)
         * `ui.js` updates `#results-area` via `displayResults`.
-        * `ui.js` calls `renderCurrentView()`.
+        * `ui.js` calls `renderCurrentView()` (to render the grid).
         * `ui.js` reveals Results Area and the main Grid Container (`#life-grid-container`). Explicitly reveals the nested Grid Controls Header (`#grid-controls-header`) and Grid Guide Details (`#grid-guide-details`). (UPDATED)
-    8. **On Error:**
+        * `ui.js` reveals the "Start Over" button (placed after the grid container). (NEW)
+    9. **On Error:**
         * `ui.js` updates `#results-area` via `displayError`.
         * `ui.js` reveals Results Area.
         * `ui.js` calls `renderCurrentView()` (to clear grid content area). (UPDATED)
+        * `ui.js` ensures the input form remains visible. (NEW)
         * Main grid container and its contents remain hidden.
 * **Rendering Flow:**
     1. `ui.js` (`renderCurrentView`) determines the view type (`currentView`).
@@ -81,8 +87,14 @@
 ## 5. UI/Interaction Patterns - Updated for Refinements
 
 * **Progressive Reveal:** Initially hide non-essential UI elements (results, main grid container) using a `.hidden` class. Reveal these elements via JavaScript (`ui.js`) upon successful calculation completion. This provides a cleaner initial view focused on the input form. The results area is always revealed on calculation attempt to show success or error messages. (UPDATED)
+  * **Post-Calculation Flow:** On success, the input form is hidden. The results (including input parameters, displayed in a centered grid) are shown, followed by the grid container (with its controls and guide), and then a "Start Over" button (placed after the grid container). (NEW)
 * **Integrated & Nested Controls Header:** (UPDATED) A dedicated header bar (`#grid-controls-header`) is placed directly *inside* the grid container (`#life-grid-container`). It contains the view switcher (`#view-switcher`), implemented as styled `<button>` elements (`.view-button`) acting as a segmented control (`role="radiogroup"`). The active button indicates the current view, and tooltips (`title` attribute) on each button provide view descriptions on hover/focus. This pattern tightly couples the view controls with the grid and removes the need for a separate dynamic title element. (UPDATED)
 * **Sticky Controls Header:** (NEW) The nested header bar uses `position: sticky` to remain visible at the top of the `#life-grid-container` when the grid content area below it is scrolled, improving accessibility of controls for long grids.
 * **Consolidated & Collapsible Guide/Key:** The grid explanation and color key are combined into a single `<details id="grid-guide-details">` element. This element is now placed *inside* the `#life-grid-container`, below the controls header and above the grid content area. It remains collapsible and uses a 2-column layout (stacking responsively) for its content. **The explanation text within has been refined for conciseness and clarity.** This places the explanation in close proximity to the visualization it describes. (UPDATED)
 * **No Section Headings:** Explicit `<h2>` headings for "Results" and "Visualization" were removed as the content flow makes their purpose clear, reducing visual noise.
 * **Constrained Width Alignment:** The main grid container and the results area share the same `max-width` and are centered within the main container, creating a visually cohesive block post-calculation. (UPDATED)
+  * The overall page `.container` `max-width` has been reduced, and `body` padding adjusted for better large-screen aesthetics. (NEW)
+* **Dynamic Button State:** The "Calculate & Visualize" button is disabled until both birth date and sex inputs are valid. (NEW)
+* **Loading Indicators:** The "Calculate & Visualize" button text changes to "Calculating..." and the results area displays a loading message during processing. (NEW)
+* **"Start Over" Functionality:** A dedicated button allows users to reset the application to its initial input state. (NEW)
+* **Responsive Results Area:** Vertical padding and margins within the results area are reduced on smaller screens to conserve space. (NEW)
