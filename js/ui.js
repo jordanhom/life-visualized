@@ -134,11 +134,18 @@ function handleCalculation(event) {
     const birthdateStr = birthdateInput.value;
     const sex = sexInput.value;
 
+    // --- Start Loading State ---
+    if (calculateBtn) {
+        calculateBtn.disabled = true; // Disable button immediately
+        calculateBtn.textContent = 'Calculating...'; // Change button text
+        // Optionally, add a class for CSS spinner: calculateBtn.classList.add('loading');
+    }
+    resultsArea.innerHTML = '<p>Calculating your timeline...</p>'; // Show loading in results
+    resultsArea.classList.remove('error-message'); // Ensure no error styling
+    resultsArea.classList.remove('hidden'); // Make results area visible for loading message
+
     // --- Progressive Reveal Logic: Reset UI before new calculation ---
     // Hide elements that should only show after successful calculation.
-    // Note: gridControlsHeader and gridGuideDetails are inside gridContainer now,
-    // so hiding gridContainer hides them implicitly until revealed.
-    resultsArea.classList.add('hidden');
     gridContainer.classList.add('hidden'); // Hide the main container
     // Also explicitly hide the inner elements in case they were somehow visible
     if (gridControlsHeader) gridControlsHeader.classList.add('hidden');
@@ -146,8 +153,8 @@ function handleCalculation(event) {
 
     // Clear previous results/errors visually and ensure results area is ready.
     resultsArea.innerHTML = '';
-    resultsArea.classList.remove('error-message');
-
+    // resultsArea.classList.remove('error-message'); // Already handled above
+    
     // Clear previous calculation data before starting new calculation
     lastCalcData.birthDate = null;
     lastCalcData.totalLifespanYearsEst = null;
@@ -155,7 +162,7 @@ function handleCalculation(event) {
     // --- Input Validation ---
     if (!birthdateStr || !sex) {
         displayError('Please fill in both your birth date and sex.');
-        resultsArea.classList.remove('hidden'); // <<< SHOW Results Area for error
+        // resultsArea.classList.remove('hidden'); // Already visible from loading state
         renderCurrentView(); // Clear grid content area if validation fails
         return; // Exit, leaving only results area visible
     }
@@ -173,7 +180,7 @@ function handleCalculation(event) {
     // Check validity *after* potential normalization and ensure date is in the past.
     if (isNaN(birthDateUTC.getTime()) || birthDateUTC >= nowLocalMidnight) {
         displayError('Please enter a valid birth date in the past (YYYY-MM-DD).');
-        resultsArea.classList.remove('hidden'); // <<< SHOW Results Area for error
+        // resultsArea.classList.remove('hidden'); // Already visible
         renderCurrentView(); // Clear grid content area if validation fails
         return; // Exit, leaving only results area visible
     }
@@ -199,7 +206,7 @@ function handleCalculation(event) {
         renderCurrentView(); // Renders into #grid-content-area
 
         // --- Progressive Reveal Logic: Show elements on success ---
-        resultsArea.classList.remove('hidden'); // <<< SHOW Results Area
+        // resultsArea.classList.remove('hidden'); // Already visible
         // Reveal the main container, which now holds controls, guide, and content area
         gridContainer.classList.remove('hidden');
         // Explicitly reveal header and guide as they also have .hidden initially
@@ -211,10 +218,17 @@ function handleCalculation(event) {
     } catch (error) {
         // --- Handle Errors from Calculation or Rendering ---
         console.error("Calculation or Display Error:", error);
-        displayError(error.message || 'An unexpected error occurred.'); // Updates resultsArea CONTENT
-        resultsArea.classList.remove('hidden'); // <<< SHOW Results Area for error
+        displayError(error.message || 'An unexpected error occurred.');
+        // resultsArea.classList.remove('hidden'); // Already visible
         renderCurrentView(); // Clear grid content area on error
         // Other elements (gridContainer, etc.) remain hidden (handled by reset at start)
+    } finally {
+        // --- End Loading State (always executed) ---
+        if (calculateBtn) {
+            calculateBtn.textContent = 'Calculate & Visualize'; // Revert button text
+            // Optionally, remove loading class: calculateBtn.classList.remove('loading');
+            updateButtonState(); // Re-evaluate button's enabled/disabled state
+        }
     }
 }
 
@@ -240,7 +254,7 @@ function displayResults(currentAge, remainingYears, totalEstimatedLifespan) {
  */
 function displayError(message) {
     resultsArea.innerHTML = `<p>${message}</p>`;
-    resultsArea.classList.add('error-message');
+    resultsArea.classList.add('error-message'); // Ensure error styling is applied
     // Visibility of resultsArea is handled in handleCalculation
 }
 

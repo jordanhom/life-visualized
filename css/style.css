@@ -225,6 +225,11 @@ h1 {
     cursor: not-allowed;
     opacity: 0.7;
 }
+/* Optional: Styles for button loading state */
+/* .calculate-btn.loading { */
+    /* Add spinner or other visual cues here */
+    /* e.g., background-image: url('spinner.svg'); */
+/* } */
 
 /* --- Results & Disclaimer Styles --- */
 .results-area {
@@ -841,15 +846,15 @@ h1 {
         height: 5px; /* Block size (Keep specific) */
     }
      /* Adjust container padding and font sizes for very small screens */
-     .container {
+    .container {
         padding: var(--space-md) var(--space-xxs);
     }
      h1 { font-size: 1.6rem; /* Keep specific */ }
-     .calculate-btn { font-size: var(--font-size-base); }
+    .calculate-btn { font-size: var(--font-size-base); }
      /* Adjust results width */
      .results-area { /* REMOVED .grid-guide-details, #grid-controls-header */
         max-width: 324px; /* Match grid */
-     }
+    }
 }
 
 /* Below ~324px, overflow-x: auto on .life-grid-container handles scrolling */
