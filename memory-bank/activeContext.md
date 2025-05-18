@@ -1,8 +1,7 @@
 # Active Context - Life Visualized
 
 **Current Goal:** Implement Critical UX Refinements for MVP
-
-**Current Task:** UX Refinement "2. Input Simplicity & Friction Reduction" - HTML/CSS complete; JS pending.
+**Current Task:** UX Refinement "3. Calculation Feedback & Loading State" - Design and implement loading indicators.
 
 **Recent Changes:**
 
@@ -14,12 +13,13 @@
   * Applying balanced vertical margins, horizontal padding, and center-alignment to `.intro-block-container` for improved visual flow and spacing.
   * Tightened spacing between intro text and disclaimer.
 * Implemented HTML for helper text (label supplements) and initial button state (disabled, title) for Task 2 ("Input Simplicity & Friction Reduction") in `/Users/jhom/src/vibecode/life-visualized/index.html`. (NEW)
+* Implemented JavaScript logic for dynamic button state (enabled/disabled based on input validity) in `/Users/jhom/src/vibecode/life-visualized/js/ui.js` for Task 2. (COMPLETED)
 * Added CSS for helper text (label supplements) and button disabled state for Task 2 in `/Users/jhom/src/vibecode/life-visualized/css/style.css`. (NEW)
 * Refined intro, disclaimer, and helper text content for clarity and conciseness with Dr. Reed. (NEW)
 * Development resumed to implement critical UX refinements. (Context updated)
 * The project was previously paused after refining the grid explanation text and completing initial MVP features. (Context)
 
-**Next Action:** Implement JavaScript logic for button state in `ui.js` for UX Refinement "2. Input Simplicity & Friction Reduction".
+**Next Action:** Design and implement loading state indicators for the "Calculate & Visualize" button and results area, as part of UX Refinement "3. Calculation Feedback & Loading State".
 
 **Blockers:** None.
 
@@ -27,9 +27,9 @@
 
 * `/Users/jhom/src/vibecode/life-visualized/index.html` (Updated for intro block, helper text, button state)
 * `/Users/jhom/src/vibecode/life-visualized/css/style.css` (Updated styles for intro block, helper text, button disabled state)
-* `activeContext.md` (This file) (UPDATED)
+* `/Users/jhom/src/vibecode/life-visualized/js/ui.js` (Updated for dynamic button state)
+* `activeContext.md` (This file)
 * `progress.md` (To be updated with current status)
-* `/Users/jhom/src/vibecode/life-visualized/js/ui.js` (To be modified next for Task 2)
 
 **Open Questions/Decisions:**
 

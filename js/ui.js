@@ -19,6 +19,7 @@ import { renderAgeGrid, renderCalendarGrid, renderMonthsGrid, renderYearsGrid } 
 const form = document.getElementById('life-input-form');
 const birthdateInput = document.getElementById('birthdate');
 const sexInput = document.getElementById('sex');
+const calculateBtn = document.getElementById('calculate-btn'); // Get reference to the button
 const resultsArea = document.getElementById('results-area');
 // References for Progressive Reveal & Moved Elements
 const gridGuideDetails = document.getElementById('grid-guide-details'); // Now inside gridContainer
@@ -39,6 +40,30 @@ let lastCalcData = {
 };
 
 // DELETED: updateGridViewTitle function (no longer needed)
+
+/**
+ * Checks if the necessary form inputs are valid for enabling the calculate button.
+ * @returns {boolean} True if inputs are valid, false otherwise.
+ */
+function areInputsValid() {
+    // Ensure elements exist before accessing their properties
+    const birthdateFilled = birthdateInput && birthdateInput.value !== '';
+    const sexSelected = sexInput && sexInput.value !== ''; // "Select..." option has value=""
+    return birthdateFilled && sexSelected;
+}
+
+/**
+ * Updates the enabled/disabled state and title of the calculate button
+ * based on input validity.
+ */
+function updateButtonState() {
+    if (!calculateBtn) return; // Guard clause if button not found
+
+    const isValid = areInputsValid();
+    calculateBtn.disabled = !isValid;
+    calculateBtn.title = isValid ? '' : 'Please fill in both fields.';
+}
+
 
 /**
  * Renders the grid using the currently selected view type and stored calculation data.
@@ -92,8 +117,8 @@ function renderCurrentView() {
             gridContentArea.innerHTML = '<p class="error-message">Invalid view selected.</p>';
         }
     } catch (renderError) {
-         console.error(`Error during ${currentView} grid rendering:`, renderError);
-         gridContentArea.innerHTML = `<p class="error-message">Error generating ${currentView} grid.</p>`;
+        console.error(`Error during ${currentView} grid rendering:`, renderError);
+        gridContentArea.innerHTML = `<p class="error-message">Error generating ${currentView} grid.</p>`;
     }
 }
 
@@ -133,7 +158,7 @@ function handleCalculation(event) {
         resultsArea.classList.remove('hidden'); // <<< SHOW Results Area for error
         renderCurrentView(); // Clear grid content area if validation fails
         return; // Exit, leaving only results area visible
-     }
+    }
 
     // Create Date object from input string
     const birthDateLocal = new Date(birthdateStr);
@@ -264,6 +289,18 @@ function setupEventListeners() {
         console.error("Form element (#life-input-form) not found.");
     }
 
+    // Add event listeners to form inputs to update button state
+    if (birthdateInput) {
+        birthdateInput.addEventListener('input', updateButtonState);
+    } else {
+        console.error("Birthdate input element (#birthdate) not found.");
+    }
+    if (sexInput) {
+        sexInput.addEventListener('change', updateButtonState); // 'change' is suitable for select
+    } else {
+        console.error("Sex input element (#sex) not found.");
+    }
+
     // Attach listeners to all view switcher buttons
     if (viewSwitcherButtons.length > 0) {
         viewSwitcherButtons.forEach(button => {
@@ -286,12 +323,15 @@ function setupEventListeners() {
         // Attempt to visually set the default if needed (though HTML/CSS should handle initial state)
         const defaultButton = document.querySelector('#view-switcher .view-button[data-view="weeks-age"]');
         if (defaultButton && !activeButton) {
-             defaultButton.classList.add('active');
-             defaultButton.setAttribute('aria-checked', 'true');
+            defaultButton.classList.add('active');
+            defaultButton.setAttribute('aria-checked', 'true');
         }
     }
     console.log("Initial view set to:", currentView);
     // No need to call updateGridViewTitle here, as it's called in handleCalculation on success (or rather, it's not needed at all now)
+
+    // Set initial button state on page load
+    updateButtonState();
 }
 
 // Export setup function to be called by main.js
