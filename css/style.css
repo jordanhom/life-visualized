@@ -76,7 +76,7 @@ html, body {
     color: var(--color-text-primary);
     display: flex; /* Used with justify-content to center container */
     justify-content: center;
-    padding: var(--space-xl) 0; /* Vertical padding for body */
+    padding: var(--space-lg) 0; /* Vertical padding for body - REDUCED from --space-xl */
     box-sizing: border-box;
 }
 .container {
@@ -87,7 +87,7 @@ html, body {
     background: var(--color-background-container);
 
     /* Layout: Limit width on large screens and center horizontally */
-    max-width: 1200px;
+    max-width: 860px; /* REDUCED from 1200px */
     width: 95vw;
     margin-left: auto;
     margin-right: auto;
@@ -252,6 +252,38 @@ h1 {
 }
 .results-area p {
     margin: var(--space-xs) 0;
+}
+/* Styling for the introductory paragraph in results */
+.results-area .results-intro {
+    margin-bottom: var(--space-md); /* More space before the grid stats */
+    font-size: var(--font-size-base); /* Consistent font size with stats */
+    color: var(--color-text-muted);
+    line-height: 1.5; /* Ensure good line height if it wraps */
+}
+
+/* New styles for the results grid */
+.results-area .results-stats-grid {
+    display: grid;
+    /* Columns size to their content */
+    grid-template-columns: auto auto;
+    gap: var(--space-xs) var(--space-sm); /* Row gap, Column gap */
+    align-items: baseline; /* Align text nicely */
+    margin-top: var(--space-sm);
+    margin-left: auto; /* Center the grid block if it's narrower than its container */
+    margin-right: auto; /* Center the grid block if it's narrower than its container */
+    width: fit-content; /* Grid is only as wide as its content */
+}
+
+.results-area .stat-label {
+    font-size: var(--font-size-base);
+    color: var(--color-text-secondary); /* Slightly less prominent than value */
+    text-align: right; /* Align labels to the right for neatness */
+}
+
+.results-area .stat-value {
+    font-size: var(--font-size-base);
+    color: var(--color-text-primary);
+    /* strong tag within will handle boldness */
 }
 /* Added dynamically by JS when an error occurs */
 .error-message {
@@ -779,11 +811,29 @@ h1 {
     .results-area { /* REMOVED .grid-guide-details, #grid-controls-header */
         max-width: 487px; /* Match grid */
     }
+
+    /* Reduce vertical spacing in results area for medium screens */
+    .results-area {
+        padding-top: var(--space-sm);
+        padding-bottom: var(--space-sm);
+    }
+    .results-area .results-intro {
+        margin-bottom: var(--space-sm); /* Was var(--space-md) */
+    }
+    .results-area .results-stats-grid {
+        margin-top: var(--space-xs);   /* Was var(--space-sm) */
+    }
 }
 
 /* Tier 3: Smaller Screens (~Phone) - Target width < 487px */
 @media (max-width: 486px) {
     /* Adjust grid container for smaller screens */
+
+    /* Remove body top/bottom padding to maximize vertical space */
+    body {
+        padding-top: 0;
+        padding-bottom: 0;
+    }
     .life-grid-container {
         /* Calculation: 53 * (6px block + 1px gap) + 2 * 4px padding = 379px */
         max-width: 379px;
@@ -810,6 +860,24 @@ h1 {
     /* Adjust results width */
     .results-area { /* REMOVED .grid-guide-details, #grid-controls-header */
         max-width: 379px; /* Match grid */
+    }
+
+    /* Further reduce vertical spacing and font sizes in results for smaller screens */
+    .results-area {
+        padding-top: var(--space-xs);
+        padding-bottom: var(--space-xs);
+    }
+    .results-area .results-intro {
+        margin-bottom: var(--space-xs);
+        font-size: var(--font-size-sm); /* Reduce intro font size */
+    }
+    .results-area .results-stats-grid {
+        margin-top: var(--space-xxs);
+        gap: var(--space-xxs) var(--space-xs); /* Reduce grid internal gaps */
+    }
+    .results-area .stat-label,
+    .results-area .stat-value {
+        font-size: var(--font-size-sm); /* Reduce stats font size */
     }
 }
 

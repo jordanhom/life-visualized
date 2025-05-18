@@ -20,6 +20,7 @@ const form = document.getElementById('life-input-form');
 const birthdateInput = document.getElementById('birthdate');
 const sexInput = document.getElementById('sex');
 const calculateBtn = document.getElementById('calculate-btn'); // Get reference to the button
+const startOverBtn = document.getElementById('start-over-btn'); // New "Start Over" button
 const resultsArea = document.getElementById('results-area');
 // References for Progressive Reveal & Moved Elements
 const gridGuideDetails = document.getElementById('grid-guide-details'); // Now inside gridContainer
@@ -144,10 +145,12 @@ function handleCalculation(event) {
     resultsArea.classList.remove('error-message'); // Ensure no error styling
     resultsArea.classList.remove('hidden'); // Make results area visible for loading message
 
-    // --- Progressive Reveal Logic: Reset UI before new calculation ---
+    // --- UI Reset before new calculation ---
     // Hide elements that should only show after successful calculation.
+    form.classList.remove('hidden'); // Ensure form is visible for a new attempt or if resetting from error
     gridContainer.classList.add('hidden'); // Hide the main container
     // Also explicitly hide the inner elements in case they were somehow visible
+    if (startOverBtn) startOverBtn.classList.add('hidden'); // Hide Start Over button
     if (gridControlsHeader) gridControlsHeader.classList.add('hidden');
     if (gridGuideDetails) gridGuideDetails.classList.add('hidden');
 
@@ -200,7 +203,7 @@ function handleCalculation(event) {
         lastCalcData.totalLifespanYearsEst = totalEstimatedLifespan;
 
         // --- Display Results ---
-        displayResults(currentAge, remainingYears, totalEstimatedLifespan); // Updates resultsArea CONTENT
+        displayResults(currentAge, remainingYears, totalEstimatedLifespan, birthDateUTC, sex); // Pass inputs for display
 
         // --- Render the Grid ---
         renderCurrentView(); // Renders into #grid-content-area
@@ -208,6 +211,8 @@ function handleCalculation(event) {
         // --- Progressive Reveal Logic: Show elements on success ---
         // resultsArea.classList.remove('hidden'); // Already visible
         // Reveal the main container, which now holds controls, guide, and content area
+        form.classList.add('hidden'); // Hide the form
+        if (startOverBtn) startOverBtn.classList.remove('hidden'); // Show Start Over button
         gridContainer.classList.remove('hidden');
         // Explicitly reveal header and guide as they also have .hidden initially
         if (gridControlsHeader) gridControlsHeader.classList.remove('hidden');
@@ -237,14 +242,28 @@ function handleCalculation(event) {
  * @param {number} currentAge - The calculated current age in years.
  * @param {number} remainingYears - The estimated remaining years.
  * @param {number} totalEstimatedLifespan - The total estimated lifespan.
+ * @param {Date} birthDateObj - The UTC birth date object used for calculation.
+ * @param {string} sexValue - The sex value used for calculation.
  */
-function displayResults(currentAge, remainingYears, totalEstimatedLifespan) {
+function displayResults(currentAge, remainingYears, totalEstimatedLifespan, birthDateObj, sexValue) {
     // Ensure error styling is removed (handled by reset, but good practice)
     resultsArea.classList.remove('error-message');
+    // Format date for display (YYYY-MM-DD)
+    const formattedBirthDate = birthDateObj.getUTCFullYear() + '-' +
+                            ('0' + (birthDateObj.getUTCMonth() + 1)).slice(-2) + '-' +
+                            ('0' + birthDateObj.getUTCDate()).slice(-2);
+    const capitalizedSex = sexValue.charAt(0).toUpperCase() + sexValue.slice(1);
+
     resultsArea.innerHTML = `
-        <p>Your current age: <strong>${currentAge} years</strong></p>
-        <p>Estimated remaining lifespan (avg., based on US 2021 data): <strong>${remainingYears} years</strong></p>
-        <p>Total estimated lifespan (avg.): <strong>${totalEstimatedLifespan} years</strong></p>
+        <p class="results-intro">Based on your birth date (<strong>${formattedBirthDate}</strong>) and sex (<strong>${capitalizedSex}</strong>), here's your timeline overview:</p>
+        <div class="results-stats-grid">
+            <span class="stat-label">Current Age:</span>
+            <span class="stat-value"><strong>${currentAge} years</strong></span>
+            <span class="stat-label">Estimated Remaining:</span>
+            <span class="stat-value"><strong>${remainingYears} years</strong></span>
+            <span class="stat-label">Total Estimated Lifespan:</span>
+            <span class="stat-value"><strong>${totalEstimatedLifespan} years</strong> (average)</span>
+        </div>
     `;
 }
 
@@ -292,6 +311,33 @@ function handleViewChange(event) {
 }
 
 /**
+ * Handles the "Start Over" action: resets the UI to its initial state.
+ */
+function handleStartOver() {
+    // Show the form
+    form.classList.remove('hidden');
+
+    // Hide results, grid, and the start over button itself
+    resultsArea.classList.add('hidden');
+    gridContainer.classList.add('hidden');
+    if (gridControlsHeader) gridControlsHeader.classList.add('hidden');
+    if (gridGuideDetails) gridGuideDetails.classList.add('hidden');
+    if (startOverBtn) startOverBtn.classList.add('hidden');
+
+    // Clear input fields
+    if (birthdateInput) birthdateInput.value = '';
+    if (sexInput) sexInput.value = ''; // This will reset to the "Select..." placeholder
+
+    // Reset stored calculation data
+    lastCalcData.birthDate = null;
+    lastCalcData.totalLifespanYearsEst = null;
+
+    updateButtonState(); // Disable calculate button
+    if (birthdateInput) birthdateInput.focus(); // Focus on the first input field
+    renderCurrentView(); // Clear the grid
+}
+
+/**
  * Sets up all necessary event listeners for the application UI.
  * Called once by main.js on initialization.
  */
@@ -323,6 +369,13 @@ function setupEventListeners() {
         });
     } else {
         console.error("View switcher buttons (.view-button) not found.");
+    }
+
+    // Attach listener to the "Start Over" button
+    if (startOverBtn) {
+        startOverBtn.addEventListener('click', handleStartOver);
+    } else {
+        console.error("Start Over button (#start-over-btn) not found.");
     }
 
 

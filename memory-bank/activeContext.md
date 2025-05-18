@@ -1,7 +1,7 @@
 # Active Context - Life Visualized
 
 **Current Goal:** Implement Critical UX Refinements for MVP
-**Current Task:** UX Refinement "4. Progressive Reveal Hierarchy & Interaction" - Refine and implement the post-calculation UI reveal sequence.
+**Current Task:** UX Refinement "5. Sticky Header & View Switching Usability (Tablist Pattern)" - Implement accessibility and usability enhancements for the view switcher.
 
 **Recent Changes:**
 
@@ -13,13 +13,16 @@
   * Applying balanced vertical margins, horizontal padding, and center-alignment to `.intro-block-container` for improved visual flow and spacing.
   * Tightened spacing between intro text and disclaimer.
 * Implemented HTML for helper text (label supplements) and initial button state (disabled, title) for Task 2 ("Input Simplicity & Friction Reduction") in `/Users/jhom/src/vibecode/life-visualized/index.html`. (NEW)
-* * Implemented JavaScript logic for dynamic button state (enabled/disabled based on input validity) in `/Users/jhom/src/vibecode/life-visualized/js/ui.js` for Task 2. (COMPLETED)
+* Implemented JavaScript logic for dynamic button state (enabled/disabled based on input validity) in `/Users/jhom/src/vibecode/life-visualized/js/ui.js` for Task 2.
 * Implemented loading state indicators for the "Calculate & Visualize" button and results area in `/Users/jhom/src/vibecode/life-visualized/js/ui.js` and `/Users/jhom/src/vibecode/life-visualized/css/style.css` for Task 3. (COMPLETED)
+* Implemented form hiding post-calculation, added "Start Over" button, and updated results display in `/Users/jhom/src/vibecode/life-visualized/index.html`, `/Users/jhom/src/vibecode/life-visualized/js/ui.js`, and `/Users/jhom/src/vibecode/life-visualized/css/style.css` for Task 4. (COMPLETED)
+* Refined results section copy and layout (grid for stats, centered) and "Start Over" button placement for Task 4. (COMPLETED)
+* Adjusted body padding and container max-width for better large-screen layout. (COMPLETED)
 * Refined intro, disclaimer, and helper text content for clarity and conciseness with Dr. Reed. (NEW)
 * Development resumed to implement critical UX refinements. (Context updated)
 * The project was previously paused after refining the grid explanation text and completing initial MVP features. (Context)
 
-**Next Action:** Refine and implement the progressive reveal hierarchy and interaction flow, ensuring a smooth transition from input to visualization.
+**Next Action:** Implement the tablist pattern for the view switcher buttons for improved accessibility and keyboard navigation.
 
 **Blockers:** None.
 
@@ -33,6 +36,7 @@
 **Open Questions/Decisions:**
 
 * Consider a broader "UI/UX consistency review" after the current critical UX refinements are implemented to ensure overall polish and cohesion. (NEW)
+* User decision: Defer extensive accessibility changes post-MVP, focus on easy-to-implement/high-impact items for now. (NEW)
 
 **Learnings & Insights:**
 
@@ -40,6 +44,8 @@
 * Wrapping related content blocks (like an intro paragraph and its disclaimer) in a dedicated container allows for more precise control over their collective layout, spacing (margins, padding), and visual consistency. (NEW)
 * Subtle typographic adjustments (font size, color) and careful management of whitespace are key to making introductory text readable yet unobtrusive. (NEW)
 * Separating distinct content blocks into their own HTML elements allows for more precise and flexible CSS styling.
+* Hiding the input form post-calculation and providing a "Start Over" button streamlines the UX.
+* Presenting summary statistics in a grid format enhances readability.
 * Collaborative refinement of introductory text can significantly improve user engagement and clarity.
 * Using precise labels like "Biological Sex (for statistical estimate)" enhances transparency about data usage.
 * Adding subtle visual cues (like an icon) and clearer initial text can improve first impressions and user understanding.
