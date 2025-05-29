@@ -11,8 +11,10 @@
  *    - Grid Guide Details Styles (.grid-guide-details, etc.) - Inside grid container
  *    - Grid Controls Header & View Switcher (#grid-controls-header, #view-switcher, .view-button) - Inside grid container
  *    - (Old View Toggle Styles - .view-toggle - are now unused)
- * 6. Life Grid Styles - Complex styles for the visualization grid:
- *    - Grid Container (.life-grid-container) - Contains header, guide, and content area
+ * 6. Life Grid Styles - Styles for the visualization grid and its components:
+ *    - Grid Container (.life-grid-container) - Main wrapper for header, guide, axis labels, and grid content.
+ *    - Grid Axis Labels (#grid-axis-label-top, #grid-axis-label-left) - For X and Y axis labels.
+ *    - Grid Content Wrapper (#grid-content-wrapper) - Contains left axis label and content area for layout.
  *    - Grid Content Area (#grid-content-area) - Holds the actual grid blocks
  *    - Row Styles (.year-row, etc.)
  *    - Block Base Styles (.week-block, .month-block, .year-block)
@@ -132,9 +134,6 @@ h1 {
     margin-top: 0.2em; /* Reduced space from .intro-text above */
     margin-bottom: 0; /* Last child in new container; parent handles overall bottom margin */
     font-size: 0.85rem; /* Suggestion: Slightly smaller for the disclaimer text */
-    /* background-color: var(--color-background-alt, #f8f9fa); */ /* REMOVED to make it less blocky */
-    /* padding: 0.75em 1em; */ /* REMOVED */
-    /* border-radius: var(--border-radius-sm, 4px); */ /* REMOVED */
     color: var(--color-text-muted); /* Muted color for the disclaimer text */
     /* max-width, width, and text-align are now handled by .intro-block-container */
 }
@@ -196,7 +195,6 @@ h1 {
     box-sizing: border-box;
     background-color: var(--color-background-container);
 }
-/* .form-group .helper-text is no longer used */
 
 .form-group input[type="date"]:focus,
 .form-group select:focus {
@@ -225,11 +223,6 @@ h1 {
     cursor: not-allowed;
     opacity: 0.7;
 }
-/* Optional: Styles for button loading state */
-/* .calculate-btn.loading { */
-    /* Add spinner or other visual cues here */
-    /* e.g., background-image: url('spinner.svg'); */
-/* } */
 
 /* --- Results & Disclaimer Styles --- */
 .results-area {
@@ -247,7 +240,7 @@ h1 {
     font-size: var(--font-size-base);
 
     /* Constrain width to match grid */
-    max-width: 656px; /* Match grid container max-width */
+    max-width: 683px;
     width: 100%; /* Allow shrinking below max-width */
 }
 .results-area p {
@@ -539,9 +532,9 @@ h1 {
     background-color: var(--color-primary-light, #e0f0ff); /* Define --color-primary-light if needed */
 }
 .view-button:focus-visible {
-     outline: 2px solid var(--color-primary-dark);
-     outline-offset: 1px;
-     z-index: 1;
+    outline: 2px solid var(--color-primary-dark);
+    outline-offset: 1px;
+    z-index: 1;
 }
 
 /* Active state */
@@ -554,48 +547,6 @@ h1 {
 
 /* ========================================================================== */
 
-
-/* --- Old View Toggle Styles (Unused) --- */
-/* Styles for the fieldset containing view selection radios */
-/* Initially hidden via .hidden class */
-/* Kept for reference, but not actively used */
-/*
-.view-toggle {
-    margin-bottom: var(--space-lg);
-    border: 1px solid var(--border-color-light);
-    border-radius: var(--border-radius-md);
-    padding: var(--space-xs) var(--space-md);
-    display: inline-flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: var(--space-xs);
-    background-color: var(--color-background-subtle);
-    box-sizing: border-box;
-    max-width: 656px;
-    width: 100%;
-}
-.view-toggle legend {
-    font-weight: 600;
-    padding: 0 var(--space-xxs);
-    font-size: 0.95rem;
-    color: var(--color-text-primary);
-}
-.view-toggle div {
-    display: flex;
-    align-items: center;
-    gap: var(--space-xxs);
-}
-.view-toggle label {
-    cursor: pointer;
-    font-size: 0.9rem;
-}
-.view-toggle input[type="radio"] {
-    cursor: pointer;
-    margin: 0;
-}
-*/
-
-
 /* --- Life Grid Styles --- */
 /* Styles for the grid container */
 /* Initially hidden via .hidden class */
@@ -604,15 +555,12 @@ h1 {
     width: 100%; /* Takes width from parent .container */
 
     /* KEY LAYOUT: Fixed max-width based on the default (Week) view */
-    /* Calculation: 53 blocks * (10px block + 2px gap) + 2 * 10px padding = 656px */
-    max-width: 656px;
+    max-width: 683px; /* Calculated: (left_label + gap + grid_blocks) + (2 * container_padding) */
     box-sizing: border-box;
     display: flex;
     flex-direction: column; /* Stack header, guide, content area vertically */
-    /* gap removed - spacing handled by margins on children */
-    overflow-x: auto; /* Allow horizontal scrolling if content exceeds max-width (eg. smaller screens) */
-    /* Padding adjusted: Top removed, others kept specific */
     padding: 0 10px 10px 10px;
+    overflow-x: auto; /* Enable horizontal scrolling if content overflows */
     background-color: var(--color-grid-background);
     border: 1px solid var(--border-color-medium);
     border-radius: var(--border-radius-md);
@@ -627,6 +575,51 @@ h1 {
     /* No padding needed here, handled by parent */
 }
 
+/* --- NEW: Grid Axis Label Styles --- */
+.grid-axis-label {
+    font-size: var(--font-size-sm);
+    color: var(--color-text-muted);
+    /* text-align will be specific to top or left */
+    font-style: italic;
+    box-sizing: border-box; /* Ensure padding is included in width calculations */
+    /* Initially hidden, JS will manage visibility */
+}
+
+#grid-axis-label-top {
+    width: 100%; /* Span the width of its container */
+    padding-bottom: var(--space-xs); /* Space between label and grid content wrapper */
+    text-align: left; /* Align text to the left */
+    /* Offset by the width of the left label + gap */
+    /* Calculation: 1.5em (min-width of #grid-axis-label-left) + var(--space-xs) (gap in #grid-content-wrapper) */
+    padding-left: calc(1.5em + var(--space-xs)); 
+    /* border-bottom: 1px dashed var(--border-color-light); */ /* Optional visual separator */
+}
+
+/* Wrapper for the left label and the main grid content area */
+#grid-content-wrapper {
+    display: flex; /* Arrange left label and grid content side-by-side */
+    align-items: flex-start; /* Align items to the top of the container */
+    gap: var(--space-xs); /* Gap between left label and grid content */
+}
+
+#grid-axis-label-left {
+    /* Vertical text orientation */
+    writing-mode: vertical-rl; /* Text flows vertically, right-to-left lines */
+    transform: rotate(180deg); /* Makes text read top-to-bottom for LTR languages */
+    
+    /* Sizing and Alignment */
+    display: flex; /* To use align-items and justify-content */
+    align-items: center; /* Center text along the non-writing-mode axis */
+    justify-content: flex-start; /* Align text to the top along the writing-mode axis (vertically) */
+    /* border-right: 1px dashed var(--border-color-light); */ /* Optional visual separator */
+    /* Explicit width might be needed if content doesn't define it well */
+    min-width: 1.5em; /* Adjust as needed based on longest label */
+}
+
+#grid-content-area {
+    flex-grow: 1; /* Allow grid content to take remaining space */
+    min-width: 0; /* Important for flex items to shrink properly */
+}
 
 /* Base style for all rows (weeks, months, years) */
 .year-row { /* Also used for month-row, decade-row */
@@ -779,6 +772,11 @@ h1 {
         padding: var(--space-xs) var(--space-xs);
         font-size: calc(var(--font-size-sm) * 0.95);
     }
+
+    /* Adjust axis label font size */
+    .grid-axis-label {
+        font-size: calc(var(--font-size-sm) * 0.9);
+    }
 }
 
 
@@ -786,10 +784,9 @@ h1 {
 @media (max-width: 655px) {
     /* Adjust grid container for medium screens */
     .life-grid-container {
-        /* Precise max-width for 53 * (8px block + 1px gap) + 2 * 5px padding */
-        max-width: 487px;
-        padding: 0 5px 5px 5px; /* Keep specific, top padding 0 */
-        /* gap removed from container */
+        /* Updated max-width: (1.5em label (at smaller font) + 8px gap + (53*(8+1)-1)px content) + 2*5px padding */
+        max-width: 513px;
+        padding: 0 5px 5px 5px;
     }
     /* Adjust grid content area gap */
     #grid-content-area {
@@ -808,8 +805,8 @@ h1 {
         padding: var(--space-lg) var(--space-xs);
     }
     /* Adjust results width */
-    .results-area { /* REMOVED .grid-guide-details, #grid-controls-header */
-        max-width: 487px; /* Match grid */
+    .results-area { /* max-width adjusted to match grid container */
+        max-width: 513px; /* Match updated grid */
     }
 
     /* Reduce vertical spacing in results area for medium screens */
@@ -835,10 +832,9 @@ h1 {
         padding-bottom: 0;
     }
     .life-grid-container {
-        /* Calculation: 53 * (6px block + 1px gap) + 2 * 4px padding = 379px */
-        max-width: 379px;
-        padding: 0 4px 4px 4px; /* Keep specific, top padding 0 */
-        /* gap removed from container */
+        max-width: 405px; /* Adjusted for smaller blocks and left label */
+        padding: 0 4px 4px 4px; /* Symmetrical padding */
+
     }
     /* Adjust grid content area gap */
     #grid-content-area {
@@ -858,8 +854,8 @@ h1 {
         width: 100%;
     }
     /* Adjust results width */
-    .results-area { /* REMOVED .grid-guide-details, #grid-controls-header */
-        max-width: 379px; /* Match grid */
+    .results-area { /* max-width adjusted to match grid container */
+        max-width: 405px; /* Match updated grid */
     }
 
     /* Further reduce vertical spacing and font sizes in results for smaller screens */
@@ -896,10 +892,8 @@ h1 {
 @media (max-width: 378px) {
     /* Adjust grid container for smallest screens */
     .life-grid-container {
-        /* Calculation: 53 * (5px block + 1px gap) + 2 * 3px padding = 324px */
-        max-width: 324px;
-        padding: 0 3px 3px 3px; /* Keep specific, top padding 0 */
-        /* gap removed from container */
+        max-width: 350px; /* Adjusted for smaller blocks and left label */
+        padding: 0 3px 3px 3px; /* Symmetrical padding */
     }
     /* Adjust grid content area gap */
     #grid-content-area {
@@ -920,13 +914,12 @@ h1 {
      h1 { font-size: 1.6rem; /* Keep specific */ }
     .calculate-btn { font-size: var(--font-size-base); }
      /* Adjust results width */
-     .results-area { /* REMOVED .grid-guide-details, #grid-controls-header */
-        max-width: 324px; /* Match grid */
+    .results-area { /* max-width adjusted to match grid container */
+        max-width: 350px; /* Match updated grid */
     }
 }
 
-/* Below ~324px, overflow-x: auto on .life-grid-container handles scrolling */
-
+/* If content exceeds the smallest max-width (~350px), overflow-x: auto on .life-grid-container handles scrolling. */
 
 /* --- Responsive Adjustments for Month/Year Block Sizes/Gaps --- */
 /* These adjust how month/year blocks fill the container at smaller sizes */
@@ -967,4 +960,4 @@ h1 {
     }
 }
 
-/* Below smallest years grid width (~137px), overflow-x will handle scrolling */
+/* If year blocks cause content to exceed container max-width, overflow-x handles scrolling. */

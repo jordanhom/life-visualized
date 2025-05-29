@@ -22,7 +22,7 @@ const sexInput = document.getElementById('sex');
 const calculateBtn = document.getElementById('calculate-btn'); // Get reference to the button
 const startOverBtn = document.getElementById('start-over-btn'); // New "Start Over" button
 const resultsArea = document.getElementById('results-area');
-// References for Progressive Reveal & Moved Elements
+// References for Progressive Reveal & Grid UI Elements
 const gridGuideDetails = document.getElementById('grid-guide-details'); // Now inside gridContainer
 const gridContainer = document.getElementById('life-grid-container'); // The main container
 const gridContentArea = document.getElementById('grid-content-area'); // Inner container for grid blocks
@@ -30,6 +30,10 @@ const gridContentArea = document.getElementById('grid-content-area'); // Inner c
 const gridControlsHeader = document.getElementById('grid-controls-header');
 const viewSwitcher = document.getElementById('view-switcher'); // Cache the tablist container
 const viewSwitcherButtons = document.querySelectorAll('#view-switcher .view-button');
+// Axis Label Elements
+const gridAxisLabelTop = document.getElementById('grid-axis-label-top');
+const gridAxisLabelLeft = document.getElementById('grid-axis-label-left');
+const gridContentWrapper = document.getElementById('grid-content-wrapper'); // Wrapper for left label + content area
 
 
 // --- State Variables ---
@@ -66,17 +70,39 @@ function updateButtonState() {
     calculateBtn.title = isValid ? '' : 'Please fill in both fields.';
 }
 
+/**
+ * Updates the text content and visibility of the grid axis labels.
+ * @param {boolean} show - Whether to show or hide the labels.
+ * @param {string} [topText=''] - Text for the top axis label.
+ * @param {string} [leftText=''] - Text for the left axis label.
+ */
+function updateAxisLabels(show, topText = '', leftText = '') {
+    if (gridAxisLabelTop && gridAxisLabelLeft && gridContentWrapper) {
+        if (show) {
+            gridAxisLabelTop.innerHTML = `------ ${topText} -----&gt;`;
+            gridAxisLabelLeft.innerHTML = `&lt;----- ${leftText} ------`;
+            gridAxisLabelTop.classList.remove('hidden');
+            // Show the wrapper which contains the left axis label and the grid content area.
+            gridContentWrapper.classList.remove('hidden'); 
+        } else { // Hiding labels
+            gridAxisLabelTop.classList.add('hidden');
+            gridContentWrapper.classList.add('hidden');
+            gridAxisLabelTop.innerHTML = ''; // Clear text when hidden
+            gridAxisLabelLeft.innerHTML = '';
+        }
+    }
+}
+
 
 /**
  * Renders the grid using the currently selected view type and stored calculation data.
- * Clears the specific grid content area and calls the appropriate function from gridRenderer.js.
- * Assumes the main gridContainer and its children (header, guide) are already visible.
+ * Clears #grid-content-area, calls the appropriate renderer, and updates axis labels.
  */
 function renderCurrentView() {
     // Ensure the dedicated content area exists
     if (!gridContentArea) {
         console.error("Grid content area (#grid-content-area) not found.");
-        // Optionally clear the main container if the inner one is missing
+        // Fallback: Clear the main container if the inner one is missing to prevent stale content.
         if (gridContainer) gridContainer.innerHTML = '<p class="error-message">Grid layout error.</p>';
         return;
     }
@@ -85,10 +111,11 @@ function renderCurrentView() {
     if (!lastCalcData.birthDate || lastCalcData.totalLifespanYearsEst === null) {
         console.log("No calculation data available to render grid.");
         gridContentArea.innerHTML = ''; // Clear only the content area
-        // Ensure no view-specific classes remain on the main container if grid is empty
+        // Ensure no view-specific classes remain on the main container if grid is empty.
         if (gridContainer) {
             gridContainer.classList.remove('grid-view-weeks-age', 'grid-view-weeks-calendar', 'grid-view-months', 'grid-view-years');
         }
+        updateAxisLabels(false); // Hide axis labels if no data
         gridContentArea.removeAttribute('tabindex'); // Not focusable if empty
         return;
     }
@@ -96,37 +123,48 @@ function renderCurrentView() {
     // Clear previous grid content from the dedicated area
     gridContentArea.innerHTML = '';
 
-    // Update main container class for potential view-specific CSS rules (e.g., block sizing/gap)
-    // These classes might affect how the gridContentArea itself behaves if needed
+    // Update main container class for view-specific CSS rules (e.g., month/year block sizing/gap).
     if (gridContainer) {
         gridContainer.classList.remove('grid-view-weeks-age', 'grid-view-weeks-calendar', 'grid-view-months', 'grid-view-years'); // Clear previous
         gridContainer.classList.add(`grid-view-${currentView}`); // Add current (e.g., grid-view-weeks-age)
     }
 
+    let topLabel = '', leftLabel = '';
+
     // Call the appropriate rendering function based on currentView state,
     // passing the specific gridContentArea element.
     try {
-        // Use new view names matching data-view attributes
+        // View names match data-view attributes on buttons.
         if (currentView === 'weeks-age') {
+            topLabel = 'Weeks'; leftLabel = 'Years';
             renderAgeGrid(lastCalcData.birthDate, lastCalcData.totalLifespanYearsEst, gridContentArea);
         } else if (currentView === 'weeks-calendar') {
+            topLabel = 'Weeks'; leftLabel = 'Years';
             renderCalendarGrid(lastCalcData.birthDate, lastCalcData.totalLifespanYearsEst, gridContentArea);
         } else if (currentView === 'months') {
+            topLabel = 'Months'; leftLabel = 'Years';
             renderMonthsGrid(lastCalcData.birthDate, lastCalcData.totalLifespanYearsEst, gridContentArea);
         } else if (currentView === 'years') {
+            topLabel = 'Years'; leftLabel = 'Decades';
             renderYearsGrid(lastCalcData.birthDate, lastCalcData.totalLifespanYearsEst, gridContentArea);
         } else {
             console.error("Unknown view type selected:", currentView);
             gridContentArea.innerHTML = '<p class="error-message">Invalid view selected.</p>';
+            updateAxisLabels(false); // Hide on error
             gridContentArea.removeAttribute('tabindex'); // Not focusable on error
         }
-        // If rendering was successful (no error thrown by renderer), make it focusable
+        // If rendering was successful (no error message was set by the renderer), update and show axis labels.
+        if (!gridContentArea.querySelector('.error-message')) {
+            updateAxisLabels(true, topLabel, leftLabel);
+        }
+        // If rendering was successful (no error thrown by renderer and content exists), make it focusable.
         if (gridContentArea.hasChildNodes() && !gridContentArea.querySelector('.error-message')) {
             gridContentArea.tabIndex = 0;
         }
     } catch (renderError) {
         console.error(`Error during ${currentView} grid rendering:`, renderError);
         gridContentArea.innerHTML = `<p class="error-message">Error generating ${currentView} grid.</p>`;
+        updateAxisLabels(false); // Hide on error
         gridContentArea.removeAttribute('tabindex'); // Not focusable on error
     }
 }
@@ -147,7 +185,6 @@ function handleCalculation(event) {
     if (calculateBtn) {
         calculateBtn.disabled = true; // Disable button immediately
         calculateBtn.textContent = 'Calculating...'; // Change button text
-        // Optionally, add a class for CSS spinner: calculateBtn.classList.add('loading');
     }
     resultsArea.innerHTML = '<p>Calculating your timeline...</p>'; // Show loading in results
     resultsArea.classList.remove('error-message'); // Ensure no error styling
@@ -157,10 +194,9 @@ function handleCalculation(event) {
     // Hide elements that should only show after successful calculation.
     form.classList.remove('hidden'); // Ensure form is visible for a new attempt or if resetting from error
     gridContainer.classList.add('hidden'); // Hide the main container
-    // Also explicitly hide the inner elements in case they were somehow visible
     if (startOverBtn) startOverBtn.classList.add('hidden'); // Hide Start Over button
-    if (gridControlsHeader) gridControlsHeader.classList.add('hidden');
-    if (gridGuideDetails) gridGuideDetails.classList.add('hidden');
+    // gridControlsHeader and gridGuideDetails are children of gridContainer, so they are hidden with it.
+    updateAxisLabels(false); // Hide axis labels
 
     // Clear previous results/errors visually and ensure results area is ready.
     resultsArea.innerHTML = '';
@@ -222,9 +258,8 @@ function handleCalculation(event) {
         form.classList.add('hidden'); // Hide the form
         if (startOverBtn) startOverBtn.classList.remove('hidden'); // Show Start Over button
         gridContainer.classList.remove('hidden');
-        // Explicitly reveal header and guide as they also have .hidden initially
-        if (gridControlsHeader) gridControlsHeader.classList.remove('hidden');
-        if (gridGuideDetails) gridGuideDetails.classList.remove('hidden');
+        // gridControlsHeader and gridGuideDetails are children of gridContainer.
+        // Their .hidden class was removed in HTML, so they become visible when gridContainer does.
 
         // DELETED: Call to updateGridViewTitle (title element removed)
 
@@ -239,7 +274,6 @@ function handleCalculation(event) {
         // --- End Loading State (always executed) ---
         if (calculateBtn) {
             calculateBtn.textContent = 'Calculate & Visualize'; // Revert button text
-            // Optionally, remove loading class: calculateBtn.classList.remove('loading');
             updateButtonState(); // Re-evaluate button's enabled/disabled state
         }
     }
@@ -282,7 +316,7 @@ function displayResults(currentAge, remainingYears, totalEstimatedLifespan, birt
 function displayError(message) {
     resultsArea.innerHTML = `<p>${message}</p>`;
     resultsArea.classList.add('error-message'); // Ensure error styling is applied
-    // Visibility of resultsArea is handled in handleCalculation
+    // Visibility of resultsArea itself is handled by the calling function (handleCalculation).
 }
 
 
@@ -316,8 +350,7 @@ function handleViewChange(event) {
 
     // DELETED: Call to updateGridViewTitle (title element removed)
 
-    // Re-render the grid with the new view setting.
-    // This uses the data stored in `lastCalcData`, avoiding recalculation.
+    // Re-render the grid with the new view setting, using stored `lastCalcData`.
     renderCurrentView();
 }
 
@@ -331,8 +364,8 @@ function handleStartOver() {
     // Hide results, grid, and the start over button itself
     resultsArea.classList.add('hidden');
     gridContainer.classList.add('hidden');
-    if (gridControlsHeader) gridControlsHeader.classList.add('hidden');
-    if (gridGuideDetails) gridGuideDetails.classList.add('hidden');
+    updateAxisLabels(false); // Hide axis labels
+    // gridControlsHeader and gridGuideDetails are hidden along with gridContainer.
     if (startOverBtn) startOverBtn.classList.add('hidden');
 
     // Clear input fields
@@ -345,7 +378,7 @@ function handleStartOver() {
 
     updateButtonState(); // Disable calculate button
     if (birthdateInput) birthdateInput.focus(); // Focus on the first input field
-    if (gridContentArea) gridContentArea.removeAttribute('tabindex'); // Ensure it's not focusable
+    if (gridContentArea) gridContentArea.removeAttribute('tabindex'); // Ensure it's not focusable when empty.
     renderCurrentView(); // Clear the grid
 }
 
@@ -435,15 +468,14 @@ function setupEventListeners() {
     const activeButton = document.querySelector('#view-switcher .view-button.active[role="tab"]');
     if (activeButton && activeButton.dataset.view) {
         currentView = activeButton.dataset.view;
-        // Initial ARIA attributes (aria-selected, tabindex, aria-labelledby for panel)
-        // are now expected to be set correctly in the HTML.
+        // Initial ARIA attributes (aria-selected, tabindex for buttons; aria-labelledby for panel)
+        // are assumed to be correctly set in the HTML for the default active tab.
     } else if (viewSwitcherButtons.length > 0) { // Fallback if no .active class in HTML or HTML is malformed
         console.warn("No default active view button found in HTML. Defaulting to 'weeks-age'.");
         currentView = viewSwitcherButtons[0].dataset.view || 'weeks-age'; // Use first button's view or hardcoded default
-        // Note: This fallback doesn't enforce ARIA states if HTML is broken; relies on first interaction to sync.
+        // Note: This fallback doesn't enforce ARIA states if HTML is malformed; relies on first interaction to sync.
     }
     console.log("Initial view set to:", currentView);
-    // No need to call updateGridViewTitle here, as it's called in handleCalculation on success (or rather, it's not needed at all now)
 
     // Set initial button state on page load
     updateButtonState();

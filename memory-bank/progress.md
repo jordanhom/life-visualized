@@ -47,9 +47,11 @@ The following key areas of refinement, detailed in `/Users/jhom/src/vibecode/pro
 4. Progressive Reveal Hierarchy & Interaction (Completed - Form hiding, "Start Over" button implementation and placement, refined results display (grid layout, centered, responsive spacing), body/container padding adjustments for large and small screens)
 5. Sticky Header & View Switching Usability (Tablist Pattern) (Completed - Implemented ARIA `tablist` for view switcher buttons, enhancing keyboard navigation and accessibility. Sticky header part was already in place.)
 6. Grid Visualization & Block State Clarity (Accessible Patterns) (Completed MVP - Made grid container (`#grid-content-area`) focusable with descriptive `aria-label` and `aria-roledescription` for screen reader overview.)
-7. Color Coding & Accessibility (Contrast, Color Blindness Support)
+7. Color Coding & Accessibility (Contrast, Color Blindness Support) (Deferred for MVP)
 8. View B Alignment Clarity (Guide Update with Visual Aid)
-9. Guide Discoverability & Text Refinements
+    - Implemented axis labels (top and left) for the grid. (NEW)
+    - Decision: Defer visual diagram for Calendar View guide for now. Focus on textual clarity and axis labels. (NEW)
+9. Guide Discoverability & Text Refinements (Ongoing - text for Calendar View guide is in place, effectiveness to be confirmed)
 10. Layout & Responsiveness
 11. General Accessibility Audit (Keyboard, Focus, ARIA, Zoom)
 12. Emotional Tone & Sensitivity

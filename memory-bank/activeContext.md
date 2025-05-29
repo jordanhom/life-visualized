@@ -1,7 +1,7 @@
 # Active Context - Life Visualized
 
 **Current Goal:** Implement Critical UX Refinements for MVP
-**Current Task:** UX Refinement "7. Color Coding & Accessibility (Contrast, Color Blindness Support)" - Review color palette for `LIFE_STAGES` and block states for contrast and color blindness support.
+**Current Task:** UX Refinement "8. View B Alignment Clarity (Guide Update & Axis Labels)" - Ensure the guide text and axis labels provide sufficient clarity for the Weeks (Calendar) view.
 
 **Recent Changes:**
 
@@ -24,8 +24,11 @@
 * The project was previously paused after refining the grid explanation text and completing initial MVP features. (Context)
 * Implemented ARIA `tablist` pattern for the view switcher buttons (`#view-switcher`) in `/Users/jhom/src/vibecode/life-visualized/index.html` and `/Users/jhom/src/vibecode/life-visualized/js/ui.js` for UX Refinement #5. This includes `role="tablist"`, `role="tab"`, `aria-selected`, `aria-controls`, `tabindex` management, and keyboard navigation (Arrow keys, Home, End). (COMPLETED)
 * Enhanced accessibility of the grid visualization by making `#grid-content-area` focusable (`tabindex='0'`) and adding descriptive `aria-label` and `aria-roledescription` attributes in `js/ui.js` and `js/gridRenderer.js`. This provides a better overview for screen reader users. (UX Refinement #6 - MVP Completed)
+* UX Refinement #7 ("Color Coding & Accessibility") deferred for MVP. (Decision)
+* Implemented axis labels (top and left) for the grid in `/Users/jhom/src/vibecode/life-visualized/index.html`, `/Users/jhom/src/vibecode/life-visualized/css/style.css`, and `/Users/jhom/src/vibecode/life-visualized/js/ui.js`. (NEW - Part of UX Refinement #8)
+* Reviewed and updated code comments in `/Users/jhom/src/vibecode/life-visualized/index.html`, `/Users/jhom/src/vibecode/life-visualized/css/style.css`, and `/Users/jhom/src/vibecode/life-visualized/js/ui.js` for accuracy and clarity, removing orphaned comments. Confirmed rationale for retaining specific historical comments in HTML for structural context. (NEW)
 
-**Next Action:** Review the color palette used for `LIFE_STAGES` in `js/gridRenderer.js` and the CSS styles for block states (past, present, future, out-of-bounds) in `css/style.css`. Check for sufficient contrast and potential issues for users with common forms of color blindness.
+**Next Action:** Confirm that the current textual explanation in the guide for the "Weeks (Calendar)" view, in conjunction with the newly added axis labels, provides sufficient clarity. A visual diagram is deferred for now.
 
 **Blockers:** None.
 
@@ -33,6 +36,7 @@
 
 * `/Users/jhom/src/vibecode/life-visualized/index.html` (Updated for intro block, helper text, button state)
 * `/Users/jhom/src/vibecode/life-visualized/css/style.css` (Updated styles for intro block, helper text, button disabled state)
+* `/Users/jhom/src/vibecode/life-visualized/js/ui.js` (Updated for dynamic button state, axis label management)
 * `/Users/jhom/src/vibecode/life-visualized/js/ui.js` (Updated for dynamic button state)
 * `activeContext.md` (This file)
 
@@ -41,6 +45,7 @@
 * Consider a broader "UI/UX consistency review" after the current critical UX refinements are implemented to ensure overall polish and cohesion. (NEW)
 * User decision: Defer extensive accessibility changes post-MVP, focus on easy-to-implement/high-impact items for now. (NEW)
 * **Safari Tabbing Issue:** Noted that in Safari, tabbing to the "Calculate & Visualize" button after it becomes enabled, and tabbing to the "Start Over" button after it becomes visible, does not work as expected (focus skips them). Works correctly in Chrome. Documented for potential future investigation if it becomes a higher priority. (NEW)
+* **Visual Diagram for Calendar View Guide:** Decision made to defer adding a visual diagram for now. Focus is on textual clarity and the effectiveness of the new axis labels. (NEW)
 
 **Learnings & Insights:**
 
@@ -63,3 +68,5 @@
 * Maintaining centering across responsive breakpoints requires checking `justify-content` (for `flex-direction: row`) and `align-items` (for `flex-direction: column`) on the flex container.
 * Iterative refinement of explanatory text, focusing on user questions and conciseness, can significantly improve clarity without losing essential information.
 * Implementing the ARIA `tablist` pattern significantly improves keyboard navigation and accessibility for tab-like interfaces. (NEW)
+* Axis labels, when implemented clearly, can significantly aid in understanding grid-based visualizations, potentially reducing the need for complex diagrams in accompanying guides. (NEW)
+* Retaining specific historical comments in HTML that explain major structural changes can be valuable for long-term context, even if similar orphaned comments are removed from CSS/JS for conciseness. (NEW)
