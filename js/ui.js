@@ -27,8 +27,9 @@ const gridGuideDetails = document.getElementById('grid-guide-details'); // Now i
 const gridContainer = document.getElementById('life-grid-container'); // The main container
 const gridContentArea = document.getElementById('grid-content-area'); // Inner container for grid blocks
 // References for New Header Bar (replaces old radio buttons)
-const gridControlsHeader = document.getElementById('grid-controls-header'); // Now inside gridContainer
-const viewSwitcherButtons = document.querySelectorAll('#view-switcher .view-button'); // Select new buttons
+const gridControlsHeader = document.getElementById('grid-controls-header');
+const viewSwitcher = document.getElementById('view-switcher'); // Cache the tablist container
+const viewSwitcherButtons = document.querySelectorAll('#view-switcher .view-button');
 
 
 // --- State Variables ---
@@ -284,7 +285,6 @@ function displayError(message) {
  * @param {Event} event - The click event from the view switcher button.
  */
 function handleViewChange(event) {
-    // Ensure the click came from a button within the switcher
     const clickedButton = event.target.closest('.view-button');
     if (!clickedButton || !viewSwitcherButtons) return;
 
@@ -292,16 +292,20 @@ function handleViewChange(event) {
     if (!newView || newView === currentView) {
         return; // No change needed if view is invalid or same as current
     }
-
     currentView = newView; // Update the state variable
     console.log("View changed to:", currentView);
 
-    // Update button states (active class and aria-checked)
+    // Update button states (active class and ARIA for tablist)
     viewSwitcherButtons.forEach(button => {
         const isActive = button === clickedButton;
         button.classList.toggle('active', isActive);
-        button.setAttribute('aria-checked', isActive ? 'true' : 'false');
+        // Update ARIA attributes for tab role
+        button.setAttribute('aria-selected', isActive.toString());
+        button.setAttribute('tabindex', isActive ? '0' : '-1');
     });
+
+    // Update tabpanel's aria-labelledby to the id of the new active tab
+    gridContentArea.setAttribute('aria-labelledby', clickedButton.id);
 
     // DELETED: Call to updateGridViewTitle (title element removed)
 
@@ -338,6 +342,48 @@ function handleStartOver() {
 }
 
 /**
+ * Handles keyboard navigation for the tablist.
+ * Allows ArrowLeft, ArrowRight, Home, and End keys to navigate tabs.
+ * @param {KeyboardEvent} event The keyboard event.
+ */
+function handleTablistKeydown(event) {
+    // Use the cached NodeList of tab buttons
+    const tabs = Array.from(viewSwitcherButtons);
+    const currentTab = document.activeElement;
+
+    // Ensure the event target is a tab within our tablist
+    if (!tabs.includes(currentTab)) {
+        return;
+    }
+
+    let currentIndex = tabs.indexOf(currentTab);
+    let newIndex = currentIndex;
+
+    switch (event.key) {
+        case 'ArrowRight':
+        case 'ArrowDown': // Supporting ArrowDown as an alternative for horizontal lists
+            newIndex = (currentIndex + 1) % tabs.length;
+            break;
+        case 'ArrowLeft':
+        case 'ArrowUp': // Supporting ArrowUp
+            newIndex = (currentIndex - 1 + tabs.length) % tabs.length;
+            break;
+        case 'Home':
+            newIndex = 0;
+            break;
+        case 'End':
+            newIndex = tabs.length - 1;
+            break;
+        default:
+            return; // Key not handled
+    }
+
+    event.preventDefault(); // Prevent default browser action (e.g., scrolling)
+    tabs[newIndex].focus(); // Move focus to the new tab
+    tabs[newIndex].click(); // Activate the new tab (triggers handleViewChange)
+}
+
+/**
  * Sets up all necessary event listeners for the application UI.
  * Called once by main.js on initialization.
  */
@@ -361,14 +407,12 @@ function setupEventListeners() {
         console.error("Sex input element (#sex) not found.");
     }
 
-    // Attach listeners to all view switcher buttons
-    if (viewSwitcherButtons.length > 0) {
-        viewSwitcherButtons.forEach(button => {
-            // Use 'click' event for buttons instead of 'change'
-            button.addEventListener('click', handleViewChange);
-        });
+    // Attach delegated click listener and keydown listener to the viewSwitcher container
+    if (viewSwitcher) {
+        viewSwitcher.addEventListener('click', handleViewChange);
+        viewSwitcher.addEventListener('keydown', handleTablistKeydown);
     } else {
-        console.error("View switcher buttons (.view-button) not found.");
+        console.error("View switcher container (#view-switcher) not found.");
     }
 
     // Attach listener to the "Start Over" button
@@ -380,19 +424,15 @@ function setupEventListeners() {
 
 
     // Set initial view state based on the default active button in HTML
-    const activeButton = document.querySelector('#view-switcher .view-button.active');
+    const activeButton = document.querySelector('#view-switcher .view-button.active[role="tab"]');
     if (activeButton && activeButton.dataset.view) {
         currentView = activeButton.dataset.view;
-    } else {
-        // Fallback if HTML doesn't have a default active button (should not happen)
+        // Initial ARIA attributes (aria-selected, tabindex, aria-labelledby for panel)
+        // are now expected to be set correctly in the HTML.
+    } else if (viewSwitcherButtons.length > 0) { // Fallback if no .active class in HTML or HTML is malformed
         console.warn("No default active view button found in HTML. Defaulting to 'weeks-age'.");
-        currentView = 'weeks-age';
-        // Attempt to visually set the default if needed (though HTML/CSS should handle initial state)
-        const defaultButton = document.querySelector('#view-switcher .view-button[data-view="weeks-age"]');
-        if (defaultButton && !activeButton) {
-            defaultButton.classList.add('active');
-            defaultButton.setAttribute('aria-checked', 'true');
-        }
+        currentView = viewSwitcherButtons[0].dataset.view || 'weeks-age'; // Use first button's view or hardcoded default
+        // Note: This fallback doesn't enforce ARIA states if HTML is broken; relies on first interaction to sync.
     }
     console.log("Initial view set to:", currentView);
     // No need to call updateGridViewTitle here, as it's called in handleCalculation on success (or rather, it's not needed at all now)

@@ -1,7 +1,7 @@
 # Active Context - Life Visualized
 
 **Current Goal:** Implement Critical UX Refinements for MVP
-**Current Task:** UX Refinement "5. Sticky Header & View Switching Usability (Tablist Pattern)" - Implement accessibility and usability enhancements for the view switcher.
+**Current Task:** UX Refinement "6. Grid Visualization & Block State Clarity (Accessible Patterns)" - Focus on making grid blocks themselves more accessible, potentially including focusability and ARIA attributes for past/present/future states.
 
 **Recent Changes:**
 
@@ -22,8 +22,9 @@
 * Refined intro, disclaimer, and helper text content for clarity and conciseness with Dr. Reed. (NEW)
 * Development resumed to implement critical UX refinements. (Context updated)
 * The project was previously paused after refining the grid explanation text and completing initial MVP features. (Context)
+* Implemented ARIA `tablist` pattern for the view switcher buttons (`#view-switcher`) in `/Users/jhom/src/vibecode/life-visualized/index.html` and `/Users/jhom/src/vibecode/life-visualized/js/ui.js` for UX Refinement #5. This includes `role="tablist"`, `role="tab"`, `aria-selected`, `aria-controls`, `tabindex` management, and keyboard navigation (Arrow keys, Home, End). (COMPLETED)
 
-**Next Action:** Implement the tablist pattern for the view switcher buttons for improved accessibility and keyboard navigation.
+**Next Action:** Investigate and implement accessibility patterns for the individual grid blocks, such as making them focusable and providing appropriate ARIA attributes to describe their state (e.g., past, present, future, life stage).
 
 **Blockers:** None.
 
@@ -38,6 +39,7 @@
 
 * Consider a broader "UI/UX consistency review" after the current critical UX refinements are implemented to ensure overall polish and cohesion. (NEW)
 * User decision: Defer extensive accessibility changes post-MVP, focus on easy-to-implement/high-impact items for now. (NEW)
+* **Safari Tabbing Issue:** Noted that in Safari, tabbing to the "Calculate & Visualize" button after it becomes enabled, and tabbing to the "Start Over" button after it becomes visible, does not work as expected (focus skips them). Works correctly in Chrome. Documented for potential future investigation if it becomes a higher priority. (NEW)
 
 **Learnings & Insights:**
 
@@ -59,3 +61,4 @@
 * Achieving consistent height for wrapping flex items requires setting a `min-height` and potentially using flex properties (`align-items: center`) on the items themselves for vertical alignment.
 * Maintaining centering across responsive breakpoints requires checking `justify-content` (for `flex-direction: row`) and `align-items` (for `flex-direction: column`) on the flex container.
 * Iterative refinement of explanatory text, focusing on user questions and conciseness, can significantly improve clarity without losing essential information.
+* Implementing the ARIA `tablist` pattern significantly improves keyboard navigation and accessibility for tab-like interfaces. (NEW)

@@ -45,7 +45,7 @@ The following key areas of refinement, detailed in `/Users/jhom/src/vibecode/pro
 2. Input Simplicity & Friction Reduction (Completed - HTML, CSS, JS logic for dynamic button state)
 3. Calculation Feedback & Loading State (Completed - Button text/state, Results area message)
 4. Progressive Reveal Hierarchy & Interaction (Completed - Form hiding, "Start Over" button implementation and placement, refined results display (grid layout, centered, responsive spacing), body/container padding adjustments for large and small screens)
-5. Sticky Header & View Switching Usability (Tablist Pattern)
+5. Sticky Header & View Switching Usability (Tablist Pattern) (Completed - Implemented ARIA `tablist` for view switcher buttons, enhancing keyboard navigation and accessibility. Sticky header part was already in place.)
 6. Grid Visualization & Block State Clarity (Accessible Patterns)
 7. Color Coding & Accessibility (Contrast, Color Blindness Support)
 8. View B Alignment Clarity (Guide Update with Visual Aid)
@@ -53,6 +53,13 @@ The following key areas of refinement, detailed in `/Users/jhom/src/vibecode/pro
 10. Layout & Responsiveness
 11. General Accessibility Audit (Keyboard, Focus, ARIA, Zoom)
 12. Emotional Tone & Sensitivity
+
+**Known Issues/Errata:**
+
+* **Safari Tabbing Behavior:**
+  * Tabbing to the "Calculate & Visualize" button immediately after it becomes enabled does not consistently work in Safari (focus skips the button). Works as expected in Chrome.
+    * Tabbing to the "Start Over" button immediately after it becomes visible (post-calculation) does not consistently work in Safari (focus skips the button). Works as expected in Chrome.
+    * (These are noted as lower priority for MVP if they require Safari-specific workarounds.)
 
 **Out of Scope (Post-MVP):**
 
