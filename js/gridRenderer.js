@@ -182,8 +182,8 @@ function renderAgeGrid(inputBirthDate, totalLifespanYearsEst, gridContentAreaEle
 
         // Append the completed fragment to the specific content area
         gridContentAreaElement.appendChild(fragment);
-        // Set aria-label on the main grid container (#life-grid-container) for overall context
-        gridContentAreaElement.parentElement?.setAttribute('aria-label', `Life grid (Age View) showing estimated lifespan from Age 0 to ${totalYearsToRender - 1}.`);
+        gridContentAreaElement.setAttribute('aria-roledescription', 'Lifespan visualization grid');
+        gridContentAreaElement.setAttribute('aria-label', `Visualization of estimated lifespan from Age 0 to ${totalYearsToRender - 1}, displayed as weeks per year of age.`);
         console.log(`Total weeks rendered in age grid: ${totalRenderedWeeks}`);
 
     } catch (error) {
@@ -206,7 +206,7 @@ function renderCalendarGrid(inputBirthDate, totalLifespanYearsEst, gridContentAr
         if (gridContentAreaElement) gridContentAreaElement.innerHTML = '<p class="error-message">Error: Date library failed to load.</p>';
         return;
     }
-     if (!gridContentAreaElement) { console.error("Grid content area element not provided."); return; }
+    if (!gridContentAreaElement) { console.error("Grid content area element not provided."); return; }
 
     console.log("Rendering Calendar Grid...");
     try {
@@ -293,8 +293,8 @@ function renderCalendarGrid(inputBirthDate, totalLifespanYearsEst, gridContentAr
 
         // Append the completed fragment to the specific content area
         gridContentAreaElement.appendChild(fragment);
-        // Set aria-label on the main grid container (#life-grid-container) for overall context
-        gridContentAreaElement.parentElement?.setAttribute('aria-label', `Life grid (Calendar View) showing estimated lifespan from ${startISOYear} to ${endISOYear}.`);
+        gridContentAreaElement.setAttribute('aria-roledescription', 'Lifespan visualization grid');
+        gridContentAreaElement.setAttribute('aria-label', `Visualization of estimated lifespan from calendar year ${startISOYear} to ${endISOYear}, displayed as weeks per calendar year.`);
         console.log(`Total weeks rendered in calendar grid: ${totalRenderedWeeks}`);
 
     } catch (error) {
@@ -398,8 +398,8 @@ function renderMonthsGrid(inputBirthDate, totalLifespanYearsEst, gridContentArea
 
         // Append the completed fragment to the specific content area
         gridContentAreaElement.appendChild(fragment);
-        // Set aria-label on the main grid container (#life-grid-container) for overall context
-        gridContentAreaElement.parentElement?.setAttribute('aria-label', `Life grid (Months View) showing estimated ${totalEstimatedMonths} months.`);
+        gridContentAreaElement.setAttribute('aria-roledescription', 'Lifespan visualization grid');
+        gridContentAreaElement.setAttribute('aria-label', `Visualization of estimated ${totalEstimatedMonths} months of lifespan, displayed as months per year of age.`);
         console.log(`Total months rendered in grid: ${totalRenderedMonths}`);
 
     } catch (error) {
@@ -501,8 +501,8 @@ function renderYearsGrid(inputBirthDate, totalLifespanYearsEst, gridContentAreaE
 
         // Append the completed fragment to the specific content area
         gridContentAreaElement.appendChild(fragment);
-        // Set aria-label on the main grid container (#life-grid-container) for overall context
-        gridContentAreaElement.parentElement?.setAttribute('aria-label', `Life grid (Years View) showing estimated ${totalEstimatedYears} years, grouped by decade.`);
+        gridContentAreaElement.setAttribute('aria-roledescription', 'Lifespan visualization grid');
+        gridContentAreaElement.setAttribute('aria-label', `Visualization of estimated ${totalEstimatedYears} years of lifespan, displayed as years per decade.`);
         console.log(`Total years rendered in grid: ${totalRenderedYears}`);
 
     } catch (error) {

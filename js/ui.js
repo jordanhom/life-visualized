@@ -89,6 +89,7 @@ function renderCurrentView() {
         if (gridContainer) {
             gridContainer.classList.remove('grid-view-weeks-age', 'grid-view-weeks-calendar', 'grid-view-months', 'grid-view-years');
         }
+        gridContentArea.removeAttribute('tabindex'); // Not focusable if empty
         return;
     }
 
@@ -117,10 +118,16 @@ function renderCurrentView() {
         } else {
             console.error("Unknown view type selected:", currentView);
             gridContentArea.innerHTML = '<p class="error-message">Invalid view selected.</p>';
+            gridContentArea.removeAttribute('tabindex'); // Not focusable on error
+        }
+        // If rendering was successful (no error thrown by renderer), make it focusable
+        if (gridContentArea.hasChildNodes() && !gridContentArea.querySelector('.error-message')) {
+            gridContentArea.tabIndex = 0;
         }
     } catch (renderError) {
         console.error(`Error during ${currentView} grid rendering:`, renderError);
         gridContentArea.innerHTML = `<p class="error-message">Error generating ${currentView} grid.</p>`;
+        gridContentArea.removeAttribute('tabindex'); // Not focusable on error
     }
 }
 
@@ -338,6 +345,7 @@ function handleStartOver() {
 
     updateButtonState(); // Disable calculate button
     if (birthdateInput) birthdateInput.focus(); // Focus on the first input field
+    if (gridContentArea) gridContentArea.removeAttribute('tabindex'); // Ensure it's not focusable
     renderCurrentView(); // Clear the grid
 }
 
