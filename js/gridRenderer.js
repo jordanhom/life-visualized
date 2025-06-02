@@ -182,8 +182,6 @@ function renderAgeGrid(inputBirthDate, totalLifespanYearsEst, gridContentAreaEle
 
         // Append the completed fragment to the specific content area
         gridContentAreaElement.appendChild(fragment);
-        gridContentAreaElement.setAttribute('aria-roledescription', 'Lifespan visualization grid');
-        gridContentAreaElement.setAttribute('aria-label', `Visualization of estimated lifespan from Age 0 to ${totalYearsToRender - 1}, displayed as weeks per year of age.`);
         console.log(`Total weeks rendered in age grid: ${totalRenderedWeeks}`);
 
     } catch (error) {
@@ -287,14 +285,12 @@ function renderCalendarGrid(inputBirthDate, totalLifespanYearsEst, gridContentAr
             }
             // Only append row if it has content (prevents empty rows at end if lifespan ends mid-year)
             if (yearRow.hasChildNodes()) {
-                 fragment.appendChild(yearRow);
+                fragment.appendChild(yearRow);
             }
         }
 
         // Append the completed fragment to the specific content area
         gridContentAreaElement.appendChild(fragment);
-        gridContentAreaElement.setAttribute('aria-roledescription', 'Lifespan visualization grid');
-        gridContentAreaElement.setAttribute('aria-label', `Visualization of estimated lifespan from calendar year ${startISOYear} to ${endISOYear}, displayed as weeks per calendar year.`);
         console.log(`Total weeks rendered in calendar grid: ${totalRenderedWeeks}`);
 
     } catch (error) {
@@ -389,8 +385,8 @@ function renderMonthsGrid(inputBirthDate, totalLifespanYearsEst, gridContentArea
             monthBlock.title = title;
             // Append the block to the current row (created every 12 iterations)
             if (currentMonthRow) {
-                 currentMonthRow.appendChild(monthBlock);
-                 totalRenderedMonths++;
+                currentMonthRow.appendChild(monthBlock);
+                totalRenderedMonths++;
             } else {
                 console.warn("Trying to append month block but currentMonthRow is null. MonthIndex:", monthIndex);
             }
@@ -398,8 +394,6 @@ function renderMonthsGrid(inputBirthDate, totalLifespanYearsEst, gridContentArea
 
         // Append the completed fragment to the specific content area
         gridContentAreaElement.appendChild(fragment);
-        gridContentAreaElement.setAttribute('aria-roledescription', 'Lifespan visualization grid');
-        gridContentAreaElement.setAttribute('aria-label', `Visualization of estimated ${totalEstimatedMonths} months of lifespan, displayed as months per year of age.`);
         console.log(`Total months rendered in grid: ${totalRenderedMonths}`);
 
     } catch (error) {
@@ -492,8 +486,8 @@ function renderYearsGrid(inputBirthDate, totalLifespanYearsEst, gridContentAreaE
             yearBlock.title = title;
             // Append the block to the current decade row (created every 10 iterations)
             if (currentDecadeRow) {
-                 currentDecadeRow.appendChild(yearBlock);
-                 totalRenderedYears++;
+                currentDecadeRow.appendChild(yearBlock);
+                totalRenderedYears++;
             } else {
                 console.warn("Trying to append year block but currentDecadeRow is null. YearIndex:", yearIndex);
             }
@@ -501,8 +495,6 @@ function renderYearsGrid(inputBirthDate, totalLifespanYearsEst, gridContentAreaE
 
         // Append the completed fragment to the specific content area
         gridContentAreaElement.appendChild(fragment);
-        gridContentAreaElement.setAttribute('aria-roledescription', 'Lifespan visualization grid');
-        gridContentAreaElement.setAttribute('aria-label', `Visualization of estimated ${totalEstimatedYears} years of lifespan, displayed as years per decade.`);
         console.log(`Total years rendered in grid: ${totalRenderedYears}`);
 
     } catch (error) {

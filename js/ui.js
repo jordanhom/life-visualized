@@ -156,6 +156,7 @@ function renderCurrentView() {
         // If rendering was successful (no error message was set by the renderer), update and show axis labels.
         if (!gridContentArea.querySelector('.error-message')) {
             updateAxisLabels(true, topLabel, leftLabel);
+            gridContentArea.setAttribute('aria-label', `Lifespan visualization grid, showing ${leftLabel} by ${topLabel}.`);
         }
         // If rendering was successful (no error thrown by renderer and content exists), make it focusable.
         if (gridContentArea.hasChildNodes() && !gridContentArea.querySelector('.error-message')) {
@@ -165,6 +166,7 @@ function renderCurrentView() {
         console.error(`Error during ${currentView} grid rendering:`, renderError);
         gridContentArea.innerHTML = `<p class="error-message">Error generating ${currentView} grid.</p>`;
         updateAxisLabels(false); // Hide on error
+        gridContentArea.removeAttribute('aria-label'); // Remove label on error
         gridContentArea.removeAttribute('tabindex'); // Not focusable on error
     }
 }

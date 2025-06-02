@@ -1,7 +1,7 @@
 # Active Context - Life Visualized
 
 **Current Goal:** Implement Critical UX Refinements for MVP
-**Current Task:** UX Refinements - "11. General Accessibility Audit" in progress.
+**Current Task:** UX Refinements - "11. General Accessibility Audit" largely complete. Proceeding with "12. Emotional Tone & Sensitivity".
 
 **Recent Changes:**
 
@@ -37,10 +37,13 @@
 * Programmatically set focus to the first view switcher button after successful calculation. (UX Refinement #11 - Accessibility)
 * Unified `:focus-visible` styling for form inputs, calculate/start over buttons, details summary, and grid content area. (UX Refinement #11 - Accessibility)
 * Implemented a focus style for the entire `#view-switcher` tablist container when any of its tabs receive focus, enhancing focus visibility for the tab group. (UX Refinement #11 - Accessibility)
+* Reviewed ARIA implementation; confirmed dynamic `aria-label` for `#grid-content-area` is appropriate and `aria-roledescription` is not needed. (UX Refinement #11 - Accessibility)
 
-**Next Action:** Continue with "11. General Accessibility Audit", focusing on a general ARIA review and the Safari Tabbing Issue.
+**Next Action:** Proceed to "12. Emotional Tone & Sensitivity" review.
 
 **Decisions:** Zoom usability testing deferred for MVP.
+* Safari Tabbing Issue: Current behavior (buttons not always focusable via tab in Safari immediately after becoming visible/enabled) is acceptable for MVP, as core functionality remains accessible. (UX Refinement #11 - Accessibility)
+
 
 **Blockers:** None.
 
@@ -86,3 +89,4 @@
 * Achieving consistent cross-view alignment requires precise calculation of container max-widths based on the most constrained view (e.g., Week view) and ensuring other views respect these boundaries. (NEW)
 * Programmatic focus management (e.g., setting focus after an action) improves keyboard navigation flow. (NEW)
 * Applying focus styles to a parent container (like a tablist) when a child receives focus can enhance the perceived focus area. (NEW)
+* For standard ARIA roles (like `tabpanel`), a dynamic `aria-label` is more effective than `aria-roledescription`. (NEW)
