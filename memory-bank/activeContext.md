@@ -1,7 +1,7 @@
 # Active Context - Life Visualized
 
 **Current Goal:** Implement Critical UX Refinements for MVP
-**Current Task:** UX Refinements - Completed "10. Layout & Responsiveness". Proceeding with "11. General Accessibility Audit".
+**Current Task:** UX Refinements - "11. General Accessibility Audit" in progress.
 
 **Recent Changes:**
 
@@ -34,8 +34,13 @@
 * Ensured Month and Year views align visually with Week views by adjusting their `calc()` formulas and the `max-width` of the `.life-grid-container`. (UX Refinement #10 - In Progress)
 * Aligned "Start Over" button width with other page containers by wrapping it and applying consistent `max-width` styles. (UX Refinement #10 - In Progress)
 * Consolidated CSS for "Calculate & Visualize" and "Start Over" buttons. (UX Refinement #10 - COMPLETED)
+* Programmatically set focus to the first view switcher button after successful calculation. (UX Refinement #11 - Accessibility)
+* Unified `:focus-visible` styling for form inputs, calculate/start over buttons, details summary, and grid content area. (UX Refinement #11 - Accessibility)
+* Implemented a focus style for the entire `#view-switcher` tablist container when any of its tabs receive focus, enhancing focus visibility for the tab group. (UX Refinement #11 - Accessibility)
 
-**Next Action:** Proceed to "11. General Accessibility Audit".
+**Next Action:** Continue with "11. General Accessibility Audit", focusing on a general ARIA review and the Safari Tabbing Issue.
+
+**Decisions:** Zoom usability testing deferred for MVP.
 
 **Blockers:** None.
 
@@ -79,3 +84,5 @@
 * Retaining specific historical comments in HTML that explain major structural changes can be valuable for long-term context, even if similar orphaned comments are removed from CSS/JS for conciseness. (NEW)
 * Confirming textual explanations and removing outdated TODOs ensures documentation accuracy. (NEW)
 * Achieving consistent cross-view alignment requires precise calculation of container max-widths based on the most constrained view (e.g., Week view) and ensuring other views respect these boundaries. (NEW)
+* Programmatic focus management (e.g., setting focus after an action) improves keyboard navigation flow. (NEW)
+* Applying focus styles to a parent container (like a tablist) when a child receives focus can enhance the perceived focus area. (NEW)

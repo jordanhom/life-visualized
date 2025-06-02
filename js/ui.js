@@ -261,6 +261,11 @@ function handleCalculation(event) {
         // gridControlsHeader and gridGuideDetails are children of gridContainer.
         // Their .hidden class was removed in HTML, so they become visible when gridContainer does.
 
+        // Set focus to the first view switcher button after successful calculation
+        if (viewSwitcherButtons && viewSwitcherButtons.length > 0) {
+            viewSwitcherButtons[0].focus();
+        }
+
         // DELETED: Call to updateGridViewTitle (title element removed)
 
     } catch (error) {
@@ -452,6 +457,16 @@ function setupEventListeners() {
     if (viewSwitcher) {
         viewSwitcher.addEventListener('click', handleViewChange);
         viewSwitcher.addEventListener('keydown', handleTablistKeydown);
+
+        // Add focusin/focusout listeners to the tablist container
+        // to manage a focus style on the container itself.
+        viewSwitcher.addEventListener('focusin', () => {
+            viewSwitcher.classList.add('tablist-focused');
+        });
+        viewSwitcher.addEventListener('focusout', () => {
+            viewSwitcher.classList.remove('tablist-focused');
+        });
+
     } else {
         console.error("View switcher container (#view-switcher) not found.");
     }

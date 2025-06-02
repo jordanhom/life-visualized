@@ -196,12 +196,6 @@ h1 {
     background-color: var(--color-background-container);
 }
 
-.form-group input[type="date"]:focus,
-.form-group select:focus {
-    outline: none;
-    border-color: var(--color-primary);
-    box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.2); /* Focus Glow (Keep specific) */
-}
 .calculate-btn {
     padding: var(--space-sm) var(--space-lg);
     font-size: var(--font-size-md);
@@ -320,7 +314,6 @@ h1 {
     /* Padding adjusted: top/bottom=xs, right=md, left=xl for marker */
     padding: var(--space-xs) var(--space-md) var(--space-xs) var(--space-xl);
     position: relative; /* Needed for pseudo-element marker */
-    outline: none; /* Remove focus outline */
     list-style: none; /* Hide default browser marker */
     /* Implicit font-size: var(--font-size-base) */
 }
@@ -505,6 +498,14 @@ h1 {
     z-index: 1; /* Ensure it stays above grid content */
     background-color: var(--color-grid-background); /* Match grid container background */
 }
+/* NEW: Style for when the tablist container itself is considered focused */
+#view-switcher.tablist-focused {
+    outline: 3px solid var(--color-primary-dark);
+    outline-offset: 2px;
+    /* Optional: Add a subtle box-shadow to lift it slightly, if desired */
+    /* box-shadow: 0 0 0 3px var(--color-background-body), 0 0 0 5px var(--color-primary-dark); */
+    border-radius: var(--border-radius-sm); /* Ensure outline follows border radius */
+}
 
 #view-switcher {
     display: inline-flex; /* Group buttons together */
@@ -536,15 +537,9 @@ h1 {
     border-left: none;
 }
 
-/* Hover/Focus effect */
-.view-button:not(.active):hover,
-.view-button:not(.active):focus {
+/* Hover effect */
+.view-button:not(.active):hover {
     background-color: var(--color-primary-light, #e0f0ff); /* Define --color-primary-light if needed */
-}
-.view-button:focus-visible {
-    outline: 2px solid var(--color-primary-dark);
-    outline-offset: 1px;
-    z-index: 1;
 }
 
 /* Active state */
@@ -974,3 +969,21 @@ h1 {
 }
 
 /* If year blocks cause content to exceed container max-width, overflow-x handles scrolling. */
+
+/* --- Unified Focus Styles --- */
+/* Apply a consistent focus style to all interactive elements for keyboard navigation */
+.form-group input[type="date"]:focus-visible,
+.form-group select:focus-visible,
+.calculate-btn:focus-visible, /* Includes #start-over-btn */
+.grid-guide-details summary:focus-visible,
+#grid-content-area:focus-visible {
+    outline: 3px solid var(--color-primary-dark);
+    outline-offset: 2px;
+    box-shadow: 0 0 0 3px var(--color-background-body), 0 0 0 5px var(--color-primary-dark); /* Creates a 'border' around the outline */
+    border-color: var(--color-primary-dark); /* Ensure border color changes if element has one */
+}
+/* For elements that shouldn't have the inner box-shadow part (like buttons) */
+.calculate-btn:focus-visible,
+.view-button:focus-visible { /* This rule will be effectively unused if JS handles parent focus */
+    box-shadow: none; /* Override the general focus-visible box-shadow for buttons */
+}

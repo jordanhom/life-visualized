@@ -59,7 +59,12 @@ The following key areas of refinement, detailed in `/Users/jhom/src/vibecode/pro
     * Ensured Month and Year views align visually with Week views.
     * Aligned "Start Over" button width with other page containers.
     * Consolidated button styling.
-11. General Accessibility Audit (Keyboard, Focus, ARIA, Zoom)
+11. General Accessibility Audit (Keyboard, Focus, ARIA, Zoom) (In Progress)
+    * Improved keyboard navigation flow by setting initial focus post-calculation.
+    * Implemented unified and clear `:focus-visible` styles for interactive elements.
+    * Enhanced focus visibility for the view switcher tablist by styling the container on `focusin`.
+    * (Decision: Zoom usability testing deferred for MVP).
+    * (Next: General ARIA review, Safari Tabbing Issue).
 12. Emotional Tone & Sensitivity
 
 **Known Issues/Errata:**
