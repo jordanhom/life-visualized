@@ -110,11 +110,10 @@ h1 {
 /* Styles for introductory text block */
 .intro-block-container {
     width: 100%;
-    max-width: 600px; /* Constrain line length for readability */
+    max-width: 684px; /* Align with results and grid container */
     margin-top: 0; /* Follows h1's margin-bottom */
     margin-bottom: var(--space-lg); /* Space before the form */
-    text-align: center; /* Center-align the text within this block */
-    padding: 0 var(--space-md); /* Add horizontal padding */
+    /* padding: 0 10px; */ /* REMOVED horizontal padding */
     box-sizing: border-box; /* Ensure padding is included in width/max-width */
     display: flex;
     flex-direction: column;
@@ -127,6 +126,7 @@ h1 {
     color: var(--color-text-secondary); /* Softer color */
     line-height: 1.6;
     font-style: italic; /* Suggestion: Italicize for a softer feel */
+    text-align: left; /* Explicitly left-align text within the paragraph */
     /* max-width, width, and text-align are now handled by .intro-block-container */
 }
 
@@ -135,6 +135,7 @@ h1 {
     margin-bottom: 0; /* Last child in new container; parent handles overall bottom margin */
     font-size: 0.85rem; /* Suggestion: Slightly smaller for the disclaimer text */
     color: var(--color-text-muted); /* Muted color for the disclaimer text */
+    text-align: left; /* Explicitly left-align text within the paragraph */
     /* max-width, width, and text-align are now handled by .intro-block-container */
 }
 
@@ -222,7 +223,7 @@ h1 {
     /* Styles for the box displaying calculation results or errors */
     /* Initially hidden via .hidden class */
     margin-bottom: var(--space-lg); /* Space below results */
-    padding: var(--space-md);
+    padding: var(--space-md) 10px; /* Standardized horizontal padding, keep vertical */
     border: 1px solid var(--border-color-light);
     border-radius: var(--border-radius-md);
     background-color: var(--color-background-subtle);
@@ -281,8 +282,11 @@ h1 {
     font-size: 0.85rem; /* Keep specific */
     color: var(--color-text-muted);
     font-style: italic;
-    max-width: 500px; /* Keep disclaimer constrained */
+    max-width: 684px; /* Align with results and grid container */
     line-height: 1.5;
+    /* padding: 0 10px; */ /* REMOVED horizontal padding */
+    box-sizing: border-box; /* Ensure padding is included in width */
+    text-align: left; /* Ensure text within the disclaimer block is left-aligned */
     /* No margin needed as it's the last element */
 }
 
@@ -834,6 +838,12 @@ h1 {
 /* Tier 3: Smaller Screens (~Phone) - Target width < 487px */
 @media (max-width: 486px) {
     /* Adjust grid container for smaller screens */
+    /* NEW: Align intro and disclaimer max-width with form max-width on small screens */
+    .intro-block-container,
+    .disclaimer {
+        max-width: 350px; /* Match .input-form max-width */
+    }
+
 
     /* Remove body top/bottom padding to maximize vertical space */
     body {

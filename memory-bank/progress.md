@@ -66,7 +66,13 @@ The following key areas of refinement, detailed in `/Users/jhom/src/vibecode/pro
     * Reviewed ARIA implementation; confirmed dynamic `aria-label` for grid content is appropriate.
     * (Decision: Zoom usability testing deferred for MVP).
     * (Decision: Safari Tabbing Issue accepted for MVP).
-12. Emotional Tone & Sensitivity
+12. Emotional Tone & Sensitivity (Largely Completed)
+    * Refined introductory text and disclaimer for conciseness, impact, and appropriate tone.
+    * Aligned `max-width` of introductory text block and bottom disclaimer with main content areas (results, grid) for visual consistency.
+    * Standardized `max-width` of intro, form, and bottom disclaimer on smaller screens for a unified column appearance.
+    * Removed internal horizontal padding from intro and bottom disclaimer to achieve closer text-edge alignment with form inputs on small screens (accepted compromise).
+
+**Next Steps:** Consider broader UI/UX consistency review or conclude MVP refinements.
 
 **Known Issues/Errata:**
 

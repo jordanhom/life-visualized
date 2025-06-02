@@ -1,7 +1,7 @@
 # Active Context - Life Visualized
 
 **Current Goal:** Implement Critical UX Refinements for MVP
-**Current Task:** UX Refinements - "11. General Accessibility Audit" largely complete. Proceeding with "12. Emotional Tone & Sensitivity".
+**Current Task:** UX Refinements - "12. Emotional Tone & Sensitivity" largely complete. Consider next steps or broader UI consistency review.
 
 **Recent Changes:**
 
@@ -38,11 +38,16 @@
 * Unified `:focus-visible` styling for form inputs, calculate/start over buttons, details summary, and grid content area. (UX Refinement #11 - Accessibility)
 * Implemented a focus style for the entire `#view-switcher` tablist container when any of its tabs receive focus, enhancing focus visibility for the tab group. (UX Refinement #11 - Accessibility)
 * Reviewed ARIA implementation; confirmed dynamic `aria-label` for `#grid-content-area` is appropriate and `aria-roledescription` is not needed. (UX Refinement #11 - Accessibility)
+* Refined introductory text and disclaimer for conciseness and impact. (UX Refinement #12 - Tone & Sensitivity)
+* Aligned `max-width` of intro block and bottom disclaimer with results/grid containers (`684px`) for visual consistency on larger screens. (UX Refinement #12 - Layout)
+* Removed horizontal padding from intro block and bottom disclaimer to achieve closer text edge alignment with form inputs, especially on smaller screens. (UX Refinement #12 - Layout)
+* On smaller screens (< 486px), set `max-width` of intro block and bottom disclaimer to match the form's `max-width` (`350px`) for unified column appearance. (UX Refinement #12 - Layout)
 
-**Next Action:** Proceed to "12. Emotional Tone & Sensitivity" review.
+**Next Action:** Consider a broader UI/UX consistency review or conclude MVP refinements.
 
 **Decisions:** Zoom usability testing deferred for MVP.
 * Safari Tabbing Issue: Current behavior (buttons not always focusable via tab in Safari immediately after becoming visible/enabled) is acceptable for MVP, as core functionality remains accessible. (UX Refinement #11 - Accessibility)
+* Decided not to align internal text of "How to Read This Visualization" guide with outer content blocks, as its parent container's alignment is sufficient. (UX Refinement #12 - Layout)
 
 
 **Blockers:** None.
@@ -90,3 +95,5 @@
 * Programmatic focus management (e.g., setting focus after an action) improves keyboard navigation flow. (NEW)
 * Applying focus styles to a parent container (like a tablist) when a child receives focus can enhance the perceived focus area. (NEW)
 * For standard ARIA roles (like `tabpanel`), a dynamic `aria-label` is more effective than `aria-roledescription`. (NEW)
+* Achieving visual alignment across different content blocks (text, forms, results) involves standardizing `max-width` and carefully managing padding. (NEW)
+* On smaller screens, unifying `max-width` for key blocks can improve visual consistency, even if it means compromising on internal text padding. (NEW)
