@@ -1,7 +1,7 @@
 # Active Context - Life Visualized
 
 **Current Goal:** Implement Critical UX Refinements for MVP
-**Current Task:** UX Refinements - Proceeding with "10. Layout & Responsiveness" and "11. General Accessibility Audit".
+**Current Task:** UX Refinements - Completed "10. Layout & Responsiveness". Proceeding with "11. General Accessibility Audit".
 
 **Recent Changes:**
 
@@ -28,10 +28,14 @@
 * Implemented axis labels (top and left) for the grid in `/Users/jhom/src/vibecode/life-visualized/index.html`, `/Users/jhom/src/vibecode/life-visualized/css/style.css`, and `/Users/jhom/src/vibecode/life-visualized/js/ui.js`. (NEW - Part of UX Refinement #8)
 * Reviewed and updated code comments in `/Users/jhom/src/vibecode/life-visualized/index.html`, `/Users/jhom/src/vibecode/life-visualized/css/style.css`, and `/Users/jhom/src/vibecode/life-visualized/js/ui.js` for accuracy and clarity, removing orphaned comments. Confirmed rationale for retaining specific historical comments in HTML for structural context. (NEW)
 * Confirmed textual explanation for "Weeks (Calendar)" view, in conjunction with axis labels, provides sufficient clarity. (UX Refinement #8 - COMPLETED)
-* Refactored inline styles for guide paragraph margins from `index.html` to `css/style.css`. (Part of UX Refinement #9)
+* Refactored inline styles for guide paragraph margins from `index.html` to `css/style.css`. (Part of UX Refinement #9 - COMPLETED)
 * Confirmed accuracy of "current block is highlighted" statement in guide and removed related TODO comment from `index.html`. (UX Refinement #9 - COMPLETED)
+* Refined responsive layout for Week views to eliminate horizontal scrolling and improve visual balance by adjusting axis label widths, grid container max-widths, and adding right padding to the grid content area. (UX Refinement #10 - In Progress)
+* Ensured Month and Year views align visually with Week views by adjusting their `calc()` formulas and the `max-width` of the `.life-grid-container`. (UX Refinement #10 - In Progress)
+* Aligned "Start Over" button width with other page containers by wrapping it and applying consistent `max-width` styles. (UX Refinement #10 - In Progress)
+* Consolidated CSS for "Calculate & Visualize" and "Start Over" buttons. (UX Refinement #10 - COMPLETED)
 
-**Next Action:** Conduct a final check on "10. Layout & Responsiveness" and then proceed to "11. General Accessibility Audit".
+**Next Action:** Proceed to "11. General Accessibility Audit".
 
 **Blockers:** None.
 
@@ -39,7 +43,7 @@
 
 * `/Users/jhom/src/vibecode/life-visualized/index.html` (Updated for intro block, helper text, button state)
 * `/Users/jhom/src/vibecode/life-visualized/css/style.css` (Updated styles for intro block, helper text, button disabled state)
-* `/Users/jhom/src/vibecode/life-visualized/js/ui.js` (Updated for dynamic button state, axis label management, tablist keyboard nav)
+* `/Users/jhom/src/vibecode/life-visualized/js/ui.js` (Updated for dynamic button state, axis label management, tablist keyboard nav, Start Over button container)
 * `/Users/jhom/src/vibecode/life-visualized/js/ui.js` (Updated for dynamic button state)
 * `activeContext.md` (This file)
 
@@ -74,3 +78,4 @@
 * Axis labels, when implemented clearly, can significantly aid in understanding grid-based visualizations, potentially reducing the need for complex diagrams in accompanying guides. (NEW)
 * Retaining specific historical comments in HTML that explain major structural changes can be valuable for long-term context, even if similar orphaned comments are removed from CSS/JS for conciseness. (NEW)
 * Confirming textual explanations and removing outdated TODOs ensures documentation accuracy. (NEW)
+* Achieving consistent cross-view alignment requires precise calculation of container max-widths based on the most constrained view (e.g., Week view) and ensuring other views respect these boundaries. (NEW)

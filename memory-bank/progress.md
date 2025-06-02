@@ -54,7 +54,11 @@ The following key areas of refinement, detailed in `/Users/jhom/src/vibecode/pro
 9. Guide Discoverability & Text Refinements (COMPLETED)
     * Confirmed accuracy of "current block is highlighted" statement in guide; removed related TODO.
     * Refactored inline styles for guide paragraph margins to `style.css`.
-10. Layout & Responsiveness
+10. Layout & Responsiveness (COMPLETED)
+    * Resolved horizontal scrolling issues for Week views across various screen sizes.
+    * Ensured Month and Year views align visually with Week views.
+    * Aligned "Start Over" button width with other page containers.
+    * Consolidated button styling.
 11. General Accessibility Audit (Keyboard, Focus, ARIA, Zoom)
 12. Emotional Tone & Sensitivity
 

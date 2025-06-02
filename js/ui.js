@@ -20,7 +20,7 @@ const form = document.getElementById('life-input-form');
 const birthdateInput = document.getElementById('birthdate');
 const sexInput = document.getElementById('sex');
 const calculateBtn = document.getElementById('calculate-btn'); // Get reference to the button
-const startOverBtn = document.getElementById('start-over-btn'); // New "Start Over" button
+const startOverContainer = document.getElementById('start-over-container'); // Container for the "Start Over" button
 const resultsArea = document.getElementById('results-area');
 // References for Progressive Reveal & Grid UI Elements
 const gridGuideDetails = document.getElementById('grid-guide-details'); // Now inside gridContainer
@@ -193,8 +193,8 @@ function handleCalculation(event) {
     // --- UI Reset before new calculation ---
     // Hide elements that should only show after successful calculation.
     form.classList.remove('hidden'); // Ensure form is visible for a new attempt or if resetting from error
-    gridContainer.classList.add('hidden'); // Hide the main container
-    if (startOverBtn) startOverBtn.classList.add('hidden'); // Hide Start Over button
+    gridContainer.classList.add('hidden'); // Hide the main grid container
+    if (startOverContainer) startOverContainer.classList.add('hidden'); // Hide Start Over button's container
     // gridControlsHeader and gridGuideDetails are children of gridContainer, so they are hidden with it.
     updateAxisLabels(false); // Hide axis labels
 
@@ -255,8 +255,8 @@ function handleCalculation(event) {
         // --- Progressive Reveal Logic: Show elements on success ---
         // resultsArea.classList.remove('hidden'); // Already visible
         // Reveal the main container, which now holds controls, guide, and content area
-        form.classList.add('hidden'); // Hide the form
-        if (startOverBtn) startOverBtn.classList.remove('hidden'); // Show Start Over button
+        form.classList.add('hidden'); // Hide the input form
+        if (startOverContainer) startOverContainer.classList.remove('hidden'); // Show Start Over button's container
         gridContainer.classList.remove('hidden');
         // gridControlsHeader and gridGuideDetails are children of gridContainer.
         // Their .hidden class was removed in HTML, so they become visible when gridContainer does.
@@ -365,8 +365,8 @@ function handleStartOver() {
     resultsArea.classList.add('hidden');
     gridContainer.classList.add('hidden');
     updateAxisLabels(false); // Hide axis labels
-    // gridControlsHeader and gridGuideDetails are hidden along with gridContainer.
-    if (startOverBtn) startOverBtn.classList.add('hidden');
+    // gridControlsHeader and gridGuideDetails are hidden along with gridContainer
+    if (startOverContainer) startOverContainer.classList.add('hidden');
 
     // Clear input fields
     if (birthdateInput) birthdateInput.value = '';
@@ -456,11 +456,12 @@ function setupEventListeners() {
         console.error("View switcher container (#view-switcher) not found.");
     }
 
-    // Attach listener to the "Start Over" button
-    if (startOverBtn) {
+    // Attach listener to the actual "Start Over" button, even though its container is used for show/hide
+    const startOverBtn = document.getElementById('start-over-btn');
+    if (startOverBtn && startOverContainer) { // Check both button and its container exist
         startOverBtn.addEventListener('click', handleStartOver);
     } else {
-        console.error("Start Over button (#start-over-btn) not found.");
+        console.error("Start Over button (#start-over-btn) or its container (#start-over-container) not found.");
     }
 
 
