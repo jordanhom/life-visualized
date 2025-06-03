@@ -1,14 +1,30 @@
-# Life Visualized
+# Life Visualized - A Tool For Personal Reflection
 
-A web application inspired by Tim Urban's "Life in Weeks" concept, designed to provide users with a tangible, visual perspective on their estimated lifespan. It aims to encourage reflection on time spent, highlight the present moment, and offer a sense of scale for the time potentially remaining.
+Inspired by Tim Urban's thought-provoking "Wait But Why" articles "[Your Life in Weeks](https://waitbutwhy.com/2014/05/life-weeks.html)" and "[The Tail End](https://waitbutwhy.com/2015/12/the-tail-end.html)," this web application offers a tangible, visual perspective on your estimated lifespan. It aims to encourage reflection on time, highlight the present moment, and provide a unique sense of scale for the journey ahead.
 
 **(Note: A screenshot or GIF of the application in action would be beneficial here.)**
 
 ## Purpose
 
-The core problem this application addresses is the difficulty many people have in grasping the finite nature of their time. By visualizing the past, present, and estimated future in a grid format based on statistical averages (US CDC 2021 Period Life Table), it serves as a thought-provoking tool for self-reflection.
+Many people have difficulty grasping the finite nature of their time, myself included! By visualizing the past, present, and (estimated) future in a grid format based on statistical averages, it aims to be a thought-provoking tool for self-reflection.
 
-**It is not intended as a precise predictive tool.**
+**To be extra clear: This tool is NOT a predictive tool. It uses actuarial data from US CDC 2021 Period Life Table to estimate your lifespan.**
+
+## Project Journey & AI Assistance
+
+"Life Visualized" explored the capabilities and limitations of LLM AI coding assistants. As the sole developer, and new to JavaScript at the project's outset, a key goal was to leverage Google Gemini Code Assist within Visual Studio Code to accelerate learning and development.
+
+AI assistance was used to:
+
+* Rapidly **prototype** HTML, CSS, and JavaScript.
+* **Explain** core concepts and library usage (e.g., `date-fns`).
+* **Generate** boilerplate code and **suggest** refinements.
+* **Troubleshoot** and **aid** in initial documentation, including this README.
+* **Simulate** a team environment by interacting with defined developer, product, and UX personas to **inform** decisions throughout the development process.
+
+This collaborative approach enabled the creation of this MVP, serving as both a functional application and a valuable learning experience in modern AI-assisted software development.
+
+---
 
 ## Features
 
@@ -30,9 +46,8 @@ The core problem this application addresses is the difficulty many people have i
   * Simple and focused input form.
   * **Progressive Reveal:** Results and visualization appear only after calculation.
   * **Integrated Controls & Guide:**
-    * View switcher buttons are nested within the grid container.
-    * An integrated, collapsible section explains how to read the visualization and the color key.
-  * **Sticky Header:** View controls remain visible when scrolling the grid.
+    * View switcher buttons are integrated within a sticky header directly above the grid, remaining visible during scroll.
+    * A collapsible "How to Read This Visualization" section, including the color key, is also located above the grid.
   * **Accessibility:**
     * ARIA `tablist` for view switcher controls, ensuring proper keyboard navigation.
     * Unified focus styles for interactive elements.
@@ -41,23 +56,23 @@ The core problem this application addresses is the difficulty many people have i
   * Clear disclaimer about the nature of the estimates.
   * "Start Over" functionality to reset the application.
 
-## Current Status (As of Last Update)
+## MVP Status
 
 * **MVP Launched:** The Minimum Viable Product is complete and includes all core features and critical UX refinements.
 * **Key Features Implemented for MVP:**
-    * User input for birth date and sex.
-    * Lifespan calculation based on US CDC 2021 data.
-    * Multiple grid visualization views (Weeks by Age, Weeks by Calendar, Months, Years).
-    * Dynamic axis labels for grid clarity.
-    * Color-coding for past, present, future, and life stages.
-    * Progressive reveal of results and visualization.
-    * Integrated and collapsible "How to Read" guide and color key.
-    * ARIA `tablist` for accessible view switching.
-    * Responsive design.
-    * "Start Over" functionality.
-    * Refined introductory text, disclaimers, and overall UI/UX for clarity and sensitivity.
+  * User input for birth date and sex.
+  * Lifespan calculation based on US CDC 2021 data.
+  * Multiple grid visualization views (Weeks by Age, Weeks by Calendar, Months, Years).
+  * Dynamic axis labels for grid clarity.
+  * Color-coding for past, present, future, and life stages.
+  * Progressive reveal of results and visualization.
+  * Integrated and collapsible "How to Read" guide and color key.
+  * ARIA `tablist` for accessible view switching.
+  * Responsive design.
+  * "Start Over" functionality.
+  * Refined introductory text, disclaimers, and overall UI/UX for clarity and sensitivity.
 * **Known Minor Issue for MVP:**
-    * Safari Tabbing: Minor inconsistencies in tabbing behavior for dynamically enabled/visible buttons in Safari. Core functionality remains accessible.
+  * Safari Tabbing: Minor inconsistencies in tabbing behavior for dynamically enabled/visible buttons in Safari. Core functionality remains accessible.
 
 ## Technology Stack
 
@@ -87,8 +102,10 @@ The core problem this application addresses is the difficulty many people have i
     * Use the buttons above the grid to switch between different views (Weeks, Months, Years).
     * Expand the "How to Read This Visualization" section for details and the color key.
 
-## Future Plans (Post-MVP / If Development Resumes)
+## Potential Future Enhancements
+
 The following are ideas considered out of scope for the MVP but could be explored in future iterations:
+
 * Fetching real-time or alternative actuarial datasets.
 * More sophisticated life stage calculations/coloring.
 * Saving/loading user data or preferences.
@@ -98,4 +115,5 @@ The following are ideas considered out of scope for the MVP but could be explore
 * Further accessibility enhancements (e.g., advanced color contrast adjustments, visual aids for complex views).
 
 ## Contributing
+
 This is a personal project. Contributions are not being sought at this time.
