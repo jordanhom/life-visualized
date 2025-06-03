@@ -44,6 +44,7 @@
 * On smaller screens (< 486px), set `max-width` of intro block and bottom disclaimer to match the form's `max-width` (`350px`) for unified column appearance. (UX Refinement #12 - Layout)
 * Moved inline styles for `#start-over-container` to `style.css` for better consistency. (UI Consistency)
 * Reviewed and updated comments across HTML and JS files, removing deprecated/historical comments and ensuring accuracy for MVP documentation. (Code Polish)
+* Performed a final pass on all source file comments to ensure consistency, clarity, and conciseness. (Code Polish)
 
 **Next Action:** Prepare for MVP launch.
 
@@ -102,3 +103,4 @@
 * On smaller screens, unifying `max-width` for key blocks can improve visual consistency, even if it means compromising on internal text padding. (NEW)
 * Centralizing component styles (e.g., for `#start-over-container`) in CSS rather than using inline styles improves maintainability and consistency. (NEW)
 * Regular review and cleanup of code comments ensure documentation remains accurate and relevant. (NEW)
+* A final, focused review pass on comments across all files can catch minor inconsistencies or areas for further simplification. (NEW)

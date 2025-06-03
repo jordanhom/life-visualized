@@ -21,8 +21,8 @@ function calculateCurrentAge(birthDate) {
     const now = new Date();
     let age = now.getFullYear() - birthDate.getFullYear();
     const monthDiff = now.getMonth() - birthDate.getMonth();
-    // Check if the birthday month hasn't passed yet OR if it's the birthday month
-    // but the day hasn't passed yet. If either is true, decrement the calculated age.
+
+    // Decrement age if the current date is before the birthday in the current year.
     if (monthDiff < 0 || (monthDiff === 0 && now.getDate() < birthDate.getDate())) {
         age--;
     }

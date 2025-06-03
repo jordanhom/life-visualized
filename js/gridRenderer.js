@@ -20,7 +20,7 @@ const UTC_TIMEZONE = 'UTC'; // Define UTC timezone string for clarity
 // Defines the age boundaries and corresponding CSS class keys for different life stages.
 // Colors are applied via CSS using the '.stage-{key}' classes.
 const LIFE_STAGES = [
-    // Life stages are year inclusive.
+    // Life stages are year-age inclusive.
     { key: 'infancy', name: 'Infancy', maxAge: 0 },                     // (Age 0)
     { key: 'toddler', name: 'Toddlerhood', maxAge: 2 },                 // (Ages 1-2)
     { key: 'earlychildhood', name: 'Early Childhood', maxAge: 5 },      // (Ages 3-5)
@@ -53,8 +53,7 @@ function checkDateFns() {
     }
     // Use optional chaining to check the version string.
     if (!dateFns?.version?.startsWith('4.')) {
-         console.warn(`date-fns object found, but version (${dateFns?.version}) might not be v4.1.0+. Ensure correct CDN script is loaded.`);
-         // Allow proceeding but be cautious
+        console.warn(`date-fns object found, but version (${dateFns?.version}) might not be v4.1.0+. Ensure correct CDN script is loaded.`);
     } else {
         console.log("Using date-fns version:", dateFns.version);
     }

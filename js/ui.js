@@ -19,14 +19,14 @@ import { renderAgeGrid, renderCalendarGrid, renderMonthsGrid, renderYearsGrid } 
 const form = document.getElementById('life-input-form');
 const birthdateInput = document.getElementById('birthdate');
 const sexInput = document.getElementById('sex');
-const calculateBtn = document.getElementById('calculate-btn'); // Get reference to the button
-const startOverContainer = document.getElementById('start-over-container'); // Container for the "Start Over" button
+const calculateBtn = document.getElementById('calculate-btn');
+const startOverContainer = document.getElementById('start-over-container');
 const resultsArea = document.getElementById('results-area');
 // References for Progressive Reveal & Grid UI Elements
-const gridGuideDetails = document.getElementById('grid-guide-details'); // Now inside gridContainer
-const gridContainer = document.getElementById('life-grid-container'); // The main container
+const gridGuideDetails = document.getElementById('grid-guide-details');
+const gridContainer = document.getElementById('life-grid-container');
 const gridContentArea = document.getElementById('grid-content-area'); // Inner container for grid blocks
-// References for New Header Bar (replaces old radio buttons)
+// References for Grid Controls Header
 const gridControlsHeader = document.getElementById('grid-controls-header');
 const viewSwitcher = document.getElementById('view-switcher'); // Cache the tablist container
 const viewSwitcherButtons = document.querySelectorAll('#view-switcher .view-button');
@@ -44,8 +44,6 @@ let lastCalcData = {
     birthDate: null, // Stores the UTC-normalized birthDate object
     totalLifespanYearsEst: null
 };
-
-// DELETED: updateGridViewTitle function (no longer needed)
 
 /**
  * Checks if the necessary form inputs are valid for enabling the calculate button.
@@ -260,15 +258,12 @@ function handleCalculation(event) {
         form.classList.add('hidden'); // Hide the input form
         if (startOverContainer) startOverContainer.classList.remove('hidden'); // Show Start Over button's container
         gridContainer.classList.remove('hidden');
-        // gridControlsHeader and gridGuideDetails are children of gridContainer.
-        // Their .hidden class was removed in HTML, so they become visible when gridContainer does.
+        // gridControlsHeader and gridGuideDetails become visible when gridContainer does.
 
         // Set focus to the first view switcher button after successful calculation
         if (viewSwitcherButtons && viewSwitcherButtons.length > 0) {
             viewSwitcherButtons[0].focus();
         }
-
-        // DELETED: Call to updateGridViewTitle (title element removed)
 
     } catch (error) {
         // --- Handle Errors from Calculation or Rendering ---
@@ -354,8 +349,6 @@ function handleViewChange(event) {
 
     // Update tabpanel's aria-labelledby to the id of the new active tab
     gridContentArea.setAttribute('aria-labelledby', clickedButton.id);
-
-    // DELETED: Call to updateGridViewTitle (title element removed)
 
     // Re-render the grid with the new view setting, using stored `lastCalcData`.
     renderCurrentView();

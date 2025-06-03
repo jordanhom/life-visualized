@@ -57,8 +57,8 @@
         <!-- aria-label provides context for screen readers -->
         <div id="life-grid-container" class="life-grid-container hidden" aria-label="Life grid visualization">
 
-            <!-- MOVED Grid Controls Header INSIDE grid container -->
-            <div id="grid-controls-header"> <!-- Removed grid-width-constraint as it's inside now -->
+            <!-- Grid Controls Header (View Switcher) -->
+            <div id="grid-controls-header">
                 <div id="view-switcher" role="tablist" aria-label="Select visualization type">
                     <button id="tab-weeks-age" role="tab" aria-selected="true" aria-controls="grid-content-area" tabindex="0" data-view="weeks-age" class="view-button active" title="View life in weeks by age">Weeks (Age)</button>
                     <button id="tab-weeks-calendar" role="tab" aria-selected="false" aria-controls="grid-content-area" tabindex="-1" data-view="weeks-calendar" class="view-button" title="View life in weeks by calendar year">Weeks (Calendar)</button>
@@ -66,8 +66,7 @@
                     <button id="tab-years" role="tab" aria-selected="false" aria-controls="grid-content-area" tabindex="-1" data-view="years" class="view-button" title="View life in years">Years</button>
                 </div>
             </div>
-
-            <!-- MOVED Grid Guide Details INSIDE grid container, AFTER controls -->
+            <!-- Grid Guide (Explanation & Color Key) -->
             <details id="grid-guide-details" class="grid-guide-details">
                 <summary>How to Read This Visualization</summary>
                 <div class="guide-content-wrapper">
@@ -106,13 +105,12 @@
                 </div>
             </details>
 
-            <!-- NEW: Top Axis Label -->
+            <!-- Top Axis Label for the Grid -->
             <div id="grid-axis-label-top" class="grid-axis-label hidden" aria-hidden="true">
                 <!-- Text content will be set by JS -->
             </div>
 
-            <!-- NEW: Wrapper for Left Axis Label and Grid Content -->
-            <!-- This wrapper itself will be shown/hidden by JS -->
+            <!-- Wrapper for Left Axis Label and Grid Content Area -->
             <div id="grid-content-wrapper" class="hidden">
                 <div id="grid-axis-label-left" class="grid-axis-label" aria-hidden="true">
                     <!-- Text content will be set by JS -->

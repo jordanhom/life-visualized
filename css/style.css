@@ -10,7 +10,6 @@
  *    - Results & Disclaimer Styles (.results-area, .disclaimer)
  *    - Grid Guide Details Styles (.grid-guide-details, etc.) - Inside grid container
  *    - Grid Controls Header & View Switcher (#grid-controls-header, #view-switcher, .view-button) - Inside grid container
- *    - (Old View Toggle Styles - .view-toggle - are now unused)
  * 6. Life Grid Styles - Styles for the visualization grid and its components:
  *    - Grid Container (.life-grid-container) - Main wrapper for header, guide, axis labels, and grid content.
  *    - Grid Axis Labels (#grid-axis-label-top, #grid-axis-label-left) - For X and Y axis labels.
@@ -78,7 +77,7 @@ html, body {
     color: var(--color-text-primary);
     display: flex; /* Used with justify-content to center container */
     justify-content: center;
-    padding: var(--space-lg) 0; /* Vertical padding for body - REDUCED from --space-xl */
+    padding: var(--space-lg) 0; /* Vertical padding for body */
     box-sizing: border-box;
 }
 .container {
@@ -89,7 +88,7 @@ html, body {
     background: var(--color-background-container);
 
     /* Layout: Limit width on large screens and center horizontally */
-    max-width: 860px; /* REDUCED from 1200px */
+    max-width: 860px;
     width: 95vw;
     margin-left: auto;
     margin-right: auto;
@@ -113,7 +112,6 @@ h1 {
     max-width: 684px; /* Align with results and grid container */
     margin-top: 0; /* Follows h1's margin-bottom */
     margin-bottom: var(--space-lg); /* Space before the form */
-    /* padding: 0 10px; */ /* REMOVED horizontal padding */
     box-sizing: border-box; /* Ensure padding is included in width/max-width */
     display: flex;
     flex-direction: column;
@@ -131,9 +129,9 @@ h1 {
 
 .intro-disclaimer {
     margin-top: 0.2em; /* Reduced space from .intro-text above */
-    margin-bottom: 0; /* Last child in new container; parent handles overall bottom margin */
-    font-size: 0.85rem; /* Suggestion: Slightly smaller for the disclaimer text */
-    color: var(--color-text-muted); /* Muted color for the disclaimer text */
+    margin-bottom: 0; /* Last child in container; parent handles overall bottom margin */
+    font-size: 0.85rem;
+    color: var(--color-text-muted);
     text-align: left; /* Explicitly left-align text within the paragraph */
 }
 
@@ -175,9 +173,9 @@ h1 {
     margin-bottom: 0; /* Adjust margin as helper text is now between label and input */
     color: var(--color-text-primary); /* Emphasize label with primary text color */
     font-weight: 600; /* Emphasize label with bolder font */
-    font-size: 0.95rem; /* Keep specific */
+    font-size: 0.95rem;
 }
-.form-group .label-supplement { /* New style for helper text above input */
+.form-group .label-supplement { /* Style for helper text above input */
     font-size: 0.8rem; /* Make it smaller */
     color: var(--color-text-muted); /* Keep it muted */
     margin-top: var(--space-xxs); /* Small space below label */
@@ -246,7 +244,7 @@ h1 {
     line-height: 1.5; /* Ensure good line height if it wraps */
 }
 
-/* New styles for the results grid */
+/* Styles for the results grid */
 .results-area .results-stats-grid {
     display: grid;
     /* Columns size to their content */
@@ -467,7 +465,6 @@ h1 {
 
 /* Add specific styles for key swatches mimicking grid states */
 .color-key .key-color.past {
-    /* background-color: var(--color-background-container); /* Or a representative gray */
     border-color: rgba(0, 0, 0, 0.3);
     opacity: 0.7;
 }
@@ -476,14 +473,14 @@ h1 {
     border-color: rgba(0, 0, 0, 0.7);
 }
 .color-key .key-color.out-of-bounds {
-     background-color: var(--color-grid-background);
-     border-color: var(--color-grid-background);
-     opacity: 0.5; /* Make it visible but distinct */
+    background-color: var(--color-grid-background);
+    border-color: var(--color-grid-background);
+    opacity: 0.5; /* Make it visible but distinct */
 }
 
 
 /* ==========================================================================
-   Grid Controls Header & View Switcher (NEW)
+   Grid Controls Header & View Switcher
    ========================================================================== */
 
 /* Controls header, inside grid container */
@@ -503,7 +500,7 @@ h1 {
     z-index: 1; /* Ensure it stays above grid content */
     background-color: var(--color-grid-background); /* Match grid container background */
 }
-/* NEW: Style for when the tablist container itself is considered focused */
+/* Style for when the tablist container itself is considered focused */
 #view-switcher.tablist-focused {
     outline: 3px solid var(--color-primary-dark);
     outline-offset: 2px;
@@ -572,7 +569,7 @@ h1 {
     -webkit-overflow-scrolling: touch; /* Improve scrolling on touch devices */
 }
 
-/* NEW: Container for the actual grid blocks */
+/* Container for the actual grid blocks */
 #grid-content-area {
     display: flex;
     flex-direction: column;
@@ -584,7 +581,7 @@ h1 {
 
 }
 
-/* --- NEW: Grid Axis Label Styles --- */
+/* --- Grid Axis Label Styles --- */
 .grid-axis-label {
     font-size: var(--font-size-sm);
     color: var(--color-text-muted);
@@ -730,7 +727,6 @@ h1 {
 /* Target blocks within the content area */
 .life-grid-container.grid-view-months #grid-content-area .month-block {
     /* Width = (100% container width - total gap space) / number of blocks */
-    /* (11 gaps * 2px = 22px total gap space for 12 blocks) */
     width: calc((100% - 22px) / 12);
     /* Force block to be square by setting aspect ratio */
     aspect-ratio: 1 / 1;
@@ -745,7 +741,6 @@ h1 {
 /* Target blocks within the content area */
 .life-grid-container.grid-view-years #grid-content-area .year-block {
     /* Width = (100% container width - total gap space) / number of blocks */
-    /* (9 gaps * 3px = 27px total gap space for 10 blocks) */
     width: calc((100% - 27px) / 10);
     /* Force block to be square by setting aspect ratio */
     aspect-ratio: 1 / 1;
@@ -770,8 +765,7 @@ h1 {
         flex-direction: column; /* Stack title and switcher vertically */
         align-items: center; /* Center items horizontally when stacked */
         gap: var(--space-sm); /* Reduce gap when stacked */
-        padding-left: var(--space-xs); /* Add slight padding if needed */
-        padding-right: var(--space-xs);
+        padding: 0 var(--space-xs); /* Horizontal padding for stacked items */
     }
 
     .view-button {
@@ -830,7 +824,7 @@ h1 {
 /* Tier 3: Smaller Screens (~Phone) - Target width < 487px */
 @media (max-width: 486px) {
     /* Adjust grid container for smaller screens */
-    /* NEW: Align intro and disclaimer max-width with form max-width on small screens */
+    /* Align intro and disclaimer max-width with form max-width on small screens */
     .intro-block-container,
     .disclaimer {
         max-width: 350px; /* Match .input-form max-width */
