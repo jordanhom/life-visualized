@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Your Life Visualized</title>
+    <!-- Link to the external CSS file -->
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <!-- Main content container, centered with max-width -->
+    <div class="container">
+        <h1>
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 0.5em; vertical-align: -0.2em; position: relative; top: -1px;">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                <circle cx="12" cy="12" r="3"></circle>
+            </svg>Visualize Your Life
+        </h1>
+
+        <!-- Container for the introductory text block -->
+        <div class="intro-block-container">
+            <p class="intro-text">Reflect on your journey! See your estimated lifespan laid out week by week, month by month, or year by year.</p>
+            <p class="intro-disclaimer"><strong>Important:</strong> This is a statistical visualization for reflection, not a prediction.</p>
+        </div>
+        
+        <!-- Input Form Section -->
+        <form id="life-input-form" class="input-form">
+            <div class="form-group">
+                <label for="birthdate">Your Birth Date:</label>
+                <p class="label-supplement">Starting point for age and timeline.</p>
+                <input type="date" id="birthdate" name="birthdate" required placeholder="YYYY-MM-DD">
+            </div>
+
+            <div class="form-group">
+                <label for="sex">Biological Sex:</label>
+                <p class="label-supplement">Input for statistical timeline estimate.</p>
+                <select id="sex" name="sex" required placeholder="Select...">
+                    <option value="" disabled selected>Select...</option>
+                    <option value="male">Male</option>
+                    <option value="female">Female</option>
+                </select>
+            </div>
+
+            <button type="submit" class="calculate-btn" id="calculate-btn" title="Please fill in both fields." disabled>Calculate & Visualize</button>
+        </form>
+
+        <!-- Results Display Area -->
+        <!-- Initially hidden. Revealed by JS to show calculation results or errors. -->
+        <!-- aria-live="polite" ensures screen readers announce updates -->
+        <div id="results-area" class="results-area hidden" aria-live="polite">
+            <!-- Content (results or errors) is dynamically updated by ui.js -->
+        </div>
+
+        <!-- Grid Placeholder -->
+        <!-- Initially hidden. Revealed by JS after successful calculation. -->
+        <!-- The grid blocks are rendered into #grid-content-area within this container by gridRenderer.js -->
+        <!-- aria-label provides context for screen readers -->
+        <div id="life-grid-container" class="life-grid-container hidden" aria-label="Life grid visualization">
+
+            <!-- Grid Controls Header (View Switcher) -->
+            <div id="grid-controls-header">
+                <div id="view-switcher" role="tablist" aria-label="Select visualization type">
+                    <button id="tab-weeks-age" role="tab" aria-selected="true" aria-controls="grid-content-area" tabindex="0" data-view="weeks-age" class="view-button active" title="View life in weeks by age">Weeks (Age)</button>
+                    <button id="tab-weeks-calendar" role="tab" aria-selected="false" aria-controls="grid-content-area" tabindex="-1" data-view="weeks-calendar" class="view-button" title="View life in weeks by calendar year">Weeks (Calendar)</button>
+                    <button id="tab-months" role="tab" aria-selected="false" aria-controls="grid-content-area" tabindex="-1" data-view="months" class="view-button" title="View life in months">Months</button>
+                    <button id="tab-years" role="tab" aria-selected="false" aria-controls="grid-content-area" tabindex="-1" data-view="years" class="view-button" title="View life in years">Years</button>
+                </div>
+            </div>
+            <!-- Grid Guide (Explanation & Color Key) -->
+            <details id="grid-guide-details" class="grid-guide-details">
+                <summary>How to Read This Visualization</summary>
+                <div class="guide-content-wrapper">
+                    <div class="explanation-column">
+                        <h3>Understanding the Grid</h3>
+                        <p>Each block represents a unit of time in your estimated lifespan. Colors indicate the general life stage for that period, based on your age at the start of that specific week, month, or year. Blocks fade for time already passed, and the current block is highlighted.</p>
+                        <ul>
+                            <li><strong>Weeks (Age View):</strong> Each row is one year of your life (displaying up to 53 weeks, starting from your birthday). Weeks align with your age progression.</li>
+                            <li>
+                                <strong>Weeks (Calendar View):</strong>
+                                <p>Each row is a standard calendar year (e.g., 2023, 2024), showing all its weeks (typically 52 or 53, with weeks starting on a Monday). If your life begins or ends partway through a calendar year, weeks in that year <em>before</em> your birth or <em>after</em> your estimated end date are shown as dimmed blocks. This maintains the full calendar year structure for each row.</p>
+                                <p><em>Example: If you were born in March, the January and February weeks of your birth year will appear dimmed.</em></p>
+                            </li>
+                            <li><strong>Months View:</strong> Each row is one year of your life (12 months).</li>
+                            <li><strong>Years View:</strong> Each row is one decade of your life (10 years).</li>
+                        </ul>
+                    </div>
+                    <div class="color-key-column">
+                        <h3>What the Colors Mean</h3>
+                        <div class="color-key"> <!-- Re-use existing color-key class for list styling -->
+                            <ul>
+                                <li><span class="key-color stage-infancy"></span> Infancy (Age 0)</li>
+                                <li><span class="key-color stage-toddler"></span> Toddler (Ages 1-2)</li>
+                                <li><span class="key-color stage-earlychildhood"></span> Early Childhood (Ages 3-5)</li>
+                                <li><span class="key-color stage-middlechildhood"></span> Middle Childhood (6-11)</li>
+                                <li><span class="key-color stage-adolescence"></span> Adolescence (Ages 12-17)</li>
+                                <li><span class="key-color stage-youngadult"></span> Young Adult (18-25)</li>
+                                <li><span class="key-color stage-adulthood"></span> Adulthood (Ages 26-39)</li>
+                                <li><span class="key-color stage-middleadulthood"></span> Middle Adulthood (40-59)</li>
+                                <li><span class="key-color stage-earlysenior"></span> Early Senior (60-74)</li>
+                                <li><span class="key-color stage-midsenior"></span> Mid Senior (75-84)</li>
+                                <li><span class="key-color stage-latesenior"></span> Late Senior (85+)</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </details>
+
+            <!-- Top Axis Label for the Grid -->
+            <div id="grid-axis-label-top" class="grid-axis-label hidden" aria-hidden="true">
+                <!-- Text content will be set by JS -->
+            </div>
+
+            <!-- Wrapper for Left Axis Label and Grid Content Area -->
+            <div id="grid-content-wrapper" class="hidden">
+                <div id="grid-axis-label-left" class="grid-axis-label" aria-hidden="true">
+                    <!-- Text content will be set by JS -->
+                </div>
+                <div id="grid-content-area" role="tabpanel" aria-labelledby="tab-weeks-age">
+                    <!-- Grid blocks generated by gridRenderer.js go inside #grid-content-area -->
+                </div>
+            </div>
+        </div> <!-- End #life-grid-container -->
+
+        <!-- "Start Over" Button Container, initially hidden -->
+        <div id="start-over-container" class="hidden">
+            <button id="start-over-btn" class="calculate-btn">Start Over</button>
+        </div>
+
+        <!-- Disclaimer Section -->
+        <!-- Always visible. -->
+        <p class="disclaimer">
+            <strong>Disclaimer:</strong> Life expectancy figures are estimates based on statistical averages for populations (using U.S. CDC/NCHS 2021 Period Life Table data) and may vary based on location, lifestyle, genetics, and future advancements. This visualization is for illustrative purposes only and is <strong>not</strong> a prediction of your individual lifespan.
+        </p>
+
+    </div> <!-- End .container -->
+
+    <!-- External Libraries -->
+    <!-- date-fns v4.1.0 is required by gridRenderer.js and ui.js -->
+    <script src="https://cdn.jsdelivr.net/npm/date-fns@4.1.0/cdn.min.js"></script>
+
+    <!-- Main Application Script -->
+    <!-- Loaded as a module to enable import/export syntax -->
+    <script type="module" src="js/main.js"></script>
+</body>
+</html>
