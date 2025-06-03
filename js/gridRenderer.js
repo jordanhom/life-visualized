@@ -17,20 +17,21 @@
 const UTC_TIMEZONE = 'UTC'; // Define UTC timezone string for clarity
 
 // Life Stage Definitions (Used for styling blocks)
-// Defines the age boundaries and corresponding CSS class keys/colors for different life stages.
+// Defines the age boundaries and corresponding CSS class keys for different life stages.
+// Colors are applied via CSS using the '.stage-{key}' classes.
 const LIFE_STAGES = [
-    // Colors chosen for more visibility, sequence roughly follows spectrum
-    { key: 'infancy', name: 'Infancy', maxAge: 0, color: '#FFB6C1' }, // LightPink (Birth-1)
-    { key: 'toddler', name: 'Toddlerhood', maxAge: 2, color: '#FFA07A' }, // LightSalmon (1-3)
-    { key: 'earlychildhood', name: 'Early Childhood', maxAge: 5, color: '#FFDA63' }, // Medium Gold (3-6)
-    { key: 'middlechildhood', name: 'Middle Childhood', maxAge: 11, color: '#9ACD32' }, // YellowGreen (6-12)
-    { key: 'adolescence', name: 'Adolescence', maxAge: 17, color: '#48D1CC' }, // MediumTurquoise (12-18)
-    { key: 'youngadult', name: 'Young Adulthood', maxAge: 25, color: '#6495ED' }, // CornflowerBlue (18-26)
-    { key: 'adulthood', name: 'Adulthood', maxAge: 39, color: '#9370DB' }, // MediumPurple (26-40)
-    { key: 'middleadulthood', name: 'Middle Adulthood', maxAge: 59, color: '#DA70D6' }, // Orchid (40-60)
-    { key: 'earlysenior', name: 'Early Senior', maxAge: 74, color: '#C0C0C0' }, // Silver (60-74) - Kept
-    { key: 'midsenior', name: 'Mid-Senior', maxAge: 84, color: '#B0C4DE' }, // LightSteelBlue (75-84) - New
-    { key: 'latesenior', name: 'Late Senior', maxAge: Infinity, color: '#D8BFD8' } // Thistle (85+) - New
+    // Life stages are year inclusive.
+    { key: 'infancy', name: 'Infancy', maxAge: 0 },                     // (Age 0)
+    { key: 'toddler', name: 'Toddlerhood', maxAge: 2 },                 // (Ages 1-2)
+    { key: 'earlychildhood', name: 'Early Childhood', maxAge: 5 },      // (Ages 3-5)
+    { key: 'middlechildhood', name: 'Middle Childhood', maxAge: 11 },   // (Ages 6-11)
+    { key: 'adolescence', name: 'Adolescence', maxAge: 17 },            // (Ages 12-17)
+    { key: 'youngadult', name: 'Young Adulthood', maxAge: 25 },         // (Ages 18-25)
+    { key: 'adulthood', name: 'Adulthood', maxAge: 39 },                // (Ages 26-39)
+    { key: 'middleadulthood', name: 'Middle Adulthood', maxAge: 59 },   // (Ages 40-59)
+    { key: 'earlysenior', name: 'Early Senior', maxAge: 74 },           // (Ages 60-74)
+    { key: 'midsenior', name: 'Mid-Senior', maxAge: 84 },               // (Ages 75-84)
+    { key: 'latesenior', name: 'Late Senior', maxAge: Infinity }        // (Ages 85+)
 ];
 
 // Helper: Get stage key based on age. (Used for styling blocks)
@@ -50,7 +51,7 @@ function checkDateFns() {
         console.error("date-fns v4.1.0 library or key functions not loaded!");
         return false;
     }
-    // Use optional chaining and check for a specific function expected in v4.1.0
+    // Use optional chaining to check the version string.
     if (!dateFns?.version?.startsWith('4.')) {
          console.warn(`date-fns object found, but version (${dateFns?.version}) might not be v4.1.0+. Ensure correct CDN script is loaded.`);
          // Allow proceeding but be cautious

@@ -120,14 +120,13 @@ h1 {
 }
 
 .intro-text {
-    margin-top: 0; /* First child in new container */
+    margin-top: 0; /* Remove top margin for the first child in this container */
     margin-bottom: 0.3em; /* Reduced space between main intro and disclaimer */
-    font-size: 0.95rem; /* Slightly smaller than base body text */
-    color: var(--color-text-secondary); /* Softer color */
+    font-size: 0.95rem;
+    color: var(--color-text-secondary);
     line-height: 1.6;
-    font-style: italic; /* Suggestion: Italicize for a softer feel */
-    text-align: left; /* Explicitly left-align text within the paragraph */
-    /* max-width, width, and text-align are now handled by .intro-block-container */
+    font-style: italic;
+    text-align: left; /* Explicitly left-align text within the block */
 }
 
 .intro-disclaimer {
@@ -136,7 +135,6 @@ h1 {
     font-size: 0.85rem; /* Suggestion: Slightly smaller for the disclaimer text */
     color: var(--color-text-muted); /* Muted color for the disclaimer text */
     text-align: left; /* Explicitly left-align text within the paragraph */
-    /* max-width, width, and text-align are now handled by .intro-block-container */
 }
 
 .intro-disclaimer strong {
@@ -212,8 +210,8 @@ h1 {
     background-color: var(--color-primary-dark);
 }
 .calculate-btn:disabled {
-    background-color: #cccccc; /* Lighter gray for disabled state */
-    color: #666666;           /* Darker gray text for disabled state */
+    background-color: #cccccc;  /* Distinct visual style for disabled state */
+    color: #666666;
     cursor: not-allowed;
     opacity: 0.7;
 }
@@ -279,25 +277,31 @@ h1 {
 }
 .disclaimer {
     /* Always visible */
-    font-size: 0.85rem; /* Keep specific */
+    font-size: 0.85rem;
     color: var(--color-text-muted);
     font-style: italic;
     max-width: 684px; /* Align with results and grid container */
     line-height: 1.5;
-    /* padding: 0 10px; */ /* REMOVED horizontal padding */
     box-sizing: border-box; /* Ensure padding is included in width */
     text-align: left; /* Ensure text within the disclaimer block is left-aligned */
     /* No margin needed as it's the last element */
+}
+
+/* "Start Over" Button Container, initially hidden */
+#start-over-container {
+    margin-top: var(--space-lg);
+    margin-bottom: var(--space-lg);
+    width: 100%; /* Take full width of its alignment context within .container */
+    max-width: 350px; /* Match form width for consistency */
+    /* .container has align-items: center, so this will be centered */
+    display: flex; /* To allow button inside to be centered if needed */
+    justify-content: center; /* Center the button if it's narrower than container */
 }
 
 /* --- Grid Guide Details Styles --- */
 /* Styles for the <details> element containing explanation and color key */
 /* Now positioned INSIDE the grid container */
 .grid-guide-details {
-    /* Sizing and Spacing (Now inside grid container) */
-    /* margin-bottom removed */
-    /* max-width removed */
-    /* width removed */
     box-sizing: border-box;
     margin-top: var(--space-md); /* Space above guide, below controls */
     margin-bottom: var(--space-md); /* Space below guide, above grid content */
@@ -315,11 +319,9 @@ h1 {
     cursor: pointer;
     font-weight: 600;
     color: var(--color-text-primary);
-    /* Padding adjusted: top/bottom=xs, right=md, left=xl for marker */
-    padding: var(--space-xs) var(--space-md) var(--space-xs) var(--space-xl);
+    padding: var(--space-xs) var(--space-md) var(--space-xs) var(--space-xl); /* Accommodate custom marker */
     position: relative; /* Needed for pseudo-element marker */
     list-style: none; /* Hide default browser marker */
-    /* Implicit font-size: var(--font-size-base) */
 }
 /* Hide default marker for WebKit browsers */
 .grid-guide-details summary::-webkit-details-marker {
@@ -434,8 +436,7 @@ h1 {
     font-size: var(--font-size-sm);
     color: var(--color-text-secondary);
     white-space: normal; /* Allow wrapping within list item */
-    /* Add small bottom margin if default is removed or insufficient */
-    margin-bottom: var(--space-xxs); /* Example: Use smallest spacing */
+    margin-bottom: var(--space-xxs); /* Consistent spacing between key items */
 }
 /* Ensure last item has no bottom margin */
 .color-key li:last-child {
@@ -466,7 +467,7 @@ h1 {
 
 /* Add specific styles for key swatches mimicking grid states */
 .color-key .key-color.past {
-    background-color: var(--color-background-container); /* Or a representative gray */
+    /* background-color: var(--color-background-container); /* Or a representative gray */
     border-color: rgba(0, 0, 0, 0.3);
     opacity: 0.7;
 }
@@ -506,8 +507,6 @@ h1 {
 #view-switcher.tablist-focused {
     outline: 3px solid var(--color-primary-dark);
     outline-offset: 2px;
-    /* Optional: Add a subtle box-shadow to lift it slightly, if desired */
-    /* box-shadow: 0 0 0 3px var(--color-background-body), 0 0 0 5px var(--color-primary-dark); */
     border-radius: var(--border-radius-sm); /* Ensure outline follows border radius */
 }
 
@@ -529,8 +528,7 @@ h1 {
     white-space: normal; /* Allow wrapping */
     text-align: center; /* Center text horizontally */
 
-    /* Ensure consistent height accommodating wrapped text */
-    min-height: 56px; /* Adjust value as needed based on inspection */
+    min-height: 56px; /* Ensure consistent height for wrapped text */
     /* Use flexbox to vertically center text within the button */
     display: inline-flex; /* Make button a flex container */
     align-items: center; /* Vertically center content */
@@ -543,7 +541,7 @@ h1 {
 
 /* Hover effect */
 .view-button:not(.active):hover {
-    background-color: var(--color-primary-light, #e0f0ff); /* Define --color-primary-light if needed */
+    background-color: var(--color-primary-light);
 }
 
 /* Active state */
@@ -560,11 +558,9 @@ h1 {
 /* Styles for the grid container */
 /* Initially hidden via .hidden class */
 .life-grid-container {
-    /* margin-bottom removed */
     width: 100%; /* Takes width from parent .container */
 
-    /* KEY LAYOUT: Fixed max-width based on the default (Week) view */
-    max-width: 684px; /* Calculated: (left_label + gap + grid_blocks) + (2 * container_padding) */
+    max-width: 684px; /* Max width primarily determined by Week view's content */
     box-sizing: border-box;
     display: flex;
     flex-direction: column; /* Stack header, guide, content area vertically */
@@ -580,7 +576,7 @@ h1 {
 #grid-content-area {
     display: flex;
     flex-direction: column;
-    gap: 3px; /* Vertical gap between year rows (Keep specific) */
+    gap: 3px; /* Vertical gap between year rows */
     /* Add padding on the right to prevent blocks from bumping against the edge */
     padding-right: var(--space-xs);
     flex-grow: 1; /* Allow grid content to take remaining space */
@@ -603,8 +599,7 @@ h1 {
     padding-bottom: var(--space-xs); /* Space between label and grid content wrapper */
     text-align: left; /* Align text to the left */
     /* Offset by the width of the left label + gap */
-    /* Calculation: 1.0em (new min-width of #grid-axis-label-left) + var(--space-xs) (gap in #grid-content-wrapper) */
-    padding-left: calc(1.0em + var(--space-xs)); 
+    padding-left: calc(1.0em + var(--space-xs)); /* Aligns with start of grid blocks */
     /* border-bottom: 1px dashed var(--border-color-light); */ /* Optional visual separator */
 }
 
@@ -625,8 +620,7 @@ h1 {
     align-items: center; /* Center text along the non-writing-mode axis */
     justify-content: flex-start; /* Align text to the top along the writing-mode axis (vertically) */
     /* border-right: 1px dashed var(--border-color-light); */ /* Optional visual separator */
-    /* Explicit width might be needed if content doesn't define it well */
-    min-width: 1.0em; /* Reduced from 1.1em */
+    min-width: 1.0em; /* Ensure space for the label text */
 }
 
 #grid-content-area {
@@ -638,15 +632,15 @@ h1 {
 .year-row { /* Also used for month-row, decade-row */
     display: flex;
     flex-wrap: nowrap; /* Ensure blocks stay in a single horizontal line */
-    gap: 2px; /* Default horizontal gap (used by week view) (Keep specific) */
+    gap: 2px; /* Default horizontal gap (used by week view) */
 }
 
 /* Base style for week blocks */
 .week-block {
-    width: 10px; /* Default block size (Keep specific) */
-    height: 10px; /* Default block size (Keep specific) */
+    width: 10px; /* Default block size */
+    height: 10px; /* Default block size */
     flex-shrink: 0; /* Prevent blocks from shrinking */
-    border-radius: 1px; /* Slight rounding (Keep specific) */
+    border-radius: 1px; /* Slight rounding */
     transition: background-color 0.2s ease-in-out, border-color 0.2s ease-in-out, opacity 0.2s ease-in-out;
     box-sizing: border-box;
     border: 1px solid transparent; /* Base border */
@@ -654,7 +648,7 @@ h1 {
 
 /* --- Life Stage Color Styles --- */
 /* Applies background colors based on .stage-* classes */
-/* Colors are kept specific here, matching JS constants */
+/* Colors are defined directly here to match JS LIFE_STAGES for consistency. */
 .week-block.stage-infancy, .month-block.stage-infancy, .year-block.stage-infancy { background-color: #FFB6C1; } /* LightPink */
 .week-block.stage-toddler, .month-block.stage-toddler, .year-block.stage-toddler { background-color: #FFA07A; } /* LightSalmon */
 .week-block.stage-earlychildhood, .month-block.stage-earlychildhood, .year-block.stage-earlychildhood { background-color: #FFDA63; } /* Medium Gold */
@@ -672,13 +666,13 @@ h1 {
 /* Applied to all block types (.week-block, .month-block, .year-block) */
 .week-block.past, .month-block.past, .year-block.past {
     /* Inherits stage background-color */
-    border-color: rgba(0, 0, 0, 0.3); /* Transparent Dark Gray Border (Keep specific) */
+    border-color: rgba(0, 0, 0, 0.3); /* Subtle border for past blocks */
     opacity: 0.7; /* Fade past blocks */
 }
 
 .week-block.present, .month-block.present, .year-block.present {
     background-color: var(--color-present-highlight);
-    border-color: rgba(0, 0, 0, 0.7); /* Darker Transparent Gray Border (Keep specific) */
+    border-color: rgba(0, 0, 0, 0.7); /* Stronger border for present block */
     /* White outline + Inner Shadow effect */
     box-shadow: 0 0 0 1px var(--color-background-container), inset 0 0 0 1px rgba(0,0,0,0.4);
     z-index: 1; /* Ensure it's above others if overlapping slightly */
@@ -707,7 +701,7 @@ h1 {
 .month-block {
     /* Base styles shared with other blocks */
     flex-shrink: 0;
-    border-radius: 2px; /* Keep specific */
+    border-radius: 2px;
     transition: background-color 0.2s ease-in-out, border-color 0.2s ease-in-out, opacity 0.2s ease-in-out;
     box-sizing: border-box;
     border: 1px solid transparent;
@@ -730,13 +724,13 @@ h1 {
 /* --- Month View --- */
 /* Added dynamically to grid container when month view is active */
 .life-grid-container.grid-view-months .month-row {
-     gap: 2px; /* Horizontal gap between month blocks (Keep specific) */
+     gap: 2px; /* Horizontal gap between month blocks */
 }
 /* KEY TECHNIQUE: Calculate month block size to fill container width */
 /* Target blocks within the content area */
 .life-grid-container.grid-view-months #grid-content-area .month-block {
     /* Width = (100% container width - total gap space) / number of blocks */
-    /* 12 blocks, 11 gaps of 2px each = 22px total gap space */
+    /* (11 gaps * 2px = 22px total gap space for 12 blocks) */
     width: calc((100% - 22px) / 12);
     /* Force block to be square by setting aspect ratio */
     aspect-ratio: 1 / 1;
@@ -745,13 +739,13 @@ h1 {
 /* --- Year View --- */
 /* Added dynamically to grid container when year view is active */
 .life-grid-container.grid-view-years .decade-row {
-     gap: 3px; /* Horizontal gap between year blocks (Keep specific) */
+     gap: 3px; /* Horizontal gap between year blocks */
 }
 /* KEY TECHNIQUE: Calculate year block size to fill container width */
 /* Target blocks within the content area */
 .life-grid-container.grid-view-years #grid-content-area .year-block {
     /* Width = (100% container width - total gap space) / number of blocks */
-    /* 10 blocks, 9 gaps of 3px each = 27px total gap space */
+    /* (9 gaps * 3px = 27px total gap space for 10 blocks) */
     width: calc((100% - 27px) / 10);
     /* Force block to be square by setting aspect ratio */
     aspect-ratio: 1 / 1;
@@ -761,7 +755,7 @@ h1 {
 /* Tiered approach: Adjust grid container AND block sizes/gaps at breakpoints */
 
 /* Tier 1.5: Adjust Grid Guide Details for smaller desktops/large tablets */
-@media (max-width: 768px) { /* Example breakpoint, adjust as needed */
+@media (max-width: 768px) {
     .guide-content-wrapper {
         flex-direction: column; /* Stack internal columns vertically */
         gap: var(--space-md); /* Adjust gap for vertical stacking */
@@ -778,7 +772,6 @@ h1 {
         gap: var(--space-sm); /* Reduce gap when stacked */
         padding-left: var(--space-xs); /* Add slight padding if needed */
         padding-right: var(--space-xs);
-        /* max-width matches grid via media queries below */
     }
 
     .view-button {
@@ -797,21 +790,20 @@ h1 {
 @media (max-width: 655px) {
     /* Adjust grid container for medium screens */
     .life-grid-container {
-        /* Updated max-width: (1.5em label (at smaller font) + 8px gap + (53*(8+1)-1)px content) + 2*5px padding */
-        max-width: 515px;
+        max-width: 515px; /* Adjusted to fit 8px week blocks and padding */
         padding: 0 5px 5px 5px;
     }
     /* Adjust grid content area gap */
     #grid-content-area {
-        gap: 2px; /* Vertical gap (Keep specific) */
+        gap: 2px; /* Vertical gap */
     }
     /* Adjust week row gap and block size for Week view */
     .life-grid-container .year-row {
-        gap: 1px; /* Gap between blocks (Keep specific) */
+        gap: 1px; /* Gap between blocks */
     }
     .life-grid-container .week-block {
-        width: 8px; /* Block size (Keep specific) */
-        height: 8px; /* Block size (Keep specific) */
+        width: 8px; /* Block size */
+        height: 8px; /* Block size */
     }
     /* Adjust overall page padding */
     .container {
@@ -828,10 +820,10 @@ h1 {
         padding-bottom: var(--space-sm);
     }
     .results-area .results-intro {
-        margin-bottom: var(--space-sm); /* Was var(--space-md) */
+        margin-bottom: var(--space-sm);
     }
     .results-area .results-stats-grid {
-        margin-top: var(--space-xs);   /* Was var(--space-sm) */
+        margin-top: var(--space-xs);
     }
 }
 
@@ -847,21 +839,21 @@ h1 {
 
     /* Remove body top/bottom padding to maximize vertical space */
     body {
-        padding-top: var(--space-sm); /* Reverted to small padding, can be 0 if needed */
-        padding-bottom: var(--space-sm); /* Reverted to small padding */
+        padding-top: var(--space-sm);
+        padding-bottom: var(--space-sm);
     }
     .life-grid-container {
-        max-width: 352px; /* Reduced to fit 5px blocks snugly */
+        max-width: 352px; /* Adjusted to fit 5px week blocks snugly */
         padding: 0 4px 4px 4px; /* Symmetrical padding */
 
     }
     /* Adjust grid content area gap */
     #grid-content-area {
-        gap: 1.5px; /* Vertical gap (Keep specific) */
+        gap: 1.5px; /* Vertical gap */
     }
     /* Adjust week row gap and block size for Week view */
     .life-grid-container .year-row {
-        gap: 1px; /* Gap between blocks (Keep specific) */
+        gap: 1px; /* Gap between blocks */
     }
     .life-grid-container .week-block {
         width: 5px; /* Use 5px blocks for this tier */
@@ -897,29 +889,29 @@ h1 {
 
     /* Further reduce axis label font size for smaller screens */
     .grid-axis-label {
-        font-size: calc(var(--font-size-sm) * 0.75); /* Further reduced. e.g., 0.875rem * 0.75 = ~0.656rem */
+        font-size: calc(var(--font-size-sm) * 0.75); /* Further reduce for small screens */
     }
 
     /* Adjustments for view buttons (previously in 480px tier) */
     .view-button {
         padding: var(--space-xs) calc(var(--space-xs) * 0.75);
-        font-size: calc(var(--font-size-sm) * 0.9);
+        font-size: calc(var(--font-size-sm) * 0.9); /* Slightly smaller font for buttons */
     }
 }
 /* Tier 4: Smallest Screens - Target width < 379px */
 @media (max-width: 378px) {
     /* Adjust grid container for smallest screens */
     .life-grid-container {
-        max-width: 350px; /* Adjusted for 5px blocks and 1.0em label */
+        max-width: 350px; /* Further adjustment for 5px blocks and labels */
         padding: 0 3px 3px 3px; /* Symmetrical padding */
     }
     /* Adjust grid content area gap */
     #grid-content-area {
-        gap: 1px; /* Vertical gap (Keep specific) */
+        gap: 1px; /* Vertical gap */
     }
     /* Adjust week row gap and block size for Week view */
     .life-grid-container .year-row {
-        gap: 1px; /* Gap between blocks (Keep specific) */
+        gap: 1px; /* Gap between blocks */
     }
     .life-grid-container .week-block {
         width: 5px; /* Increased back from 4px */
@@ -929,7 +921,7 @@ h1 {
     .container {
         padding: var(--space-md) var(--space-xxs);
     }
-     h1 { font-size: 1.6rem; /* Keep specific */ }
+    h1 { font-size: 1.6rem; }
     .calculate-btn { font-size: var(--font-size-base); }
      /* Adjust results width */
     .results-area {
@@ -945,35 +937,34 @@ h1 {
 /* Month View Responsiveness */
 @media (max-width: 400px) {
     .life-grid-container.grid-view-months .month-row {
-        gap: 1px; /* Reduce gap (Keep specific) */
+        gap: 1px; /* Reduce gap between month blocks */
     }
     .life-grid-container.grid-view-months #grid-content-area .month-block {
-        /* Recalculate width based on new gap: 11 gaps * 1px = 11px */
+        /* Recalculate width for 12 blocks with 1px gaps (11 gaps total) */
         width: calc((100% - 11px) / 12); /* Aspect ratio is inherited */
     }
 }
 @media (max-width: 300px) {
     /* Keep gap at 1px, width recalculates automatically */
-    /* No change needed unless gap needs to be 0 */
 }
 
 /* Year View Responsiveness */
-@media (max-width: 300px) { /* Adjust breakpoint as needed */
+@media (max-width: 300px) {
     .life-grid-container.grid-view-years .decade-row {
-        gap: 2px; /* Reduce gap (Keep specific) */
+        gap: 2px; /* Reduce gap between year blocks */
     }
     .life-grid-container.grid-view-years #grid-content-area .year-block {
-        /* Recalculate width: 9 gaps * 2px = 18px */
+        /* Recalculate width for 10 blocks with 2px gaps (9 gaps total) */
         width: calc((100% - 18px) / 10); /* Aspect ratio is inherited */
     }
 }
 
 @media (max-width: 250px) {
     .life-grid-container.grid-view-years .decade-row {
-        gap: 1px; /* Further reduce gap (Keep specific) */
+        gap: 1px; /* Further reduce gap between year blocks */
     }
     .life-grid-container.grid-view-years #grid-content-area .year-block {
-        /* Recalculate width: 9 gaps * 1px = 9px */
+       /* Recalculate width for 10 blocks with 1px gaps (9 gaps total) */
         width: calc((100% - 9px) / 10); /* Aspect ratio is inherited */
     }
 }
@@ -994,6 +985,6 @@ h1 {
 }
 /* For elements that shouldn't have the inner box-shadow part (like buttons) */
 .calculate-btn:focus-visible,
-.view-button:focus-visible { /* This rule will be effectively unused if JS handles parent focus */
+.view-button:focus-visible { /* Individual view buttons don't get this complex shadow; parent tablist does */
     box-shadow: none; /* Override the general focus-visible box-shadow for buttons */
 }
