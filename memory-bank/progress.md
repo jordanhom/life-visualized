@@ -76,6 +76,12 @@ The following key areas of refinement, detailed in `/Users/jhom/src/vibecode/pro
 14. Code Comment Review & Cleanup (COMPLETED)
     * Ensured all file descriptions and inline comments are accurate and up-to-date for MVP. Removed deprecated/historical comments.
     * Conducted a final pass to refine comments for consistency and clarity across all source files.
+15. Pre-Launch Bug Fixes & Refinements (COMPLETED)
+    * **Tab Focus Clipping:** Fixed issue where view selection tab focus highlight was clipped on smaller screens.
+    * **Focus Highlight Behavior:** Switched to CSS `:focus-visible` to ensure custom focus highlights primarily appear for keyboard navigation, not mouse clicks. Refined view switcher focus to outline the group and suppressed default browser outlines on individual tabs.
+    * **Page Padding:** Adjusted body and container padding to optimize vertical space on smaller screens.
+    * **CSS Cleanup:** Removed redundant/commented-out CSS rules from `style.css` and `gridRenderer.js`.
+16. MVP Launch (COMPLETED)
 
 **Next Steps:** Prepare for MVP Launch. Application deemed ready.
 
