@@ -500,11 +500,11 @@ h1 {
     z-index: 1; /* Ensure it stays above grid content */
     background-color: var(--color-grid-background); /* Match grid container background */
 }
-/* Style for when the tablist container itself is considered focused */
-#view-switcher.tablist-focused {
+/* Style for when a child button in the tablist has keyboard focus */
+#view-switcher:has(> .view-button:focus-visible) {
     outline: 3px solid var(--color-primary-dark);
     outline-offset: 2px;
-    border-radius: var(--border-radius-sm); /* Ensure outline follows border radius */
+    border-radius: var(--border-radius-sm); /* Ensure outline follows potential border radius of the container */
 }
 
 #view-switcher {
@@ -966,6 +966,7 @@ h1 {
 
 /* --- Unified Focus Styles --- */
 /* Apply a consistent focus style to all interactive elements for keyboard navigation */
+/* :focus-visible ensures styles only apply for keyboard focus */
 .form-group input[type="date"]:focus-visible,
 .form-group select:focus-visible,
 .calculate-btn:focus-visible, /* Includes #start-over-btn */
@@ -978,6 +979,9 @@ h1 {
 }
 /* For elements that shouldn't have the inner box-shadow part (like buttons) */
 .calculate-btn:focus-visible,
-.view-button:focus-visible { /* Individual view buttons don't get this complex shadow; parent tablist does */
-    box-shadow: none; /* Override the general focus-visible box-shadow for buttons */
+.view-button:focus-visible {
+    /* Individual view buttons should not have their own outline;
+       parent #view-switcher handles focus indication. */
+    box-shadow: none; /* Override the general focus-visible box-shadow */
+    outline: none; /* Suppress browser's default outline for the button itself */
 }

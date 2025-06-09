@@ -452,16 +452,6 @@ function setupEventListeners() {
     if (viewSwitcher) {
         viewSwitcher.addEventListener('click', handleViewChange);
         viewSwitcher.addEventListener('keydown', handleTablistKeydown);
-
-        // Add focusin/focusout listeners to the tablist container
-        // to manage a focus style on the container itself.
-        viewSwitcher.addEventListener('focusin', () => {
-            viewSwitcher.classList.add('tablist-focused');
-        });
-        viewSwitcher.addEventListener('focusout', () => {
-            viewSwitcher.classList.remove('tablist-focused');
-        });
-
     } else {
         console.error("View switcher container (#view-switcher) not found.");
     }
