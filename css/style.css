@@ -77,7 +77,7 @@ html, body {
     color: var(--color-text-primary);
     display: flex; /* Used with justify-content to center container */
     justify-content: center;
-    padding: var(--space-lg) 0; /* Vertical padding for body */
+    padding: 0; /* Remove all body padding */
     box-sizing: border-box;
 }
 .container {
@@ -832,8 +832,8 @@ h1 {
 
     /* Remove body top/bottom padding to maximize vertical space */
     body {
-        padding-top: var(--space-sm);
-        padding-bottom: var(--space-sm);
+        /* padding-top: 0; */ /* Body padding removed globally */
+        /* padding-bottom: 0; */ /* Body padding removed globally */
     }
     .life-grid-container {
         max-width: 352px; /* Adjusted to fit 5px week blocks snugly */
