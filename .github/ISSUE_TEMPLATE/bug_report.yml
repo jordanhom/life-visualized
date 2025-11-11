@@ -46,3 +46,34 @@ body:
     attributes:
       label: Environment Details
       placeholder: "OS, Browser, Version, etc."
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Impact / Severity
+      description: How disruptive is this issue?
+      options:
+        - Critical — blocks core functionality
+        - High — major functionality degraded
+        - Medium — noticeable but workaround exists
+        - Low — cosmetic or low-risk issue
+    validations:
+      required: true
+  - type: checkboxes
+    id: regression
+    attributes:
+      label: Regression?
+      description: Mark if this worked before and recently broke.
+      options:
+        - label: This is a regression from a previous release
+  - type: textarea
+    id: affected
+    attributes:
+      label: Affected Modules or Files
+      description: List files, components, or areas impacted (if known)
+      placeholder: "e.g. js/ui.js, gridRenderer"
+  - type: textarea
+    id: notes
+    attributes:
+      label: Proposed Fix / Notes
+      description: Share any hypotheses, debugging clues, or potential fixes
+      placeholder: "Optional ideas, stack traces, related tickets..."

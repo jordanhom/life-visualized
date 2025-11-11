@@ -12,11 +12,16 @@ body:
     attributes:
       label: Details
       placeholder: "What needs to be done and why"
+  - type: textarea
+    id: dependencies
+    attributes:
+      label: Dependencies / Blockers
+      placeholder: "List any prerequisites or related work items"
   - type: checkboxes
     id: checklist
     attributes:
       label: Checklist
       options:
         - label: Implementation complete
-        - label: Tests updated
-        - label: Documentation updated
+        - label: Tests updated (if applicable)
+        - label: Documentation updated (if applicable)

@@ -18,3 +18,8 @@ body:
     attributes:
       label: Suggested Changes
       placeholder: "Propose your fix or improvement"
+  - type: textarea
+    id: references
+    attributes:
+      label: Links / References
+      placeholder: "Link to supporting resources, guidelines, or examples"
