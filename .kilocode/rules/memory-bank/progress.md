@@ -101,3 +101,41 @@ The following key areas of refinement, detailed in `/Users/jhom/src/vibecode/pro
 * Advanced UI features (tooltips on blocks, zooming, etc.).
 * Internationalization (i18n).
 * Build process/bundling.
+
+## Test & QA updates (2025-11-10)
+
+- Fixed fragile test assertions in [`tests/unit/data.test.js`](tests/unit/data.test.js:1) to validate numeric-string keys and finite numeric values.
+- Updated [`js/calculator.js`](js/calculator.js:20) `calculateCurrentAge` to use UTC getters to avoid timezone/DST inconsistencies and match project UTC convention.
+- Expanded unit tests in [`tests/unit/calculator.test.js`](tests/unit/calculator.test.js:1]:
+  - Added female mid-bracket lookup to verify bracket-selection logic for both sexes.
+  - Added mocked-invalid-value checks for non-numeric string, `Infinity`, and `NaN`.
+- Added inline comments documenting the rationale for the recent changes (tests and calculator).
+- Ran test suite locally with Vitest — all tests passed.
+
+Next recommended steps:
+- Add focused unit tests for `js/gridRenderer.js` edge cases (52/53-week years and the rare 54-week visual cleanup).
+- Add a CI job (GitHub Actions) to run the test suite on push/PRs.
+
+## Runtime & UI fix (2025-11-10)
+
+- Fixed a runtime error where the UI treated the async `getRemainingExpectancy` as a synchronous value causing `(currentAge + remainingYears).toFixed` to throw.
+  - Made `handleCalculation` async and `await`ed `getRemainingExpectancy` in [`js/ui.js`](js/ui.js:179).
+  - Added explanatory comments in `js/ui.js` clarifying why awaiting is required (dynamic import in calculator).
+- Ensured calculation functions use UTC consistently:
+  - Updated [`js/calculator.js`](js/calculator.js:20) `calculateCurrentAge` to use UTC getters and added detailed comments explaining the rationale.
+- Tests & test-suite changes:
+  - Fixed fragile assertions in [`tests/unit/data.test.js`](tests/unit/data.test.js:1) to correctly validate numeric-string keys and finite numeric values.
+  - Expanded [`tests/unit/calculator.test.js`](tests/unit/calculator.test.js:52) with female mid-bracket checks and additional mocked-invalid-value cases (Infinity, NaN).
+- Verification:
+  - Ran Vitest locally; all unit tests passed.
+  - Performed manual smoke test in the running app — the original runtime error no longer occurs.
+
+Next recommended items:
+- Add focused unit tests for `js/gridRenderer.js` edge cases (52/53/54-week handling).
+- Add CI job (GitHub Actions) to run Vitest on push/PRs.
+
+## Test & QA updates (2025-11-10) - Additional
+
+- Added focused unit test for `js/gridRenderer.js` edge case: `tests/unit/gridRenderer.edge.test.js`
+  - Mocks minimal `date-fns` functions and verifies `renderAgeGrid` enforces a maximum of 53 week blocks when `eachWeekOfInterval` returns 54 weeks.
+- This test improves confidence around the 54-week edge-case handling and prevents regressions in week-row rendering logic.

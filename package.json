@@ -1,0 +1,16 @@
+{
+  "name": "life-visualized",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "test": "vitest",
+    "test:run": "vitest run",
+    "test:coverage": "vitest run --coverage",
+    "test:watch": "vitest"
+  },
+  "devDependencies": {
+    "vitest": "^1.0.0",
+    "jsdom": "^21.1.0",
+    "c8": "^7.12.0"
+  }
+}

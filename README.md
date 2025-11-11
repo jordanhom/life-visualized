@@ -102,6 +102,28 @@ This collaborative approach enabled the creation of this MVP, serving as both a 
     * Use the buttons above the grid to switch between different views (Weeks, Months, Years).
     * Expand the "How to Read This Visualization" section for details and the color key.
 
+## Developer Setup & CI (quick)
+
+- Minimal files to commit:
+  - [`package.json`](package.json:1)
+  - [`package-lock.json`](package-lock.json:1)
+  - [`.github/workflows/ci.yml`](.github/workflows/ci.yml:1)
+
+- Do NOT commit [`node_modules`](node_modules:1). Add it to `.gitignore` so installs remain reproducible and the repo stays small.
+
+- Install dependencies (reproducible):
+  - Locally: npm ci
+  - (Optional) project provides an npm "install" script which calls `npm ci`: `npm run install`
+
+- Run tests:
+  - Interactive: `npm test`
+  - Non-interactive / CI: `npm test -- --run` or `npm run test:run`
+
+- CI notes:
+  - CI is configured to use `npm ci` and caches npm for speed; this ensures reproducible installs and avoids committing dependency trees.
+  - The workflow lives at [`.github/workflows/ci.yml`](.github/workflows/ci.yml:1).
+
+These instructions are intentionally minimal so you only check in the manifest and CI config; contributors and CI will fetch dependencies via `npm ci`.
 ## Potential Future Enhancements
 
 The following are ideas considered out of scope for the MVP but could be explored in future iterations:

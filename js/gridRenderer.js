@@ -503,5 +503,5 @@ function renderYearsGrid(inputBirthDate, totalLifespanYearsEst, gridContentAreaE
     }
 }
 
-// Export ALL rendering functions
-export { renderAgeGrid, renderCalendarGrid, renderMonthsGrid, renderYearsGrid };
+// Export ALL rendering functions and select helpers for testing/pure logic
+export { renderAgeGrid, renderCalendarGrid, renderMonthsGrid, renderYearsGrid, getLifeStageKey, calculateAgeAtDate };

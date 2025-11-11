@@ -12,21 +12,32 @@
 import { lifeExpectancyData } from './data.js';
 
 /**
- * Calculates the current age in whole years based on birth date.
- * Correctly handles cases where the birthday has not yet occurred in the current year.
- * @param {Date} birthDate - The user's birth date (Date object).
- * @returns {number} The current age in completed years.
+ * Calculates current age in whole years using UTC components.
+ *
+ * NOTE: The project uses UTC-normalized dates across modules to avoid
+ * timezone and DST-related inconsistencies. Tests freeze system time
+ * (vitest fake timers), and using UTC getters ensures behavior is
+ * deterministic regardless of the machine's local timezone.
+ *
+ * @param {Date} birthDate - UTC-normalized birth date (Date).
+ * @returns {number} Age in completed years (>= 0).
  */
 function calculateCurrentAge(birthDate) {
+    // Use UTC-based components to avoid timezone/DST surprises and to match
+    // the rest of the codebase (gridRenderer uses UTC date-fns helpers).
     const now = new Date();
-    let age = now.getFullYear() - birthDate.getFullYear();
-    const monthDiff = now.getMonth() - birthDate.getMonth();
+    let age = now.getUTCFullYear() - birthDate.getUTCFullYear();
+    const monthDiff = now.getUTCMonth() - birthDate.getUTCMonth();
 
-    // Decrement age if the current date is before the birthday in the current year.
-    if (monthDiff < 0 || (monthDiff === 0 && now.getDate() < birthDate.getDate())) {
+    // Decrement age if the current UTC date is before the birthday in the current year.
+    // Using UTC dates prevents off-by-one results when local timezone shifts the local date
+    // relative to the intended UTC midnight stored in birthDate.
+    if (monthDiff < 0 || (monthDiff === 0 && now.getUTCDate() < birthDate.getUTCDate())) {
         age--;
     }
-    // Ensure age is not negative if birthDate is somehow in the future (though ui.js validates)
+
+    // Ensure non-negative age for future birth dates; caller (ui.js) should validate input,
+    // but this guard keeps the function robust and easy to test.
     return Math.max(0, age);
 }
 
@@ -37,28 +48,58 @@ function calculateCurrentAge(birthDate) {
  * @param {string} sex - 'male' or 'female'.
  * @returns {number|null} Estimated remaining years, or null if not found.
  */
-function getRemainingExpectancy(age, sex) {
+async function getRemainingExpectancy(age, sex) {
+    // Dynamically import data at call-time so tests can mock the data module reliably.
+    const { lifeExpectancyData } = await import('./data.js');
     const sexData = lifeExpectancyData[sex];
     if (!sexData) return null;
     // Ensure age used for lookup is non-negative
     const lookupAge = Math.max(0, age);
-    
-    // Find the applicable age bracket in the data (object keys are strings)
-    // 1. Get bracket keys as numbers and sort descending (e.g., [100, 90, 80,... 0])
-    const ageBrackets = Object.keys(sexData).map(Number).sort((a, b) => b - a);
-    // 2. Find the highest bracket that is less than or equal to the lookupAge
-    let applicableAgeBracket = ageBrackets[ageBrackets.length - 1]; // Default to lowest bracket (0)
-    for (const bracket of ageBrackets) {
+
+    // Build sorted, numeric age bracket list ascending (e.g., [0, 10, 20, ... 100])
+    const ageBracketsAsc = Object.keys(sexData)
+        .map(Number)
+        .filter(Number.isFinite)
+        .sort((a, b) => a - b);
+
+    // Find the highest bracket that is less than or equal to lookupAge.
+    // Start with the lowest bracket as a sensible default.
+    let applicableAgeBracket = ageBracketsAsc.length ? ageBracketsAsc[0] : null;
+    for (const bracket of ageBracketsAsc) {
         if (lookupAge >= bracket) {
             applicableAgeBracket = bracket;
-            break; // Found the correct bracket
+        } else {
+            break;
         }
     }
-    
-    // 3. Retrieve the value using the original string key
-    const remainingYears = sexData[applicableAgeBracket.toString()];
 
-    if (typeof remainingYears !== 'number') {
+    // 3. Retrieve the value using the original string key
+    let remainingYearsRaw = sexData[applicableAgeBracket.toString()];
+
+    // Fallback: if the direct lookup failed (undefined), attempt to find the nearest lower bracket key
+    if (remainingYearsRaw === undefined) {
+        let candidate = null;
+        for (const k of Object.keys(sexData)) {
+            const n = Number(k);
+            if (!Number.isFinite(n)) continue;
+            if (n <= lookupAge && (candidate === null || n > candidate)) {
+                candidate = n;
+            }
+        }
+        if (candidate !== null) {
+            remainingYearsRaw = sexData[candidate.toString()];
+        } else {
+            // As a last resort, pick the lowest defined bracket
+            const keys = Object.keys(sexData).map(Number).filter(Number.isFinite).sort((a, b) => a - b);
+            if (keys.length > 0) {
+                remainingYearsRaw = sexData[keys[0].toString()];
+            }
+        }
+    }
+
+    // Coerce numeric-like values to Number and validate
+    const remainingYears = Number(remainingYearsRaw);
+    if (!Number.isFinite(remainingYears)) {
         console.error(`Remaining years data not found or invalid for sex: ${sex}, age bracket: ${applicableAgeBracket}`);
         return null;
     }

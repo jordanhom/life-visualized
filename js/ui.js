@@ -176,7 +176,19 @@ function renderCurrentView() {
  * progressive reveal of UI elements.
  * @param {Event} event - The form submission event.
  */
-function handleCalculation(event) {
+/**
+ * Handles the form submission: validates input, performs calculations,
+ * updates results display, stores data, triggers grid render, and manages
+ * progressive reveal of UI elements.
+ *
+ * NOTE: This handler is async because getRemainingExpectancy is an async
+ * function (it dynamically imports the data module). Awaiting ensures we
+ * receive a numeric value instead of a Promise, preventing runtime errors
+ * like "(currentAge + remainingYears).toFixed is not a function".
+ *
+ * @param {Event} event - The form submission event.
+ */
+async function handleCalculation(event) {
     event.preventDefault(); // Prevent default form submission
     const birthdateStr = birthdateInput.value;
     const sex = sexInput.value;
@@ -200,7 +212,6 @@ function handleCalculation(event) {
 
     // Clear previous results/errors visually and ensure results area is ready.
     resultsArea.innerHTML = '';
-    // resultsArea.classList.remove('error-message'); // Already handled above
     
     // Clear previous calculation data before starting new calculation
     lastCalcData.birthDate = null;
@@ -209,7 +220,6 @@ function handleCalculation(event) {
     // --- Input Validation ---
     if (!birthdateStr || !sex) {
         displayError('Please fill in both your birth date and sex.');
-        // resultsArea.classList.remove('hidden'); // Already visible from loading state
         renderCurrentView(); // Clear grid content area if validation fails
         return; // Exit, leaving only results area visible
     }
@@ -227,7 +237,6 @@ function handleCalculation(event) {
     // Check validity *after* potential normalization and ensure date is in the past.
     if (isNaN(birthDateUTC.getTime()) || birthDateUTC >= nowLocalMidnight) {
         displayError('Please enter a valid birth date in the past (YYYY-MM-DD).');
-        // resultsArea.classList.remove('hidden'); // Already visible
         renderCurrentView(); // Clear grid content area if validation fails
         return; // Exit, leaving only results area visible
     }
@@ -235,7 +244,8 @@ function handleCalculation(event) {
     // --- Perform Calculations (Wrapped in try/catch) ---
     try {
         const currentAge = calculateCurrentAge(birthDateUTC);
-        const remainingYears = getRemainingExpectancy(currentAge, sex);
+        // Await the async expectancy lookup to get a numeric value (or null)
+        const remainingYears = await getRemainingExpectancy(currentAge, sex);
 
         if (remainingYears === null) {
             throw new Error(`Could not retrieve life expectancy data for the selected sex or age (${currentAge}). Please check the input.`);
@@ -253,8 +263,6 @@ function handleCalculation(event) {
         renderCurrentView(); // Renders into #grid-content-area
 
         // --- Progressive Reveal Logic: Show elements on success ---
-        // resultsArea.classList.remove('hidden'); // Already visible
-        // Reveal the main container, which now holds controls, guide, and content area
         form.classList.add('hidden'); // Hide the input form
         if (startOverContainer) startOverContainer.classList.remove('hidden'); // Show Start Over button's container
         gridContainer.classList.remove('hidden');
@@ -269,7 +277,6 @@ function handleCalculation(event) {
         // --- Handle Errors from Calculation or Rendering ---
         console.error("Calculation or Display Error:", error);
         displayError(error.message || 'An unexpected error occurred.');
-        // resultsArea.classList.remove('hidden'); // Already visible
         renderCurrentView(); // Clear grid content area on error
         // Other elements (gridContainer, etc.) remain hidden (handled by reset at start)
     } finally {
