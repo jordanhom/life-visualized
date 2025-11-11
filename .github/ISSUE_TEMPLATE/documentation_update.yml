@@ -1,0 +1,20 @@
+name: "📝 Documentation Update"
+description: Suggest edits or additions to the documentation
+labels: ["docs"]
+body:
+  - type: textarea
+    id: area
+    attributes:
+      label: Affected Section or Page
+      placeholder: "e.g. README.md → Installation"
+      description: Which part of the documentation needs work?
+  - type: textarea
+    id: issue
+    attributes:
+      label: Describe the Issue
+      placeholder: "What’s wrong, missing, or unclear?"
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Suggested Changes
+      placeholder: "Propose your fix or improvement"

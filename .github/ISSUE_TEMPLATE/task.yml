@@ -1,0 +1,22 @@
+name: "🧩 Task / Work Item"
+description: Track internal or technical tasks
+labels: ["task"]
+body:
+  - type: input
+    id: summary
+    attributes:
+      label: Summary
+      placeholder: "e.g. Refactor caching logic"
+  - type: textarea
+    id: details
+    attributes:
+      label: Details
+      placeholder: "What needs to be done and why"
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Checklist
+      options:
+        - label: Implementation complete
+        - label: Tests updated
+        - label: Documentation updated

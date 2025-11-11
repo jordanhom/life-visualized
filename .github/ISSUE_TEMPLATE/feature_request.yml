@@ -1,0 +1,41 @@
+name: "✨ Feature Request"
+description: Suggest a new feature or improvement
+labels: ["enhancement", "needs-discussion"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        We appreciate new ideas! Please provide as much context as possible.
+  - type: input
+    id: title
+    attributes:
+      label: Summary
+      placeholder: "e.g. Add dark mode toggle"
+    validations:
+      required: true
+  - type: textarea
+    id: motivation
+    attributes:
+      label: Problem or Motivation
+      description: Why should this feature exist? What problem does it solve?
+      placeholder: "I'm frustrated when..."
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed Solution
+      placeholder: "Describe your idea or how it could work"
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives Considered
+      placeholder: "What else did you consider?"
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      options:
+        - Low
+        - Medium
+        - High

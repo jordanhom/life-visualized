@@ -1,0 +1,19 @@
+name: "💬 Question / Discussion"
+description: Ask a question or start a discussion
+labels: ["question", "discussion"]
+body:
+  - type: textarea
+    id: context
+    attributes:
+      label: Context
+      placeholder: "What are you trying to achieve?"
+  - type: textarea
+    id: question
+    attributes:
+      label: Your Question
+      placeholder: "Be as specific as possible"
+  - type: textarea
+    id: additional
+    attributes:
+      label: Additional Details
+      placeholder: "Anything else helpful (e.g., environment, screenshots)"
