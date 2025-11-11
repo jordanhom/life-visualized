@@ -1,6 +1,6 @@
 name: "📝 Documentation Update"
 description: Suggest edits or additions to the documentation
-labels: ["documentation"]
+labels: ["docs"]
 body:
   - type: textarea
     id: area
