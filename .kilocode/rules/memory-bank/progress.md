@@ -2,31 +2,30 @@
 
 ## Latest Update (2025-11-24)
 - Status: Active
-- Summary: Expanded unit and integration test coverage across modules; added DOM/integration tests for the UI and focused edge tests for the renderer. Test suite executed locally with all tests passing.
+- Summary: Expanded unit and integration test coverage; added UI DOM/integration tests and renderer edge tests. Stabilized test environment by making UI DOM references lazy in `js/ui.js`. Full test suite executed locally and passed.
 
 ## Recent Changes
-- tests: Updated [`tests/unit/calculator.test.js`](tests/unit/calculator.test.js:1) with UTC boundary, leap-day, bracket-fallback, non-standard key, and invalid-value tests. Calculator tests pass.
-- tests: Added focused edge tests for [`js/gridRenderer.js`](js/gridRenderer.js:1) (`tests/unit/gridRenderer.edge.test.js`: verifies 54->53 week handling).
-- tests: Added DOM/integration tests for [`js/ui.js`](tests/unit/ui.test.js:1) exercising input validation, button state, and full calculate -> render -> reveal flow.
-- code: Added a lightweight test-only override helper (`__setLifeExpectancyDataOverride`) in [`js/calculator.js`](js/calculator.js:48) to allow deterministic unit tests.
-- verification: Ran full suite locally with `npx vitest --run` — 25 tests passed.
+- Added/expanded UI tests: `tests/unit/ui.test.js` (error path, Start Over reset, keyboard navigation).
+- Added renderer edge test: `tests/unit/gridRenderer.edge.test.js` (enforces 53-week cap when `eachWeekOfInterval` yields 54).
+- Improved `js/ui.js`: DOM element references are lazily-initialized inside `setupEventListeners` to make module import safe in test environments.
+- Kept existing calculator tests and deterministic override helper for focused deterministic tests.
 
 ## Completed Tasks
-- Implement core calculator logic and UTC-based age calculation. (Completed)
-- Implement getRemainingExpectancy bracket lookup and fallback behavior. (Completed)
-- Add unit tests for calculator edge cases and deterministic mocks. (Completed)
-- Implement focused renderer edge tests for week-count edge cases (52/53/54 handling). (Completed) See [`tests/unit/gridRenderer.edge.test.js`](tests/unit/gridRenderer.edge.test.js:1).
-- Implement DOM/integration tests for UI flows (form validation, async calculation path, progressive reveal). (Completed) See [`tests/unit/ui.test.js`](tests/unit/ui.test.js:1).
+- Implement core calculator tests and deterministic overrides.
+- Add focused renderer edge tests (52/53/54 week handling).
+- Add UI DOM/integration tests and stabilize test execution under Vitest + JSDOM.
+- Ensure grid renderer tests run with a minimal `dateFns` mock where required.
 
 ## Next Steps
-- Expand renderer tests to cover additional edge cases described in [`docs/gridUtils-tests.md`](docs/gridUtils-tests.md:1).
-- Add CI job to run Vitest on push and surface regressions early.
-- Consider refactoring the test-only override (`__setLifeExpectancyDataOverride`) to a pure `vi.mock` approach in a future cleanup.
+- Replace runtime test-only override (`__setLifeExpectancyDataOverride`) with `vi.mock` patterns where appropriate.
+- Add/verify data integrity tests for `js/data.js`.
+- Add CI workflow to run Vitest on push (`.github/workflows/ci.yml`).
+- Commit and push the test changes to the repository.
+
+## Test Summary
+- Command: `npx vitest --run`
+- Result: All tests passed locally (28 tests).
 
 ## Notes
-- The temporary test override remains for pragmatic deterministic tests; migrating to `vi.mock` in a single pass would remove runtime test-only helpers.
-- Test artifacts and related implementation are located here:
-  - Calculator tests: [`tests/unit/calculator.test.js`](tests/unit/calculator.test.js:1)
-  - UI integration tests: [`tests/unit/ui.test.js`](tests/unit/ui.test.js:1)
-  - Renderer edge tests: [`tests/unit/gridRenderer.edge.test.js`](tests/unit/gridRenderer.edge.test.js:1)
-  - Source modules: [`js/calculator.js`](js/calculator.js:1), [`js/gridRenderer.js`](js/gridRenderer.js:1), [`js/ui.js`](js/ui.js:1)
+- `js/ui.js` changes improve test reliability by avoiding module-eval time DOM lookups; ensure no regressions in browser runtime.
+- Consider migrating the test override helper to a pure `vi.mock` approach in a follow-up cleanup.
