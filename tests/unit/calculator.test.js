@@ -1,59 +1,81 @@
-// Tests added during hardening:
-// - female mid-bracket lookup: verifies bracket selection logic works for non-male datasets.
-// - additional mocked-invalid-value cases (Infinity, NaN): ensure getRemainingExpectancy returns null for non-finite values.
-// These comments document the intent of the new tests and why they were introduced.
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 
 /**
- * Import calculator dynamically inside beforeEach to avoid module cache/mocking issues.
- * getRemainingExpectancy is async (dynamic import), so tests await its result.
+ * Tests for js/calculator.js
+ *
+ * Strategy:
+ * - Import the calculator module inside each test to ensure any mocked
+ *   './data.js' module registrations occur before the module is loaded.
+ * - Use vitest fake timers to freeze system time for deterministic age calculations.
  */
 
-let calculateCurrentAge;
-let getRemainingExpectancy;
+beforeEach(() => {
+  // Ensure a clean module registry before each test and freeze time by default.
+  vi.resetModules();
+  vi.useFakeTimers();
+  vi.setSystemTime(new Date('2025-11-10T00:00:00Z'));
+});
+
+afterEach(() => {
+  vi.useRealTimers();
+  vi.restoreAllMocks();
+});
 
 describe('calculator', () => {
-  beforeEach(async () => {
-    vi.resetModules();
-    // Freeze time to 2025-11-10 UTC
-    vi.useFakeTimers();
-    vi.setSystemTime(new Date('2025-11-10T00:00:00Z'));
-
-    const mod = await import('../../js/calculator.js');
-    calculateCurrentAge = mod.calculateCurrentAge;
-    getRemainingExpectancy = mod.getRemainingExpectancy;
-  });
-
-  afterEach(() => {
-    vi.useRealTimers();
-    vi.restoreAllMocks();
-  });
-
   describe('calculateCurrentAge', () => {
-    it('calculates age when birthday has passed this year', () => {
+    it('calculates age when birthday has passed this year', async () => {
+      const { calculateCurrentAge } = await import('../../js/calculator.js');
       const birth = new Date('2000-01-01T00:00:00Z');
       expect(calculateCurrentAge(birth)).toBe(25);
     });
 
-    it('calculates age when birthday has not yet occurred this year', () => {
+    it('calculates age when birthday has not yet occurred this year', async () => {
+      const { calculateCurrentAge } = await import('../../js/calculator.js');
       const birth = new Date('2000-12-31T00:00:00Z');
       expect(calculateCurrentAge(birth)).toBe(24);
     });
 
-    it('handles leap day birthdays correctly (birthday not yet reached)', () => {
+    it('handles leap day birthdays correctly (birthday not yet reached)', async () => {
+      const { calculateCurrentAge } = await import('../../js/calculator.js');
       const birth = new Date('2004-02-29T00:00:00Z');
       // 2025-02-28 should be considered before birthday => age 20
       vi.setSystemTime(new Date('2025-02-28T00:00:00Z'));
       expect(calculateCurrentAge(birth)).toBe(20);
     });
 
-    it('returns 0 for future birth dates', () => {
+    it('handles leap day birthdays correctly (birthday passed on Mar 1)', async () => {
+      const { calculateCurrentAge } = await import('../../js/calculator.js');
+      const birth = new Date('2004-02-29T00:00:00Z');
+      // 2025-03-01 should be after the birthday => age 21
+      vi.setSystemTime(new Date('2025-03-01T00:00:00Z'));
+      expect(calculateCurrentAge(birth)).toBe(21);
+    });
+
+    it('returns 0 for future birth dates', async () => {
+      const { calculateCurrentAge } = await import('../../js/calculator.js');
       const birth = new Date('2030-01-01T00:00:00Z');
       expect(calculateCurrentAge(birth)).toBe(0);
+    });
+
+    it('increments age exactly at UTC birthday moment', async () => {
+      const { calculateCurrentAge } = await import('../../js/calculator.js');
+      // Birthday: 2000-11-10 UTC. If system time equals 2025-11-10T00:00:00Z, age should be 25.
+      vi.setSystemTime(new Date('2025-11-10T00:00:00Z'));
+      const birth = new Date('2000-11-10T00:00:00Z');
+      expect(calculateCurrentAge(birth)).toBe(25);
+    });
+
+    it('does not increment age one second before UTC birthday', async () => {
+      const { calculateCurrentAge } = await import('../../js/calculator.js');
+      // One second before UTC midnight of birthday
+      vi.setSystemTime(new Date('2025-11-09T23:59:59Z'));
+      const birth = new Date('2000-11-10T00:00:00Z');
+      expect(calculateCurrentAge(birth)).toBe(24);
     });
   });
 
   describe('getRemainingExpectancy', () => {
+    // Helper that mirrors calculator's expectedFromData behavior to validate results.
     async function expectedFromData(age, sex) {
       const { lifeExpectancyData } = await import('../../js/data.js');
       const sexData = lifeExpectancyData[sex];
@@ -70,63 +92,98 @@ describe('calculator', () => {
       const num = Number(val);
       return Number.isFinite(num) ? num : null;
     }
-  
+
     it('returns remaining years for age in base bracket (data-driven, male)', async () => {
-      const age = 25;
-      const val = await getRemainingExpectancy(age, 'male');
-      const expected = await expectedFromData(age, 'male');
+      const mod = await import('../../js/calculator.js');
+      const val = await mod.getRemainingExpectancy(25, 'male');
+      const expected = await expectedFromData(25, 'male');
       expect(val).toBeCloseTo(expected, 6);
     });
-  
+
     it('returns remaining years for exact bracket match (data-driven, male)', async () => {
-      const age = 50;
-      const val = await getRemainingExpectancy(age, 'male');
-      const expected = await expectedFromData(age, 'male');
+      const mod = await import('../../js/calculator.js');
+      const val = await mod.getRemainingExpectancy(50, 'male');
+      const expected = await expectedFromData(50, 'male');
       expect(val).toBeCloseTo(expected, 6);
     });
-  
+
     it('returns remaining years for mid-bracket age (data-driven, female)', async () => {
-      const age = 35; // between 30 and 40 brackets
-      const val = await getRemainingExpectancy(age, 'female');
-      const expected = await expectedFromData(age, 'female');
+      const mod = await import('../../js/calculator.js');
+      const val = await mod.getRemainingExpectancy(35, 'female');
+      const expected = await expectedFromData(35, 'female');
       expect(val).toBeCloseTo(expected, 6);
     });
-  
+
     it('returns highest bracket for very large ages (data-driven)', async () => {
-      const age = 150;
-      const val = await getRemainingExpectancy(age, 'male');
-      const expected = await expectedFromData(age, 'male');
+      const mod = await import('../../js/calculator.js');
+      const val = await mod.getRemainingExpectancy(150, 'male');
+      const expected = await expectedFromData(150, 'male');
       expect(val).toBeCloseTo(expected, 6);
     });
-  
+
     it('returns null for unknown sex', async () => {
-      const val = await getRemainingExpectancy(30, 'nonbinary');
+      const mod = await import('../../js/calculator.js');
+      const val = await mod.getRemainingExpectancy(30, 'nonbinary');
       expect(val).toBeNull();
     });
-  
-    it('returns null if data value is invalid (mocked - non-numeric string)', async () => {
-      // Mock the data module to return invalid (non-numeric) value
+
+    it('returns null if data value is invalid (overridden - non-numeric string)', async () => {
       vi.resetModules();
-      vi.mock('../../js/data.js', () => ({ lifeExpectancyData: { male: { "0": "invalid" } } }), { virtual: true });
       const mod = await import('../../js/calculator.js');
+      mod.__setLifeExpectancyDataOverride({ male: { "0": "invalid" } });
       const val = await mod.getRemainingExpectancy(10, 'male');
       expect(val).toBeNull();
+      mod.__setLifeExpectancyDataOverride(null);
     });
-
-    it('returns null if data value is Infinity (mocked)', async () => {
+ 
+    it('returns null if data value is Infinity (overridden)', async () => {
       vi.resetModules();
-      vi.mock('../../js/data.js', () => ({ lifeExpectancyData: { male: { "0": Infinity } } }), { virtual: true });
       const mod = await import('../../js/calculator.js');
+      mod.__setLifeExpectancyDataOverride({ male: { "0": Infinity } });
       const val = await mod.getRemainingExpectancy(0, 'male');
       expect(val).toBeNull();
+      mod.__setLifeExpectancyDataOverride(null);
     });
-
-    it('returns null if data value is NaN (mocked)', async () => {
+ 
+    it('returns null if data value is NaN (overridden)', async () => {
       vi.resetModules();
-      vi.mock('../../js/data.js', () => ({ lifeExpectancyData: { male: { "0": NaN } } }), { virtual: true });
       const mod = await import('../../js/calculator.js');
+      mod.__setLifeExpectancyDataOverride({ male: { "0": NaN } });
       const val = await mod.getRemainingExpectancy(0, 'male');
       expect(val).toBeNull();
+      mod.__setLifeExpectancyDataOverride(null);
+    });
+ 
+    it('selects the nearest lower bracket when exact bracket is missing (overridden deterministic)', async () => {
+      vi.resetModules();
+      const mod = await import('../../js/calculator.js');
+      // age brackets: 0 -> 80, 10 -> 70, 30 -> 50
+      mod.__setLifeExpectancyDataOverride({ male: { "0": 80, "10": 70, "30": 50 } });
+      // age 25 should pick bracket 10 -> 70
+      const val = await mod.getRemainingExpectancy(25, 'male');
+      expect(val).toBe(70);
+      mod.__setLifeExpectancyDataOverride(null);
+    });
+ 
+    it('handles non-standard numeric-string keys and picks the appropriate lower bracket (overridden)', async () => {
+      vi.resetModules();
+      const mod = await import('../../js/calculator.js');
+      // keys at 5 and 20; age 18 should pick 5
+      mod.__setLifeExpectancyDataOverride({ male: { "5": 60, "20": 40 } });
+      const val = await mod.getRemainingExpectancy(18, 'male');
+      expect(val).toBe(60);
+      mod.__setLifeExpectancyDataOverride(null);
+    });
+ 
+    it('falls back to the lowest defined bracket when no bracket <= age is found (overridden)', async () => {
+      vi.resetModules();
+      const mod = await import('../../js/calculator.js');
+      // only key is 100; for age 0 the logic should fallback to keys[0] -> 100
+      mod.__setLifeExpectancyDataOverride({ male: { "100": 1 } });
+      const val = await mod.getRemainingExpectancy(0, 'male');
+      // Expect it to return the value for the lowest defined bracket (100 -> 1)
+      expect(val).toBe(1);
+      mod.__setLifeExpectancyDataOverride(null);
     });
   });
 });

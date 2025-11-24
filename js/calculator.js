@@ -8,9 +8,6 @@
  * Relies on `lifeExpectancyData` imported from `data.js`.
  */
 
-// Import the necessary data from data.js
-import { lifeExpectancyData } from './data.js';
-
 /**
  * Calculates current age in whole years using UTC components.
  *
@@ -48,9 +45,20 @@ function calculateCurrentAge(birthDate) {
  * @param {string} sex - 'male' or 'female'.
  * @returns {number|null} Estimated remaining years, or null if not found.
  */
+let __test_lifeExpectancyDataOverride = null;
+
+/**
+ * Test helper: inject a deterministic lifeExpectancyData object for tests.
+ * Pass `null` to clear the override.
+ * @param {object|null} val
+ */
+function __setLifeExpectancyDataOverride(val) {
+    __test_lifeExpectancyDataOverride = val;
+}
+
 async function getRemainingExpectancy(age, sex) {
-    // Dynamically import data at call-time so tests can mock the data module reliably.
-    const { lifeExpectancyData } = await import('./data.js');
+    // Prefer injected override for unit tests; otherwise dynamically import real data.
+    const lifeExpectancyData = __test_lifeExpectancyDataOverride ?? (await import('./data.js')).lifeExpectancyData;
     const sexData = lifeExpectancyData[sex];
     if (!sexData) return null;
     // Ensure age used for lookup is non-negative
@@ -105,6 +113,6 @@ async function getRemainingExpectancy(age, sex) {
     }
     return remainingYears;
 }
-
+ 
 // Export the calculation functions
-export { calculateCurrentAge, getRemainingExpectancy };
+export { calculateCurrentAge, getRemainingExpectancy, __setLifeExpectancyDataOverride };
