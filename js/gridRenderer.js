@@ -51,11 +51,16 @@ function checkDateFns() {
         console.error("date-fns v4.1.0 library or key functions not loaded!");
         return false;
     }
-    // Use optional chaining to check the version string.
-    if (!dateFns?.version?.startsWith('4.')) {
-        console.warn(`date-fns object found, but version (${dateFns?.version}) might not be v4.1.0+. Ensure correct CDN script is loaded.`);
+    // If a version string is provided, validate it; otherwise proceed silently.
+    if (typeof dateFns.version === 'string') {
+        if (!dateFns.version.startsWith('4.')) {
+            console.warn(`date-fns object found, but version (${dateFns.version}) might not be v4.1.0+. Ensure correct CDN script is loaded.`);
+        } else {
+            console.log("Using date-fns version:", dateFns.version);
+        }
     } else {
-        console.log("Using date-fns version:", dateFns.version);
+        // Tests or non-CDN environments may provide a mocked dateFns without a version.
+        console.log("date-fns object found (version unknown). Proceeding.");
     }
     return true;
 }
