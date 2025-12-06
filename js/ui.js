@@ -82,10 +82,12 @@ function updateAxisLabels(show, topText = '', leftText = '') {
             gridAxisLabelTop.innerHTML = `------ ${topText} -----&gt;`;
             gridAxisLabelLeft.innerHTML = `&lt;----- ${leftText} ------`;
             gridAxisLabelTop.classList.remove('hidden');
+            gridAxisLabelLeft.classList.remove('hidden');
             // Show the wrapper which contains the left axis label and the grid content area.
             gridContentWrapper.classList.remove('hidden'); 
         } else { // Hiding labels
             gridAxisLabelTop.classList.add('hidden');
+            gridAxisLabelLeft.classList.add('hidden');
             gridContentWrapper.classList.add('hidden');
             gridAxisLabelTop.innerHTML = ''; // Clear text when hidden
             gridAxisLabelLeft.innerHTML = '';

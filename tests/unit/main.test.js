@@ -8,9 +8,9 @@ describe('main initialization', () => {
   });
 
   it('calls setupEventListeners from ui on import', async () => {
-    // Use a spy in the hoist-safe mock so we can reliably assert the function was invoked
-    const setupSpy = vi.fn();
-    vi.mock('../../js/ui.js', () => ({ setupEventListeners: setupSpy }));
+    // Import the real ui module and spy on its exported function before importing main.js.
+    const uiModule = await import('../../js/ui.js');
+    const setupSpy = vi.spyOn(uiModule, 'setupEventListeners');
     
     // Import main which runs initializeApp()
     await import('../../js/main.js');

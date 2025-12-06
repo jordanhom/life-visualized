@@ -2,46 +2,35 @@
 
 ## Latest Update (2025-12-06)
 - Status: Active
-- Summary: Implemented and expanded unit and integration tests to cover grid renderer (calendar/months/years/edge/logic/failure) and UI flows; added JSDOM setup and hoist-safe mock factories in tests. A small set of test flakiness items remain and are being tracked.
+- Summary: All unit tests pass locally (40/40). Implemented a JSDOM test helper and fixed flaky tests (main initialization and UI axis ARIA).
 
 ## Recent Changes
-- Implemented/expanded renderer tests: weeks/age, calendar, months, years, edge and logic tests.
-- Implemented UI DOM/integration tests (results display, Start Over, view switching, axis ARIA).
-- Added main initialization tests and improved mock patterns for test isolation.
-- Replaced many runtime test overrides with hoist-safe `vi.mock` factories; a few remaining refactors are in progress.
+- Added `tests/setup/jsdom-helper.js` to centralize JSDOM wiring for tests.
+- Modified `tests/unit/ui.axis-aria.test.js` to use the helper and deterministic Event constructors.
+- Modified `tests/unit/main.test.js` to use a spy against the real module to avoid hoist/mock issues.
+- Stabilized several renderer and UI tests and re-ran the full suite until green.
 
 ## New/Updated Test Files
-- `tests/unit/gridRenderer.calendar.test.js`
-- `tests/unit/gridRenderer.months.test.js`
-- `tests/unit/gridRenderer.years.test.js`
-- `tests/unit/gridRenderer.edge.test.js`
-- `tests/unit/gridRenderer.logic.test.js`
-- `tests/unit/gridRenderer.failure.test.js`
-- `tests/unit/ui.test.js`
+- `tests/setup/jsdom-helper.js`
 - `tests/unit/ui.axis-aria.test.js`
 - `tests/unit/main.test.js`
 
 ## Completed Tasks
-- Implemented the majority of skeleton tests from the memory bank.
-- Stabilized tests by making UI DOM references lazy in `js/ui.js` and adding per-test JSDOM setup where needed.
-- Replaced unsafe test patterns (`vi.stubModule`) with hoist-safe `vi.mock` factories in most places.
-- Added deterministic fixtures and adjusted tests to reduce flakiness.
+- Implemented JSDOM helper and applied it to fragile tests.
+- Replaced unsafe runtime test overrides in affected tests.
+- All unit tests pass locally.
 
 ## Remaining Work / Next Steps
-- Resolve remaining failing tests:
-  - `tests/unit/main.test.js` — adjust hoist-safe mock assertion to a spy-based assertion (failing intermittently).
-  - `tests/unit/ui.axis-aria.test.js` — address JSDOM Event dispatch / class-toggle flakiness; ensure Event constructors and DOM class changes are sourced from the same JSDOM window.
-- Finish replacing any remaining runtime test-only overrides with `vi.mock` patterns.
-- Re-run full test suite until all tests pass locally.
 - Commit changes on branch `mvp/tests/unit-complete` and push.
+- Replace any remaining runtime test-only overrides with hoist-safe `vi.mock` patterns across the suite.
 - Add CI workflow to run Vitest on push (`.github/workflows/ci.yml`).
+- Run tests in CI and address any environment-specific failures.
 
 ## Test Summary (current)
 - Command: `npx vitest --run`
-- Current result summary: Most tests pass locally; 2 failing tests related to mock hoisting and JSDOM Event/class flakiness.
+- Current result summary: 40 tests passing locally (0 failing).
 
 ## Notes
-- Tests now run under JSDOM with Event constructors sourced from the test window where required.
-- Prefer `vi.mock` factory functions that do not reference outer-scoped variables to avoid hoisting issues.
-- Consider adding a small helper to centralize JSDOM setup and Event constructor wiring for tests that need it.
-- Minimal memory bank edits requested; further updates can be made after these two test issues are resolved.
+- Tests now use `tests/setup/jsdom-helper.js` to ensure Event constructors and DOM APIs are sourced from the same JSDOM window.
+- Recommend using `setupJSDOM` in new DOM-related tests to prevent similar flakiness.
+- Consider adding a CI job to run tests on push and PRs.

@@ -6,20 +6,15 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 
 describe('ui axis labels & ARIA integration', () => {
+  let dom;
+  let teardown;
   beforeEach(async () => {
     vi.resetModules();
     // Create a JSDOM document/window so DOM APIs are available in Node test environment.
-    const { JSDOM } = await import('jsdom');
-    const dom = new JSDOM('<!doctype html><html><body></body></html>');
-    global.window = dom.window;
-    global.document = dom.window.document;
-    global.HTMLElement = dom.window.HTMLElement;
-    global.Node = dom.window.Node;
-    // Ensure Event constructors are sourced from the same JSDOM window so dispatchEvent accepts them
-    global.Event = dom.window.Event;
-    global.MouseEvent = dom.window.MouseEvent;
-    global.CustomEvent = dom.window.CustomEvent;
-    global.KeyboardEvent = dom.window.KeyboardEvent;
+    const { setupJSDOM, teardownJSDOM } = await import('../setup/jsdom-helper.js');
+    dom = await setupJSDOM('<!doctype html><html><body></body></html>');
+    // Store teardown function for afterEach to call
+    teardown = teardownJSDOM;
 
     vi.useFakeTimers();
     // Provide minimal DOM for setupEventListeners
@@ -64,7 +59,15 @@ describe('ui axis labels & ARIA integration', () => {
 
   afterEach(() => {
     // Cleanup DOM and timers
-    document.body.innerHTML = '';
+    try {
+      if (typeof teardown === 'function') {
+        teardown(dom);
+      } else if (dom && dom.window && typeof dom.window.close === 'function') {
+        dom.window.close();
+      }
+    } catch (e) {
+      // ignore teardown errors in cleanup
+    }
     vi.useRealTimers();
     vi.restoreAllMocks();
   });
