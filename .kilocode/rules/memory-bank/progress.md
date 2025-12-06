@@ -1,39 +1,47 @@
 # Progress Log - Life Visualized
 
-## Latest Update (2025-11-24)
+## Latest Update (2025-12-06)
 - Status: Active
-- Summary: Expanded unit and integration test coverage; added UI DOM/integration tests and renderer edge tests. Stabilized test environment by making UI DOM references lazy in `js/ui.js`. Full test suite executed locally and passed.
+- Summary: Implemented and expanded unit and integration tests to cover grid renderer (calendar/months/years/edge/logic/failure) and UI flows; added JSDOM setup and hoist-safe mock factories in tests. A small set of test flakiness items remain and are being tracked.
 
 ## Recent Changes
-- Added/expanded UI tests: `tests/unit/ui.test.js` (error path, Start Over reset, keyboard navigation).
-- Added renderer edge test: `tests/unit/gridRenderer.edge.test.js` (enforces 53-week cap when `eachWeekOfInterval` yields 54).
-- Improved `js/ui.js`: DOM element references are lazily-initialized inside `setupEventListeners` to make module import safe in test environments.
-- Created skeleton tests for additional coverage: calendar/months/years/failure/axis-aria (files created under `tests/unit/`).
+- Implemented/expanded renderer tests: weeks/age, calendar, months, years, edge and logic tests.
+- Implemented UI DOM/integration tests (results display, Start Over, view switching, axis ARIA).
+- Added main initialization tests and improved mock patterns for test isolation.
+- Replaced many runtime test overrides with hoist-safe `vi.mock` factories; a few remaining refactors are in progress.
 
-## New Files (skeletons)
+## New/Updated Test Files
 - `tests/unit/gridRenderer.calendar.test.js`
 - `tests/unit/gridRenderer.months.test.js`
 - `tests/unit/gridRenderer.years.test.js`
+- `tests/unit/gridRenderer.edge.test.js`
+- `tests/unit/gridRenderer.logic.test.js`
 - `tests/unit/gridRenderer.failure.test.js`
+- `tests/unit/ui.test.js`
 - `tests/unit/ui.axis-aria.test.js`
+- `tests/unit/main.test.js`
 
 ## Completed Tasks
-- Implement core calculator tests and deterministic overrides.
-- Add focused renderer edge tests (52/53/54 week handling).
-- Add UI DOM/integration tests and stabilize test execution under Vitest + JSDOM.
-- Create skeletons for remaining renderer/UI tests.
+- Implemented the majority of skeleton tests from the memory bank.
+- Stabilized tests by making UI DOM references lazy in `js/ui.js` and adding per-test JSDOM setup where needed.
+- Replaced unsafe test patterns (`vi.stubModule`) with hoist-safe `vi.mock` factories in most places.
+- Added deterministic fixtures and adjusted tests to reduce flakiness.
 
-## Next Steps
-- Implement the skeleton tests (calendar/months/years/failure/axis-aria).
-- Replace runtime test-only override (`__setLifeExpectancyDataOverride`) with `vi.mock` patterns where appropriate.
-- Add/verify data integrity tests for `js/data.js`.
-- Commit and push the newly created skeleton tests (currently uncommitted).
+## Remaining Work / Next Steps
+- Resolve remaining failing tests:
+  - `tests/unit/main.test.js` — adjust hoist-safe mock assertion to a spy-based assertion (failing intermittently).
+  - `tests/unit/ui.axis-aria.test.js` — address JSDOM Event dispatch / class-toggle flakiness; ensure Event constructors and DOM class changes are sourced from the same JSDOM window.
+- Finish replacing any remaining runtime test-only overrides with `vi.mock` patterns.
+- Re-run full test suite until all tests pass locally.
+- Commit changes on branch `mvp/tests/unit-complete` and push.
 - Add CI workflow to run Vitest on push (`.github/workflows/ci.yml`).
 
-## Test Summary
+## Test Summary (current)
 - Command: `npx vitest --run`
-- Result: All previously implemented tests passed locally (28 tests).
+- Current result summary: Most tests pass locally; 2 failing tests related to mock hoisting and JSDOM Event/class flakiness.
 
 ## Notes
-- `js/ui.js` changes improve test reliability by avoiding module-eval time DOM lookups; ensure no regressions in browser runtime.
-- Skeleton tests are intentionally placeholders to document needed coverage and priorities.
+- Tests now run under JSDOM with Event constructors sourced from the test window where required.
+- Prefer `vi.mock` factory functions that do not reference outer-scoped variables to avoid hoisting issues.
+- Consider adding a small helper to centralize JSDOM setup and Event constructor wiring for tests that need it.
+- Minimal memory bank edits requested; further updates can be made after these two test issues are resolved.
