@@ -43,18 +43,22 @@ describe('ui axis labels & ARIA integration', () => {
     document.body.appendChild(root);
 
     // Mock calculator module BEFORE importing ui so ui's imports are satisfied
-    vi.mock('../../js/calculator.js', () => ({
-      calculateCurrentAge: () => 25,
-      getRemainingExpectancy: async () => 50
-    }));
+    vi.mock('../../js/calculator.js', async () => {
+      return {
+        calculateCurrentAge: () => 25,
+        getRemainingExpectancy: async () => 50
+      };
+    });
     
     // Mock gridRenderer to append content so ui can update axis labels
-    vi.mock('../../js/gridRenderer.js', () => ({
-      renderAgeGrid: (birth, years, el) => { if (el) el.appendChild(document.createElement('div')); },
-      renderCalendarGrid: (b,y,el) => { if (el) el.appendChild(document.createElement('div')); },
-      renderMonthsGrid: (b,y,el) => { if (el) el.appendChild(document.createElement('div')); },
-      renderYearsGrid: (b,y,el) => { if (el) el.appendChild(document.createElement('div')); }
-    }));
+    vi.mock('../../js/gridRenderer.js', async () => {
+      return {
+        renderAgeGrid: (birth, years, el) => { if (el) el.appendChild(document.createElement('div')); },
+        renderCalendarGrid: (b,y,el) => { if (el) el.appendChild(document.createElement('div')); },
+        renderMonthsGrid: (b,y,el) => { if (el) el.appendChild(document.createElement('div')); },
+        renderYearsGrid: (b,y,el) => { if (el) el.appendChild(document.createElement('div')); }
+      };
+    });
   });
 
   afterEach(() => {

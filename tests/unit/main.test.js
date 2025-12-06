@@ -20,7 +20,8 @@ describe('main initialization', () => {
 
   it('does not throw when document is missing', async () => {
     vi.resetModules();
-    vi.mock('../../js/ui.js', () => ({ setupEventListeners: () => {} }));
+    // Use a hoist-safe factory for the mock
+    vi.mock('../../js/ui.js', async () => ({ setupEventListeners: () => {} }));
     // Ensure no global document exists
     delete global.document;
     // Import should resolve without throwing (module namespace object is returned)
