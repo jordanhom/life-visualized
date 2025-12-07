@@ -20,6 +20,11 @@
  * @returns {number} Age in completed years (>= 0).
  */
 function calculateCurrentAge(birthDate) {
+    // Validate input
+    if (!(birthDate instanceof Date) || isNaN(birthDate)) {
+        throw new Error('Invalid birthDate provided to calculateCurrentAge');
+    }
+    
     // Use UTC-based components to avoid timezone/DST surprises and to match
     // the rest of the codebase (gridRenderer uses UTC date-fns helpers).
     const now = new Date();
@@ -43,7 +48,7 @@ function calculateCurrentAge(birthDate) {
  * Uses the imported `lifeExpectancyData`.
  * @param {number} age - Current age in years.
  * @param {string} sex - 'male' or 'female'.
- * @returns {number|null} Estimated remaining years, or null if not found.
+ * @returns {Promise<number|null>} Estimated remaining years, or null if not found.
  */
 let __test_lifeExpectancyDataOverride = null;
 
@@ -56,11 +61,50 @@ function __setLifeExpectancyDataOverride(val) {
     __test_lifeExpectancyDataOverride = val;
 }
 
+/**
+ * Helper function to find the applicable age bracket efficiently
+ * @private
+ * @param {number[]} sortedBrackets - Sorted array of age brackets
+ * @param {number} lookupAge - Age to look up
+ * @returns {number|null} The highest bracket <= lookupAge, or null if none found
+ */
+function _findApplicableBracket(sortedBrackets, lookupAge) {
+    // Binary search for the largest bracket <= lookupAge
+    let left = 0;
+    let right = sortedBrackets.length - 1;
+    let result = null;
+    
+    while (left <= right) {
+        const mid = Math.floor((left + right) / 2);
+        if (sortedBrackets[mid] <= lookupAge) {
+            result = sortedBrackets[mid];
+            left = mid + 1;
+        } else {
+            right = mid - 1;
+        }
+    }
+    
+    return result;
+}
+
 async function getRemainingExpectancy(age, sex) {
+    // Validate inputs
+    if (typeof age !== 'number' || !Number.isFinite(age)) {
+        throw new Error('Invalid age provided to getRemainingExpectancy');
+    }
+    
+    if (typeof sex !== 'string' || !['male', 'female'].includes(sex)) {
+        throw new Error('Invalid sex provided to getRemainingExpectancy. Must be "male" or "female"');
+    }
+
     // Prefer injected override for unit tests; otherwise dynamically import real data.
     const lifeExpectancyData = __test_lifeExpectancyDataOverride ?? (await import('./data.js')).lifeExpectancyData;
+    
     const sexData = lifeExpectancyData[sex];
-    if (!sexData) return null;
+    if (!sexData) {
+        return null;
+    }
+    
     // Ensure age used for lookup is non-negative
     const lookupAge = Math.max(0, age);
 
@@ -70,49 +114,44 @@ async function getRemainingExpectancy(age, sex) {
         .filter(Number.isFinite)
         .sort((a, b) => a - b);
 
-    // Find the highest bracket that is less than or equal to lookupAge.
-    // Start with the lowest bracket as a sensible default.
-    let applicableAgeBracket = ageBracketsAsc.length ? ageBracketsAsc[0] : null;
-    for (const bracket of ageBracketsAsc) {
-        if (lookupAge >= bracket) {
-            applicableAgeBracket = bracket;
-        } else {
-            break;
-        }
+    if (ageBracketsAsc.length === 0) {
+        return null;
     }
 
-    // 3. Retrieve the value using the original string key
+    // Find the highest bracket that is less than or equal to lookupAge.
+    // If none exists (all defined brackets are greater than lookupAge),
+    // fall back to the lowest defined bracket to provide a deterministic value.
+    let applicableAgeBracket = _findApplicableBracket(ageBracketsAsc, lookupAge);
+    
+    if (applicableAgeBracket === null) {
+        // No bracket <= lookupAge; use the lowest defined bracket as a deterministic fallback.
+        applicableAgeBracket = ageBracketsAsc[0];
+    }
+
+    // Retrieve the value using the original string key
     let remainingYearsRaw = sexData[applicableAgeBracket.toString()];
 
     // Fallback: if the direct lookup failed (undefined), attempt to find the nearest lower bracket key
     if (remainingYearsRaw === undefined) {
-        let candidate = null;
-        for (const k of Object.keys(sexData)) {
-            const n = Number(k);
-            if (!Number.isFinite(n)) continue;
-            if (n <= lookupAge && (candidate === null || n > candidate)) {
-                candidate = n;
-            }
-        }
-        if (candidate !== null) {
-            remainingYearsRaw = sexData[candidate.toString()];
+        // Use the same efficient approach for fallback search
+        const fallbackBracket = _findApplicableBracket(ageBracketsAsc, lookupAge);
+        if (fallbackBracket !== null) {
+            remainingYearsRaw = sexData[fallbackBracket.toString()];
         } else {
             // As a last resort, pick the lowest defined bracket
-            const keys = Object.keys(sexData).map(Number).filter(Number.isFinite).sort((a, b) => a - b);
-            if (keys.length > 0) {
-                remainingYearsRaw = sexData[keys[0].toString()];
-            }
+            const minBracket = ageBracketsAsc[0];
+            remainingYearsRaw = sexData[minBracket.toString()];
         }
     }
 
     // Coerce numeric-like values to Number and validate
     const remainingYears = Number(remainingYearsRaw);
     if (!Number.isFinite(remainingYears)) {
-        console.error(`Remaining years data not found or invalid for sex: ${sex}, age bracket: ${applicableAgeBracket}`);
-        return null;
+        throw new Error(`Remaining years data not found or invalid for sex: ${sex}, age bracket: ${applicableAgeBracket}`);
     }
+    
     return remainingYears;
 }
- 
+
 // Export the calculation functions
 export { calculateCurrentAge, getRemainingExpectancy, __setLifeExpectancyDataOverride };
