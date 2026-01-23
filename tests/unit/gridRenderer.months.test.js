@@ -9,6 +9,10 @@ describe('gridRenderer months view', () => {
   beforeEach(async () => {
     // Reset module cache so we can inject a fresh global `dateFns` mock before importing the renderer.
     vi.resetModules();
+    // Make time deterministic for tests
+    vi.useFakeTimers();
+    // Set system time to a fixed UTC moment (2025-07-01T00:00:00Z)
+    vi.setSystemTime(new Date(Date.UTC(2025, 6, 1, 0, 0, 0)));
 
     // Create a JSDOM document/window so DOM APIs are available in Node test environment.
     const { JSDOM } = await import('jsdom');
@@ -48,12 +52,14 @@ describe('gridRenderer months view', () => {
     delete global.HTMLElement;
     delete global.Node;
     if (global.dateFns) delete global.dateFns;
+    // Restore timers and mocks
+    vi.useRealTimers();
     vi.restoreAllMocks();
   });
 
   it('renders 12 months per row and marks past/present/future months', async () => {
     const { renderMonthsGrid } = await import('../../js/gridRenderer.js');
-    // Use current UTC month to ensure a 'present' month exists deterministically.
+    // Use the (fake) current UTC month to ensure a 'present' month exists deterministically.
     const nowUTC = new Date();
     // Use a birth date earlier than the current month so the rendered year contains past, present, and future months
     const birthDateUTC = new Date(Date.UTC(nowUTC.getUTCFullYear(), nowUTC.getUTCMonth() - 6, 1));

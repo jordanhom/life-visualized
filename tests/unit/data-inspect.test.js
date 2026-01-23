@@ -1,9 +1,10 @@
-import { it } from 'vitest';
+import { it, expect } from 'vitest';
 import { lifeExpectancyData } from '../../js/data.js';
 
 it('inspect lifeExpectancyData keys (debug)', () => {
-  // This test is diagnostic only; it will fail if keys are unexpectedly small.
-  // Use console.log so output appears in test run.
-  // eslint-disable-next-line no-console
-  console.log('lifeExpectancyData keys:', Object.keys(lifeExpectancyData), 'male keys:', Object.keys(lifeExpectancyData.male));
+  // Diagnostic: ensure male/female keys exist and have multiple brackets
+  const keys = Object.keys(lifeExpectancyData);
+  expect(keys).toContain('male');
+  expect(keys).toContain('female');
+  expect(Object.keys(lifeExpectancyData.male).length).toBeGreaterThan(5);
 });
