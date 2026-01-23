@@ -150,66 +150,52 @@ describe('calculator', () => {
     it('returns null if data value is invalid (overridden - non-numeric string)', async () => {
       vi.resetModules();
       const mod = await import('../../js/calculator.js');
-      mod.__setLifeExpectancyDataOverride({ male: { "0": "invalid" } });
-      await expect(mod.getRemainingExpectancy(10, 'male')).rejects.toThrowError('Remaining years data not found or invalid for sex: male, age bracket: 0');
-      mod.__setLifeExpectancyDataOverride(null);
+      await expect(mod.getRemainingExpectancy(10, 'male', { male: { "0": "invalid" } })).rejects.toThrowError('Remaining years data not found or invalid for sex: male, age bracket: 0');
     });
  
     it('returns null if data value is Infinity (overridden)', async () => {
       vi.resetModules();
       const mod = await import('../../js/calculator.js');
-      mod.__setLifeExpectancyDataOverride({ male: { "0": Infinity } });
-      await expect(mod.getRemainingExpectancy(0, 'male')).rejects.toThrowError('Remaining years data not found or invalid for sex: male, age bracket: 0');
-      mod.__setLifeExpectancyDataOverride(null);
+      await expect(mod.getRemainingExpectancy(0, 'male', { male: { "0": Infinity } })).rejects.toThrowError('Remaining years data not found or invalid for sex: male, age bracket: 0');
     });
  
     it('returns null if data value is NaN (overridden)', async () => {
       vi.resetModules();
       const mod = await import('../../js/calculator.js');
-      mod.__setLifeExpectancyDataOverride({ male: { "0": NaN } });
-      await expect(mod.getRemainingExpectancy(0, 'male')).rejects.toThrowError('Remaining years data not found or invalid for sex: male, age bracket: 0');
-      mod.__setLifeExpectancyDataOverride(null);
+      await expect(mod.getRemainingExpectancy(0, 'male', { male: { "0": NaN } })).rejects.toThrowError('Remaining years data not found or invalid for sex: male, age bracket: 0');
     });
  
     it('selects the nearest lower bracket when exact bracket is missing (overridden deterministic)', async () => {
       vi.resetModules();
       const mod = await import('../../js/calculator.js');
       // age brackets: 0 -> 80, 10 -> 70, 30 -> 50
-      mod.__setLifeExpectancyDataOverride({ male: { "0": 80, "10": 70, "30": 50 } });
       // age 25 should pick bracket 10 -> 70
-      const val = await mod.getRemainingExpectancy(25, 'male');
+      const val = await mod.getRemainingExpectancy(25, 'male', { male: { "0": 80, "10": 70, "30": 50 } });
       expect(val).toBe(70);
-      mod.__setLifeExpectancyDataOverride(null);
     });
  
     it('handles non-standard numeric-string keys and picks the appropriate lower bracket (overridden)', async () => {
       vi.resetModules();
       const mod = await import('../../js/calculator.js');
       // keys at 5 and 20; age 18 should pick 5
-      mod.__setLifeExpectancyDataOverride({ male: { "5": 60, "20": 40 } });
-      const val = await mod.getRemainingExpectancy(18, 'male');
+      const val = await mod.getRemainingExpectancy(18, 'male', { male: { "5": 60, "20": 40 } });
       expect(val).toBe(60);
-      mod.__setLifeExpectancyDataOverride(null);
     });
  
     it('falls back to the lowest defined bracket when no bracket <= age is found (overridden)', async () => {
       vi.resetModules();
       const mod = await import('../../js/calculator.js');
       // only key is 100; for age 0 the logic should fallback to keys[0] -> 100
-      mod.__setLifeExpectancyDataOverride({ male: { "100": 1 } });
-      const val = await mod.getRemainingExpectancy(0, 'male');
+      const val = await mod.getRemainingExpectancy(0, 'male', { male: { "100": 1 } });
       // Expect it to return the value for the lowest defined bracket (100 -> 1)
       expect(val).toBe(1);
-      mod.__setLifeExpectancyDataOverride(null);
     });
     
     it('handles empty data gracefully', async () => {
       vi.resetModules();
       const mod = await import('../../js/calculator.js');
-      mod.__setLifeExpectancyDataOverride({ male: {} });
-      const val = await mod.getRemainingExpectancy(30, 'male');
+      const val = await mod.getRemainingExpectancy(30, 'male', { male: {} });
       expect(val).toBeNull();
-      mod.__setLifeExpectancyDataOverride(null);
     });
   });
 });

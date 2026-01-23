@@ -87,7 +87,7 @@ function _findApplicableBracket(sortedBrackets, lookupAge) {
     return result;
 }
 
-async function getRemainingExpectancy(age, sex) {
+async function getRemainingExpectancy(age, sex, dataOverride = null) {
     // Validate inputs
     if (typeof age !== 'number' || !Number.isFinite(age)) {
         throw new Error('Invalid age provided to getRemainingExpectancy');
@@ -97,8 +97,11 @@ async function getRemainingExpectancy(age, sex) {
         throw new Error('Invalid sex provided to getRemainingExpectancy. Must be "male" or "female"');
     }
 
-    // Prefer injected override for unit tests; otherwise dynamically import real data.
-    const lifeExpectancyData = __test_lifeExpectancyDataOverride ?? (await import('./data.js')).lifeExpectancyData;
+    // Preference order for data source:
+    // 1. explicit dataOverride parameter (preferred for tests)
+    // 2. runtime test override (__setLifeExpectancyDataOverride) for backward compatibility
+    // 3. dynamic import from ./data.js in production
+    const lifeExpectancyData = dataOverride ?? __test_lifeExpectancyDataOverride ?? (await import('./data.js')).lifeExpectancyData;
     
     const sexData = lifeExpectancyData[sex];
     if (!sexData) {
