@@ -16,6 +16,7 @@ describe('ui module (setup & form flow)', () => {
     global.Event = dom.window.Event;
     global.MouseEvent = dom.window.MouseEvent;
     global.CustomEvent = dom.window.CustomEvent;
+    global.KeyboardEvent = dom.window.KeyboardEvent;
 
     // Minimal DOM elements expected/queried by ui.js at module-eval time.
     const form = document.createElement('form');
@@ -169,8 +170,115 @@ describe('ui module (setup & form flow)', () => {
 
     // Start over container should be visible (its hidden class removed)
     expect(startOverContainer.classList.contains('hidden')).toBe(false);
-
+ 
     // Calculate button text should have been reverted to the original label
     expect(calculateBtn.textContent).toBe('Calculate & Visualize');
+  });
+
+  it('handleCalculation error path shows error and keeps grid hidden', async () => {
+    // Import ui after DOM & mocks are set up
+    const { setupEventListeners } = await import('../../js/ui.js');
+
+    setupEventListeners();
+
+    const form = document.getElementById('life-input-form');
+    const resultsArea = document.getElementById('results-area');
+    const gridContainer = document.getElementById('life-grid-container');
+
+    // Ensure inputs are empty to trigger validation error
+    const birthdateInput = document.getElementById('birthdate');
+    const sexSelect = document.getElementById('sex');
+    birthdateInput.value = '';
+    sexSelect.value = '';
+
+    // Submit the form
+    form.dispatchEvent(new global.Event('submit', { bubbles: true, cancelable: true }));
+
+    // Allow microtasks to complete
+    await new Promise((r) => setTimeout(r, 0));
+
+    // Results area should contain validation message and have error styling
+    expect(resultsArea.classList.contains('error-message')).toBe(true);
+    expect(resultsArea.textContent).toContain('Please fill in both');
+
+    // Grid should remain hidden and form should still be visible
+    expect(gridContainer.classList.contains('hidden')).toBe(true);
+    expect(form.classList.contains('hidden')).toBe(false);
+  });
+
+  it('Start Over button resets the UI to initial state after success', async () => {
+    const { setupEventListeners } = await import('../../js/ui.js');
+
+    setupEventListeners();
+
+    const birthdateInput = document.getElementById('birthdate');
+    const sexSelect = document.getElementById('sex');
+    const form = document.getElementById('life-input-form');
+    const resultsArea = document.getElementById('results-area');
+    const gridContainer = document.getElementById('life-grid-container');
+    const startOverContainer = document.getElementById('start-over-container');
+    const startOverBtn = document.getElementById('start-over-btn');
+
+    // Fill inputs to allow a successful calculation (calculator mock returns values in beforeEach)
+    birthdateInput.value = '1990-01-01';
+    birthdateInput.dispatchEvent(new global.Event('input', { bubbles: true }));
+    sexSelect.value = 'male';
+    sexSelect.dispatchEvent(new global.Event('change', { bubbles: true }));
+
+    // Trigger submit
+    form.dispatchEvent(new global.Event('submit', { bubbles: true, cancelable: true }));
+
+    // Wait for async operations
+    await new Promise((r) => setTimeout(r, 10));
+
+    // Sanity: grid is visible and start over shown
+    expect(gridContainer.classList.contains('hidden')).toBe(false);
+    expect(startOverContainer.classList.contains('hidden')).toBe(false);
+
+    // Click start over
+    startOverBtn.dispatchEvent(new global.MouseEvent('click', { bubbles: true }));
+
+    // Allow UI updates
+    await new Promise((r) => setTimeout(r, 0));
+
+    // After reset: form visible, results hidden, grid hidden, inputs cleared
+    expect(form.classList.contains('hidden')).toBe(false);
+    expect(resultsArea.classList.contains('hidden')).toBe(true);
+    expect(gridContainer.classList.contains('hidden')).toBe(true);
+    expect(birthdateInput.value).toBe('');
+    expect(sexSelect.value).toBe('');
+  });
+
+  it('keyboard navigation on view switcher changes active view and ARIA attributes', async () => {
+    // Add a second view button before importing ui.js so it is included in the cached NodeList
+    const viewSwitcher = document.getElementById('view-switcher');
+    const secondBtn = document.createElement('button');
+    secondBtn.className = 'view-button';
+    secondBtn.id = 'view-months';
+    secondBtn.setAttribute('role', 'tab');
+    secondBtn.dataset.view = 'months';
+    secondBtn.textContent = 'Months';
+    viewSwitcher.appendChild(secondBtn);
+
+    // Ensure first button is active
+    const firstBtn = document.querySelector('#view-switcher .view-button');
+    firstBtn.classList.add('active');
+    firstBtn.setAttribute('role', 'tab');
+
+    // Now import ui.js so it captures both buttons
+    const { setupEventListeners } = await import('../../js/ui.js');
+    setupEventListeners();
+
+    // Focus first tab and simulate ArrowRight key to move to next tab
+    firstBtn.focus();
+    const keyEvent = new global.KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true });
+    firstBtn.dispatchEvent(keyEvent);
+
+    // Allow event handlers to run
+    await new Promise((r) => setTimeout(r, 0));
+
+    // The second button should now be active and have aria-selected="true"
+    expect(secondBtn.classList.contains('active')).toBe(true);
+    expect(secondBtn.getAttribute('aria-selected')).toBe('true');
   });
 });

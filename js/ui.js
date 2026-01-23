@@ -15,25 +15,27 @@ import { calculateCurrentAge, getRemainingExpectancy } from './calculator.js';
 // Import grid rendering functions
 import { renderAgeGrid, renderCalendarGrid, renderMonthsGrid, renderYearsGrid } from './gridRenderer.js';
 
-// --- DOM Element References (Cached for performance) ---
-const form = document.getElementById('life-input-form');
-const birthdateInput = document.getElementById('birthdate');
-const sexInput = document.getElementById('sex');
-const calculateBtn = document.getElementById('calculate-btn');
-const startOverContainer = document.getElementById('start-over-container');
-const resultsArea = document.getElementById('results-area');
+// --- DOM Element References (lazily-initialized) ---
+// These are intentionally declared as `let` and assigned inside `setupEventListeners`
+// so the module can be imported safely in test environments before the DOM exists.
+let form = null;
+let birthdateInput = null;
+let sexInput = null;
+let calculateBtn = null;
+let startOverContainer = null;
+let resultsArea = null;
 // References for Progressive Reveal & Grid UI Elements
-const gridGuideDetails = document.getElementById('grid-guide-details');
-const gridContainer = document.getElementById('life-grid-container');
-const gridContentArea = document.getElementById('grid-content-area'); // Inner container for grid blocks
+let gridGuideDetails = null;
+let gridContainer = null;
+let gridContentArea = null; // Inner container for grid blocks
 // References for Grid Controls Header
-const gridControlsHeader = document.getElementById('grid-controls-header');
-const viewSwitcher = document.getElementById('view-switcher'); // Cache the tablist container
-const viewSwitcherButtons = document.querySelectorAll('#view-switcher .view-button');
+let gridControlsHeader = null;
+let viewSwitcher = null; // Cache the tablist container
+let viewSwitcherButtons = []; // NodeList assigned during setup
 // Axis Label Elements
-const gridAxisLabelTop = document.getElementById('grid-axis-label-top');
-const gridAxisLabelLeft = document.getElementById('grid-axis-label-left');
-const gridContentWrapper = document.getElementById('grid-content-wrapper'); // Wrapper for left label + content area
+let gridAxisLabelTop = null;
+let gridAxisLabelLeft = null;
+let gridContentWrapper = null; // Wrapper for left label + content area
 
 
 // --- State Variables ---
@@ -80,10 +82,12 @@ function updateAxisLabels(show, topText = '', leftText = '') {
             gridAxisLabelTop.innerHTML = `------ ${topText} -----&gt;`;
             gridAxisLabelLeft.innerHTML = `&lt;----- ${leftText} ------`;
             gridAxisLabelTop.classList.remove('hidden');
+            gridAxisLabelLeft.classList.remove('hidden');
             // Show the wrapper which contains the left axis label and the grid content area.
             gridContentWrapper.classList.remove('hidden'); 
         } else { // Hiding labels
             gridAxisLabelTop.classList.add('hidden');
+            gridAxisLabelLeft.classList.add('hidden');
             gridContentWrapper.classList.add('hidden');
             gridAxisLabelTop.innerHTML = ''; // Clear text when hidden
             gridAxisLabelLeft.innerHTML = '';
@@ -436,6 +440,35 @@ function handleTablistKeydown(event) {
  * Called once by main.js on initialization.
  */
 function setupEventListeners() {
+   // Lazy-query DOM elements so module import doesn't require document at eval time.
+   // Support environments where jsdom exposes window.document but `document` global may not be set.
+   if (typeof document === 'undefined') {
+       if (typeof globalThis !== 'undefined' && globalThis.window && globalThis.window.document) {
+           // Populate global document for test environments that set window but not document global.
+           global.document = globalThis.window.document;
+       } else {
+           console.error('Document is not available; cannot attach UI event listeners.');
+           return;
+       }
+   }
+
+   // Query and cache DOM elements used throughout the module.
+   form = document.getElementById('life-input-form');
+    birthdateInput = document.getElementById('birthdate');
+    sexInput = document.getElementById('sex');
+    calculateBtn = document.getElementById('calculate-btn');
+    startOverContainer = document.getElementById('start-over-container');
+    resultsArea = document.getElementById('results-area');
+    gridGuideDetails = document.getElementById('grid-guide-details');
+    gridContainer = document.getElementById('life-grid-container');
+    gridContentArea = document.getElementById('grid-content-area');
+    gridControlsHeader = document.getElementById('grid-controls-header');
+    viewSwitcher = document.getElementById('view-switcher');
+    viewSwitcherButtons = document.querySelectorAll('#view-switcher .view-button');
+    gridAxisLabelTop = document.getElementById('grid-axis-label-top');
+    gridAxisLabelLeft = document.getElementById('grid-axis-label-left');
+    gridContentWrapper = document.getElementById('grid-content-wrapper');
+
     // Attach listener to the main form
     if (form) {
         form.addEventListener('submit', handleCalculation);

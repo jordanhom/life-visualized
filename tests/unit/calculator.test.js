@@ -72,6 +72,13 @@ describe('calculator', () => {
       const birth = new Date('2000-11-10T00:00:00Z');
       expect(calculateCurrentAge(birth)).toBe(24);
     });
+
+    it('throws error for invalid birth date', async () => {
+      const { calculateCurrentAge } = await import('../../js/calculator.js');
+      expect(() => calculateCurrentAge("invalid")).toThrowError('Invalid birthDate provided to calculateCurrentAge');
+      expect(() => calculateCurrentAge(null)).toThrowError('Invalid birthDate provided to calculateCurrentAge');
+      expect(() => calculateCurrentAge(undefined)).toThrowError('Invalid birthDate provided to calculateCurrentAge');
+    });
   });
 
   describe('getRemainingExpectancy', () => {
@@ -121,18 +128,30 @@ describe('calculator', () => {
       expect(val).toBeCloseTo(expected, 6);
     });
 
-    it('returns null for unknown sex', async () => {
+    it('throws error for unknown sex', async () => {
       const mod = await import('../../js/calculator.js');
-      const val = await mod.getRemainingExpectancy(30, 'nonbinary');
-      expect(val).toBeNull();
+      await expect(mod.getRemainingExpectancy(30, 'nonbinary')).rejects.toThrowError('Invalid sex provided to getRemainingExpectancy. Must be "male" or "female"');
+    });
+
+    it('throws error for invalid age', async () => {
+      const mod = await import('../../js/calculator.js');
+      await expect(mod.getRemainingExpectancy("invalid", "male")).rejects.toThrowError('Invalid age provided to getRemainingExpectancy');
+      await expect(mod.getRemainingExpectancy(null, "male")).rejects.toThrowError('Invalid age provided to getRemainingExpectancy');
+      await expect(mod.getRemainingExpectancy(undefined, "male")).rejects.toThrowError('Invalid age provided to getRemainingExpectancy');
+    });
+
+    it('throws error for invalid sex', async () => {
+      const mod = await import('../../js/calculator.js');
+      await expect(mod.getRemainingExpectancy(30, "nonbinary")).rejects.toThrowError('Invalid sex provided to getRemainingExpectancy. Must be "male" or "female"');
+      await expect(mod.getRemainingExpectancy(30, null)).rejects.toThrowError('Invalid sex provided to getRemainingExpectancy. Must be "male" or "female"');
+      await expect(mod.getRemainingExpectancy(30, undefined)).rejects.toThrowError('Invalid sex provided to getRemainingExpectancy. Must be "male" or "female"');
     });
 
     it('returns null if data value is invalid (overridden - non-numeric string)', async () => {
       vi.resetModules();
       const mod = await import('../../js/calculator.js');
       mod.__setLifeExpectancyDataOverride({ male: { "0": "invalid" } });
-      const val = await mod.getRemainingExpectancy(10, 'male');
-      expect(val).toBeNull();
+      await expect(mod.getRemainingExpectancy(10, 'male')).rejects.toThrowError('Remaining years data not found or invalid for sex: male, age bracket: 0');
       mod.__setLifeExpectancyDataOverride(null);
     });
  
@@ -140,8 +159,7 @@ describe('calculator', () => {
       vi.resetModules();
       const mod = await import('../../js/calculator.js');
       mod.__setLifeExpectancyDataOverride({ male: { "0": Infinity } });
-      const val = await mod.getRemainingExpectancy(0, 'male');
-      expect(val).toBeNull();
+      await expect(mod.getRemainingExpectancy(0, 'male')).rejects.toThrowError('Remaining years data not found or invalid for sex: male, age bracket: 0');
       mod.__setLifeExpectancyDataOverride(null);
     });
  
@@ -149,8 +167,7 @@ describe('calculator', () => {
       vi.resetModules();
       const mod = await import('../../js/calculator.js');
       mod.__setLifeExpectancyDataOverride({ male: { "0": NaN } });
-      const val = await mod.getRemainingExpectancy(0, 'male');
-      expect(val).toBeNull();
+      await expect(mod.getRemainingExpectancy(0, 'male')).rejects.toThrowError('Remaining years data not found or invalid for sex: male, age bracket: 0');
       mod.__setLifeExpectancyDataOverride(null);
     });
  
@@ -183,6 +200,15 @@ describe('calculator', () => {
       const val = await mod.getRemainingExpectancy(0, 'male');
       // Expect it to return the value for the lowest defined bracket (100 -> 1)
       expect(val).toBe(1);
+      mod.__setLifeExpectancyDataOverride(null);
+    });
+    
+    it('handles empty data gracefully', async () => {
+      vi.resetModules();
+      const mod = await import('../../js/calculator.js');
+      mod.__setLifeExpectancyDataOverride({ male: {} });
+      const val = await mod.getRemainingExpectancy(30, 'male');
+      expect(val).toBeNull();
       mod.__setLifeExpectancyDataOverride(null);
     });
   });

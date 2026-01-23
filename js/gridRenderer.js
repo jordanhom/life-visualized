@@ -51,11 +51,20 @@ function checkDateFns() {
         console.error("date-fns v4.1.0 library or key functions not loaded!");
         return false;
     }
-    // Use optional chaining to check the version string.
-    if (!dateFns?.version?.startsWith('4.')) {
-        console.warn(`date-fns object found, but version (${dateFns?.version}) might not be v4.1.0+. Ensure correct CDN script is loaded.`);
+    // date-fns-tz provides timezone helpers; it's attached to global as dateFnsTz when loaded via CDN
+    if (typeof dateFnsTz === 'undefined' || typeof dateFnsTz.formatInTimeZone === 'undefined') {
+        console.warn('date-fns-tz not found; timezone-aware formatting may be unavailable.');
+    }
+    // If a version string is provided, validate it; otherwise proceed silently.
+    if (typeof dateFns.version === 'string') {
+        if (!dateFns.version.startsWith('4.')) {
+            console.warn(`date-fns object found, but version (${dateFns.version}) might not be v4.1.0+. Ensure correct CDN script is loaded.`);
+        } else {
+            console.log("Using date-fns version:", dateFns.version);
+        }
     } else {
-        console.log("Using date-fns version:", dateFns.version);
+        // Tests or non-CDN environments may provide a mocked dateFns without a version.
+        console.log("date-fns object found (version unknown). Proceeding.");
     }
     return true;
 }
@@ -91,10 +100,16 @@ function renderAgeGrid(inputBirthDate, totalLifespanYearsEst, gridContentAreaEle
         // --- Date Setup (UTC) ---
         // Ensure all date operations use UTC to avoid timezone/DST issues.
         const birthDateUTC = inputBirthDate; // Already normalized by ui.js
-        const nowUTC = dateFns.startOfDay(new Date(), { timeZone: UTC_TIMEZONE });
+        // Use date-fns-tz to ensure UTC normalization when available; fall back to core date-fns
+        const now = new Date();
+        const nowUTC = (typeof dateFnsTz !== 'undefined' && dateFnsTz.utcToZonedTime)
+            ? dateFns.startOfDay(dateFnsTz.utcToZonedTime(now, 'UTC'))
+            : dateFns.startOfDay(now);
         const currentActualWeekStartDateUTC = dateFns.startOfISOWeek(nowUTC);
         const estimatedEndDateRough = dateFns.addYears(birthDateUTC, totalLifespanYearsEst);
-        const estimatedEndDateUTC = dateFns.startOfDay(estimatedEndDateRough, { timeZone: UTC_TIMEZONE });
+        const estimatedEndDateUTC = (typeof dateFnsTz !== 'undefined' && dateFnsTz.utcToZonedTime)
+            ? dateFns.startOfDay(dateFnsTz.utcToZonedTime(estimatedEndDateRough, 'UTC'))
+            : dateFns.startOfDay(estimatedEndDateRough);
 
 
         // --- Grid Rendering ---
@@ -159,7 +174,11 @@ function renderAgeGrid(inputBirthDate, totalLifespanYearsEst, gridContentAreaEle
                 weekBlock.classList.add('week-block');
                 weekBlock.classList.add(`stage-${stageKey}`);
                 let stateClass = '';
-                let title = `Age ${age}, Week ${weekInAgeYearIndex + 1} (Starts UTC: ${dateFns.format(currentRenderWeekStartDateUTC, 'yyyy-MM-dd', { timeZone: UTC_TIMEZONE })})`;
+                    // Use date-fns-tz.formatInTimeZone for timezone-aware formatting if available
+                    let formattedStart = (typeof dateFnsTz !== 'undefined' && dateFnsTz.formatInTimeZone)
+                        ? dateFnsTz.formatInTimeZone(currentRenderWeekStartDateUTC, 'UTC', 'yyyy-MM-dd')
+                        : dateFns.format(currentRenderWeekStartDateUTC, 'yyyy-MM-dd');
+                    let title = `Age ${age}, Week ${weekInAgeYearIndex + 1} (Starts UTC: ${formattedStart})`;
 
                 // Determine state (past/present/future) by comparing week start dates
                 if (currentRenderWeekStartDateUTC.getTime() === currentActualWeekStartDateUTC.getTime()) {
@@ -210,9 +229,14 @@ function renderCalendarGrid(inputBirthDate, totalLifespanYearsEst, gridContentAr
     try {
         // --- Date Setup (UTC) ---
         const birthDateUTC = inputBirthDate; // Already normalized by ui.js
-        const nowUTC = dateFns.startOfDay(new Date(), { timeZone: UTC_TIMEZONE });
+        const now = new Date();
+        const nowUTC = (typeof dateFnsTz !== 'undefined' && dateFnsTz.utcToZonedTime)
+            ? dateFns.startOfDay(dateFnsTz.utcToZonedTime(now, 'UTC'))
+            : dateFns.startOfDay(now);
         const estimatedEndDateRough = dateFns.addYears(birthDateUTC, totalLifespanYearsEst);
-        const estimatedEndDateUTC = dateFns.startOfDay(estimatedEndDateRough, { timeZone: UTC_TIMEZONE });
+        const estimatedEndDateUTC = (typeof dateFnsTz !== 'undefined' && dateFnsTz.utcToZonedTime)
+            ? dateFns.startOfDay(dateFnsTz.utcToZonedTime(estimatedEndDateRough, 'UTC'))
+            : dateFns.startOfDay(estimatedEndDateRough);
         const startISOYear = dateFns.getISOWeekYear(birthDateUTC);
         const endISOYear = dateFns.getISOWeekYear(estimatedEndDateUTC);
         // Determine the start of the ISO week containing the birth date
@@ -263,7 +287,10 @@ function renderCalendarGrid(inputBirthDate, totalLifespanYearsEst, gridContentAr
                 weekBlock.classList.add(`stage-${stageKey}`);
 
                 let stateClass = '';
-                let title = `Year ${isoYear}, Week ${weekNum} (Starts UTC: ${dateFns.format(currentRenderWeekStartDateUTC, 'yyyy-MM-dd', { timeZone: UTC_TIMEZONE })})`;
+                let formattedStart = (typeof dateFnsTz !== 'undefined' && dateFnsTz.formatInTimeZone)
+                    ? dateFnsTz.formatInTimeZone(currentRenderWeekStartDateUTC, 'UTC', 'yyyy-MM-dd')
+                    : dateFns.format(currentRenderWeekStartDateUTC, 'yyyy-MM-dd');
+                let title = `Year ${isoYear}, Week ${weekNum} (Starts UTC: ${formattedStart})`;
 
                 // Check Out of Bounds: Is this week before the first week containing birth OR after estimated end?
                 if (dateFns.isBefore(currentRenderWeekStartDateUTC, firstWeekStartDateUTC) || dateFns.isAfter(currentRenderWeekStartDateUTC, estimatedEndDateUTC)) {
@@ -317,9 +344,14 @@ function renderMonthsGrid(inputBirthDate, totalLifespanYearsEst, gridContentArea
     try {
         // --- Date Setup (UTC) ---
         const birthDateUTC = inputBirthDate; // Already normalized by ui.js
-        const nowUTC = dateFns.startOfDay(new Date(), { timeZone: UTC_TIMEZONE });
+        const now = new Date();
+        const nowUTC = (typeof dateFnsTz !== 'undefined' && dateFnsTz.utcToZonedTime)
+            ? dateFns.startOfDay(dateFnsTz.utcToZonedTime(now, 'UTC'))
+            : dateFns.startOfDay(now);
         const estimatedEndDateRough = dateFns.addYears(birthDateUTC, totalLifespanYearsEst);
-        const estimatedEndDateUTC = dateFns.startOfDay(estimatedEndDateRough, { timeZone: UTC_TIMEZONE });
+        const estimatedEndDateUTC = (typeof dateFnsTz !== 'undefined' && dateFnsTz.utcToZonedTime)
+            ? dateFns.startOfDay(dateFnsTz.utcToZonedTime(estimatedEndDateRough, 'UTC'))
+            : dateFns.startOfDay(estimatedEndDateRough);
 
         // Calculate the start of the *current* month in UTC for comparison
         const currentMonthStartDateUTC = dateFns.startOfMonth(nowUTC);
@@ -367,7 +399,10 @@ function renderMonthsGrid(inputBirthDate, totalLifespanYearsEst, gridContentArea
             let stateClass = '';
             const yearOfLife = Math.floor(monthIndex / 12); // Age year
             const monthOfLife = (monthIndex % 12) + 1; // 1-based month index within the age year
-            let title = `Age ${yearOfLife}, Month ${monthOfLife} (Starts UTC: ${dateFns.format(monthStartDateUTC, 'yyyy-MM-dd', { timeZone: UTC_TIMEZONE })})`;
+            let formattedStart = (typeof dateFnsTz !== 'undefined' && dateFnsTz.formatInTimeZone)
+                ? dateFnsTz.formatInTimeZone(monthStartDateUTC, 'UTC', 'yyyy-MM-dd')
+                : dateFns.format(monthStartDateUTC, 'yyyy-MM-dd');
+            let title = `Age ${yearOfLife}, Month ${monthOfLife} (Starts UTC: ${formattedStart})`;
 
             // Determine past/present/future by comparing the start date of this month
             // with the start date of the current actual month.
@@ -468,7 +503,10 @@ function renderYearsGrid(inputBirthDate, totalLifespanYearsEst, gridContentAreaE
             yearBlock.classList.add(`stage-${stageKey}`);
 
             let stateClass = '';
-            let title = `Age ${ageForThisYear} (Starts UTC: ${dateFns.format(yearStartDateUTC, 'yyyy-MM-dd', { timeZone: UTC_TIMEZONE })})`;
+            let formattedStart = (typeof dateFnsTz !== 'undefined' && dateFnsTz.formatInTimeZone)
+                ? dateFnsTz.formatInTimeZone(yearStartDateUTC, 'UTC', 'yyyy-MM-dd')
+                : dateFns.format(yearStartDateUTC, 'yyyy-MM-dd');
+            let title = `Age ${ageForThisYear} (Starts UTC: ${formattedStart})`;
 
             // Determine past/present/future based on comparing the age represented by this block
             // with the pre-calculated current age.

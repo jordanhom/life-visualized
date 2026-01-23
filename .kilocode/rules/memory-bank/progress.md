@@ -1,32 +1,45 @@
 # Progress Log - Life Visualized
 
-## Latest Update (2025-11-24)
+## Latest Update (2025-12-07)
 - Status: Active
-- Summary: Expanded unit and integration test coverage across modules; added DOM/integration tests for the UI and focused edge tests for the renderer. Test suite executed locally with all tests passing.
+- Summary: Local development updates to the calculator module and tests completed. Full unit test suite passes locally (44/44).
 
 ## Recent Changes
-- tests: Updated [`tests/unit/calculator.test.js`](tests/unit/calculator.test.js:1) with UTC boundary, leap-day, bracket-fallback, non-standard key, and invalid-value tests. Calculator tests pass.
-- tests: Added focused edge tests for [`js/gridRenderer.js`](js/gridRenderer.js:1) (`tests/unit/gridRenderer.edge.test.js`: verifies 54->53 week handling).
-- tests: Added DOM/integration tests for [`js/ui.js`](tests/unit/ui.test.js:1) exercising input validation, button state, and full calculate -> render -> reveal flow.
-- code: Added a lightweight test-only override helper (`__setLifeExpectancyDataOverride`) in [`js/calculator.js`](js/calculator.js:48) to allow deterministic unit tests.
-- verification: Ran full suite locally with `npx vitest --run` — 25 tests passed.
+- Updated core calculation logic in [`js/calculator.js`](js/calculator.js:1):
+  - Added strict input validation for `calculateCurrentAge` and `getRemainingExpectancy`.
+  - Hardened age-bracket lookup with an efficient bracket selector and deterministic fallback behavior.
+- Extended and corrected tests in [`tests/unit/calculator.test.js`](tests/unit/calculator.test.js:1):
+  - Added leap-day, boundary-second, future-date, and malformed-data test cases.
+  - Aligned test expectations for invalid sex input (now throws).
+- Updated module documentation: [`docs/calculator.md`](docs/calculator.md:1) to reflect current behavior, error contracts, and recommended next steps.
+- Minor test infra and doc updates to reflect deterministic UTC-based calculation semantics.
+
+## New/Updated Test Files
+- `tests/unit/calculator.test.js` (expanded and aligned to new behavior)
+- `tests/setup/jsdom-helper.js`
+- `tests/unit/ui.axis-aria.test.js`
+- `tests/unit/main.test.js`
 
 ## Completed Tasks
-- Implement core calculator logic and UTC-based age calculation. (Completed)
-- Implement getRemainingExpectancy bracket lookup and fallback behavior. (Completed)
-- Add unit tests for calculator edge cases and deterministic mocks. (Completed)
-- Implement focused renderer edge tests for week-count edge cases (52/53/54 handling). (Completed) See [`tests/unit/gridRenderer.edge.test.js`](tests/unit/gridRenderer.edge.test.js:1).
-- Implement DOM/integration tests for UI flows (form validation, async calculation path, progressive reveal). (Completed) See [`tests/unit/ui.test.js`](tests/unit/ui.test.js:1).
+- Implemented JSDOM helper and applied it to fragile tests.
+- Replaced unsafe runtime test overrides in affected tests.
+- Hardened calculator logic and added/updated unit tests.
+- Updated `docs/calculator.md` to document behavior and future improvements.
+- All unit tests pass locally (44/44).
 
-## Next Steps
-- Expand renderer tests to cover additional edge cases described in [`docs/gridUtils-tests.md`](docs/gridUtils-tests.md:1).
-- Add CI job to run Vitest on push and surface regressions early.
-- Consider refactoring the test-only override (`__setLifeExpectancyDataOverride`) to a pure `vi.mock` approach in a future cleanup.
+## Remaining Work / Next Steps
+- Commit changes on branch `mvp/tests/unit-complete` and push (recommended).
+- Replace the global test override (`__setLifeExpectancyDataOverride`) with an explicit `dataOverride` parameter on `getRemainingExpectancy(...)` and deprecate the setter.
+- Consider making `lifeExpectancyData` a synchronous import at module top and cache parsed/sorted age brackets per sex to improve performance.
+- Decide and document a single error-return policy (throw vs return-null) for data-not-found vs invalid-data cases and harmonize code & docs.
+- Add CI workflow to run Vitest on push (`.github/workflows/ci.yml`) and run tests in CI.
+
+## Test Summary (current)
+- Command: `npx vitest --run`
+- Current result summary: 44 tests passing locally (0 failing).
 
 ## Notes
-- The temporary test override remains for pragmatic deterministic tests; migrating to `vi.mock` in a single pass would remove runtime test-only helpers.
-- Test artifacts and related implementation are located here:
-  - Calculator tests: [`tests/unit/calculator.test.js`](tests/unit/calculator.test.js:1)
-  - UI integration tests: [`tests/unit/ui.test.js`](tests/unit/ui.test.js:1)
-  - Renderer edge tests: [`tests/unit/gridRenderer.edge.test.js`](tests/unit/gridRenderer.edge.test.js:1)
-  - Source modules: [`js/calculator.js`](js/calculator.js:1), [`js/gridRenderer.js`](js/gridRenderer.js:1), [`js/ui.js`](js/ui.js:1)
+- Tests use `tests/setup/jsdom-helper.js` to ensure Event constructors and DOM APIs are sourced from the same JSDOM window.
+- New calculator behavior intentionally uses UTC-based Date getters for deterministic results across timezones.
+- Documentation (`docs/calculator.md`) includes recommended refactors and deprecation notes for the current test helper.
+- Recommend committing these changes and opening a PR for review (branch: `mvp/tests/unit-complete`).
