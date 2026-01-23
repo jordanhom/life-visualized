@@ -1,4 +1,4 @@
-import { it } from 'vitest';
+import { it, expect } from 'vitest';
 import { lifeExpectancyData } from '../../js/data.js';
 
 it('inspect lifeExpectancyData keys (debug)', () => {
