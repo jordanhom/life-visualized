@@ -236,18 +236,22 @@ async function handleCalculation(event) {
         return; // Exit, leaving only results area visible
     }
 
-    // Create Date object from input string
-    const birthDateLocal = new Date(birthdateStr);
-
-    // **CRITICAL: Normalize date to UTC midnight.**
-    const birthDateUTC = new Date(birthDateLocal.getTime()); // Clone first
-    birthDateUTC.setMinutes(birthDateUTC.getMinutes() + birthDateUTC.getTimezoneOffset());
+    // Create Date object from input string deterministically in UTC.
+    const [yearStr, monthStr, dayStr] = birthdateStr.split('-');
+    const year = Number(yearStr);
+    const monthIndex = Number(monthStr) - 1;
+    const day = Number(dayStr);
+    const birthDateUTC = new Date(Date.UTC(year, monthIndex, day));
 
     const now = new Date();
-    const nowLocalMidnight = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const todayUTC = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
+    const isValidBirthDate = !Number.isNaN(birthDateUTC.getTime()) &&
+        birthDateUTC.getUTCFullYear() === year &&
+        birthDateUTC.getUTCMonth() === monthIndex &&
+        birthDateUTC.getUTCDate() === day;
 
-    // Check validity *after* potential normalization and ensure date is in the past.
-    if (isNaN(birthDateUTC.getTime()) || birthDateUTC >= nowLocalMidnight) {
+    // Check validity and ensure date is in the past.
+    if (!isValidBirthDate || birthDateUTC >= todayUTC) {
         displayError('Please enter a valid birth date in the past (YYYY-MM-DD).');
         renderCurrentView(); // Clear grid content area if validation fails
         finalizeCalculation();
