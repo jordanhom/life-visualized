@@ -197,6 +197,13 @@ async function handleCalculation(event) {
     const birthdateStr = birthdateInput.value;
     const sex = sexInput.value;
 
+    const finalizeCalculation = () => {
+        if (calculateBtn) {
+            calculateBtn.textContent = 'Calculate & Visualize';
+            updateButtonState();
+        }
+    };
+
     // --- Start Loading State ---
     if (calculateBtn) {
         calculateBtn.disabled = true; // Disable button immediately
@@ -225,6 +232,7 @@ async function handleCalculation(event) {
     if (!birthdateStr || !sex) {
         displayError('Please fill in both your birth date and sex.');
         renderCurrentView(); // Clear grid content area if validation fails
+        finalizeCalculation();
         return; // Exit, leaving only results area visible
     }
 
@@ -242,6 +250,7 @@ async function handleCalculation(event) {
     if (isNaN(birthDateUTC.getTime()) || birthDateUTC >= nowLocalMidnight) {
         displayError('Please enter a valid birth date in the past (YYYY-MM-DD).');
         renderCurrentView(); // Clear grid content area if validation fails
+        finalizeCalculation();
         return; // Exit, leaving only results area visible
     }
 
@@ -285,10 +294,7 @@ async function handleCalculation(event) {
         // Other elements (gridContainer, etc.) remain hidden (handled by reset at start)
     } finally {
         // --- End Loading State (always executed) ---
-        if (calculateBtn) {
-            calculateBtn.textContent = 'Calculate & Visualize'; // Revert button text
-            updateButtonState(); // Re-evaluate button's enabled/disabled state
-        }
+        finalizeCalculation();
     }
 }
 
