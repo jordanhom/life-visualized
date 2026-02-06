@@ -83,12 +83,16 @@ function updateAxisLabels(show, topText = '', leftText = '') {
             gridAxisLabelLeft.innerHTML = `&lt;----- ${leftText} ------`;
             gridAxisLabelTop.classList.remove('hidden');
             gridAxisLabelLeft.classList.remove('hidden');
+            gridAxisLabelTop.setAttribute('aria-hidden', show ? 'false' : 'true');
+            gridAxisLabelLeft.setAttribute('aria-hidden', show ? 'false' : 'true');
             // Show the wrapper which contains the left axis label and the grid content area.
             gridContentWrapper.classList.remove('hidden'); 
         } else { // Hiding labels
             gridAxisLabelTop.classList.add('hidden');
             gridAxisLabelLeft.classList.add('hidden');
             gridContentWrapper.classList.add('hidden');
+            gridAxisLabelTop.setAttribute('aria-hidden', show ? 'false' : 'true');
+            gridAxisLabelLeft.setAttribute('aria-hidden', show ? 'false' : 'true');
             gridAxisLabelTop.innerHTML = ''; // Clear text when hidden
             gridAxisLabelLeft.innerHTML = '';
         }
