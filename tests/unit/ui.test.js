@@ -206,6 +206,67 @@ describe('ui module (setup & form flow)', () => {
     expect(form.classList.contains('hidden')).toBe(false);
   });
 
+  it('handleCalculation rejects future dates and skips calculations', async () => {
+    const { setupEventListeners } = await import('../../js/ui.js');
+    const calculator = await import('../../js/calculator.js');
+
+    setupEventListeners();
+
+    const form = document.getElementById('life-input-form');
+    const birthdateInput = document.getElementById('birthdate');
+    const sexSelect = document.getElementById('sex');
+    const resultsArea = document.getElementById('results-area');
+    const gridContainer = document.getElementById('life-grid-container');
+    const calculateBtn = document.getElementById('calculate-btn');
+
+    birthdateInput.value = '3000-01-01';
+    birthdateInput.dispatchEvent(new global.Event('input', { bubbles: true }));
+    sexSelect.value = 'male';
+    sexSelect.dispatchEvent(new global.Event('change', { bubbles: true }));
+
+    form.dispatchEvent(new global.Event('submit', { bubbles: true, cancelable: true }));
+
+    await new Promise((r) => setTimeout(r, 0));
+
+    expect(resultsArea.classList.contains('error-message')).toBe(true);
+    expect(resultsArea.textContent).toContain('Please enter a valid birth date in the past');
+    expect(gridContainer.classList.contains('hidden')).toBe(true);
+    expect(calculateBtn.textContent).toBe('Calculate & Visualize');
+    expect(calculator.calculateCurrentAge).not.toHaveBeenCalled();
+    expect(calculator.getRemainingExpectancy).not.toHaveBeenCalled();
+  });
+
+  it('handleCalculation shows error when expectancy data is unavailable', async () => {
+    const { setupEventListeners } = await import('../../js/ui.js');
+    const calculator = await import('../../js/calculator.js');
+
+    calculator.getRemainingExpectancy.mockResolvedValueOnce(null);
+
+    setupEventListeners();
+
+    const form = document.getElementById('life-input-form');
+    const birthdateInput = document.getElementById('birthdate');
+    const sexSelect = document.getElementById('sex');
+    const resultsArea = document.getElementById('results-area');
+    const gridContainer = document.getElementById('life-grid-container');
+    const startOverContainer = document.getElementById('start-over-container');
+
+    birthdateInput.value = '1990-01-01';
+    birthdateInput.dispatchEvent(new global.Event('input', { bubbles: true }));
+    sexSelect.value = 'male';
+    sexSelect.dispatchEvent(new global.Event('change', { bubbles: true }));
+
+    form.dispatchEvent(new global.Event('submit', { bubbles: true, cancelable: true }));
+
+    await new Promise((r) => setTimeout(r, 10));
+
+    expect(resultsArea.classList.contains('error-message')).toBe(true);
+    expect(resultsArea.textContent).toContain('Could not retrieve life expectancy data');
+    expect(gridContainer.classList.contains('hidden')).toBe(true);
+    expect(startOverContainer.classList.contains('hidden')).toBe(true);
+    expect(form.classList.contains('hidden')).toBe(false);
+  });
+
   it('Start Over button resets the UI to initial state after success', async () => {
     const { setupEventListeners } = await import('../../js/ui.js');
 
@@ -280,5 +341,39 @@ describe('ui module (setup & form flow)', () => {
     // The second button should now be active and have aria-selected="true"
     expect(secondBtn.classList.contains('active')).toBe(true);
     expect(secondBtn.getAttribute('aria-selected')).toBe('true');
+  });
+
+  it('updates aria-labelledby and calls the correct renderer on view change', async () => {
+    const viewSwitcher = document.getElementById('view-switcher');
+    const secondBtn = document.createElement('button');
+    secondBtn.className = 'view-button';
+    secondBtn.id = 'view-months';
+    secondBtn.setAttribute('role', 'tab');
+    secondBtn.dataset.view = 'months';
+    viewSwitcher.appendChild(secondBtn);
+
+    const { setupEventListeners } = await import('../../js/ui.js');
+    const gridRenderer = await import('../../js/gridRenderer.js');
+
+    setupEventListeners();
+
+    const form = document.getElementById('life-input-form');
+    const birthdateInput = document.getElementById('birthdate');
+    const sexSelect = document.getElementById('sex');
+    const gridContentArea = document.getElementById('grid-content-area');
+
+    birthdateInput.value = '1990-01-01';
+    birthdateInput.dispatchEvent(new global.Event('input', { bubbles: true }));
+    sexSelect.value = 'male';
+    sexSelect.dispatchEvent(new global.Event('change', { bubbles: true }));
+    form.dispatchEvent(new global.Event('submit', { bubbles: true, cancelable: true }));
+
+    await new Promise((r) => setTimeout(r, 10));
+
+    secondBtn.dispatchEvent(new global.MouseEvent('click', { bubbles: true }));
+
+    expect(gridRenderer.renderMonthsGrid).toHaveBeenCalled();
+    expect(gridContentArea.getAttribute('aria-labelledby')).toBe('view-months');
+    expect(secondBtn.classList.contains('active')).toBe(true);
   });
 });
