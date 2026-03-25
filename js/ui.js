@@ -25,11 +25,9 @@ let calculateBtn = null;
 let startOverContainer = null;
 let resultsArea = null;
 // References for Progressive Reveal & Grid UI Elements
-let gridGuideDetails = null;
 let gridContainer = null;
 let gridContentArea = null; // Inner container for grid blocks
 // References for Grid Controls Header
-let gridControlsHeader = null;
 let viewSwitcher = null; // Cache the tablist container
 let viewSwitcherButtons = []; // NodeList assigned during setup
 // Axis Label Elements
@@ -422,8 +420,8 @@ function handleTablistKeydown(event) {
         return;
     }
 
-    let currentIndex = tabs.indexOf(currentTab);
-    let newIndex = currentIndex;
+    const currentIndex = tabs.indexOf(currentTab);
+    let newIndex;
 
     switch (event.key) {
         case 'ArrowRight':
@@ -473,10 +471,8 @@ function setupEventListeners() {
     calculateBtn = document.getElementById('calculate-btn');
     startOverContainer = document.getElementById('start-over-container');
     resultsArea = document.getElementById('results-area');
-    gridGuideDetails = document.getElementById('grid-guide-details');
     gridContainer = document.getElementById('life-grid-container');
     gridContentArea = document.getElementById('grid-content-area');
-    gridControlsHeader = document.getElementById('grid-controls-header');
     viewSwitcher = document.getElementById('view-switcher');
     viewSwitcherButtons = document.querySelectorAll('#view-switcher .view-button');
     gridAxisLabelTop = document.getElementById('grid-axis-label-top');

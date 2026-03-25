@@ -111,16 +111,24 @@ This collaborative approach enabled the creation of this MVP, serving as both a 
 
 - Do NOT commit [`node_modules`](node_modules:1). Add it to `.gitignore` so installs remain reproducible and the repo stays small.
 
+- Node version:
+  - Use Node.js 20+ for local dev and CI (tooling dependencies such as Vitest require modern Node).
+
 - Install dependencies (reproducible):
   - Locally: npm ci
-  - (Optional) project provides an npm "install" script which calls `npm ci`: `npm run install`
 
 - Run tests:
   - Interactive: `npm test`
   - Non-interactive / CI: `npm test -- --run` or `npm run test:run`
 
+- Run quality gates:
+  - Lint: `npm run lint`
+  - Typecheck: `npm run typecheck`
+  - Full local CI gate: `npm run verify`
+
 - CI notes:
-  - CI is configured to use `npm ci` and caches npm for speed; this ensures reproducible installs and avoids committing dependency trees.
+  - CI is configured to use `npm ci`, then run lint, typecheck, and tests.
+  - CI caches npm for speed; this ensures reproducible installs and avoids committing dependency trees.
   - The workflow lives at [`.github/workflows/ci.yml`](.github/workflows/ci.yml:1).
 
 These instructions are intentionally minimal so you only check in the manifest and CI config; contributors and CI will fetch dependencies via `npm ci`.
