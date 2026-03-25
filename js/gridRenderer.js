@@ -14,8 +14,6 @@
 
 
 // --- Constants ---
-const UTC_TIMEZONE = 'UTC'; // Define UTC timezone string for clarity
-
 // Life Stage Definitions (Used for styling blocks)
 // Defines the age boundaries and corresponding CSS class keys for different life stages.
 // Colors are applied via CSS using the '.stage-{key}' classes.
@@ -33,6 +31,11 @@ const LIFE_STAGES = [
     { key: 'midsenior', name: 'Mid-Senior', maxAge: 84 },               // (Ages 75-84)
     { key: 'latesenior', name: 'Late Senior', maxAge: Infinity }        // (Ages 85+)
 ];
+
+// Helper: normalize a Date to UTC midnight deterministically, independent of local timezone.
+function toUTCStartOfDay(date) {
+    return new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()));
+}
 
 // Helper: Get stage key based on age. (Used for styling blocks)
 function getLifeStageKey(age) {
@@ -101,15 +104,10 @@ function renderAgeGrid(inputBirthDate, totalLifespanYearsEst, gridContentAreaEle
         // Ensure all date operations use UTC to avoid timezone/DST issues.
         const birthDateUTC = inputBirthDate; // Already normalized by ui.js
         // Use date-fns-tz to ensure UTC normalization when available; fall back to core date-fns
-        const now = new Date();
-        const nowUTC = (typeof dateFnsTz !== 'undefined' && dateFnsTz.utcToZonedTime)
-            ? dateFns.startOfDay(dateFnsTz.utcToZonedTime(now, 'UTC'))
-            : dateFns.startOfDay(now);
+        const nowUTC = toUTCStartOfDay(new Date());
         const currentActualWeekStartDateUTC = dateFns.startOfISOWeek(nowUTC);
         const estimatedEndDateRough = dateFns.addYears(birthDateUTC, totalLifespanYearsEst);
-        const estimatedEndDateUTC = (typeof dateFnsTz !== 'undefined' && dateFnsTz.utcToZonedTime)
-            ? dateFns.startOfDay(dateFnsTz.utcToZonedTime(estimatedEndDateRough, 'UTC'))
-            : dateFns.startOfDay(estimatedEndDateRough);
+        const estimatedEndDateUTC = toUTCStartOfDay(estimatedEndDateRough);
 
 
         // --- Grid Rendering ---
@@ -125,8 +123,8 @@ function renderAgeGrid(inputBirthDate, totalLifespanYearsEst, gridContentAreaEle
             ageRow.setAttribute('data-age', age);
             ageRow.setAttribute('aria-label', `Age ${age}`);
 
-            const ageStartDateUTC = dateFns.startOfDay(dateFns.addYears(birthDateUTC, age), { timeZone: UTC_TIMEZONE });
-            const ageEndDateExclusiveUTC = dateFns.startOfDay(dateFns.addYears(birthDateUTC, age + 1), { timeZone: UTC_TIMEZONE });
+            const ageStartDateUTC = toUTCStartOfDay(dateFns.addYears(birthDateUTC, age));
+            const ageEndDateExclusiveUTC = toUTCStartOfDay(dateFns.addYears(birthDateUTC, age + 1));
 
             const stageKey = getLifeStageKey(age);
 
@@ -229,14 +227,9 @@ function renderCalendarGrid(inputBirthDate, totalLifespanYearsEst, gridContentAr
     try {
         // --- Date Setup (UTC) ---
         const birthDateUTC = inputBirthDate; // Already normalized by ui.js
-        const now = new Date();
-        const nowUTC = (typeof dateFnsTz !== 'undefined' && dateFnsTz.utcToZonedTime)
-            ? dateFns.startOfDay(dateFnsTz.utcToZonedTime(now, 'UTC'))
-            : dateFns.startOfDay(now);
+        const nowUTC = toUTCStartOfDay(new Date());
         const estimatedEndDateRough = dateFns.addYears(birthDateUTC, totalLifespanYearsEst);
-        const estimatedEndDateUTC = (typeof dateFnsTz !== 'undefined' && dateFnsTz.utcToZonedTime)
-            ? dateFns.startOfDay(dateFnsTz.utcToZonedTime(estimatedEndDateRough, 'UTC'))
-            : dateFns.startOfDay(estimatedEndDateRough);
+        const estimatedEndDateUTC = toUTCStartOfDay(estimatedEndDateRough);
         const startISOYear = dateFns.getISOWeekYear(birthDateUTC);
         const endISOYear = dateFns.getISOWeekYear(estimatedEndDateUTC);
         // Determine the start of the ISO week containing the birth date
@@ -344,14 +337,9 @@ function renderMonthsGrid(inputBirthDate, totalLifespanYearsEst, gridContentArea
     try {
         // --- Date Setup (UTC) ---
         const birthDateUTC = inputBirthDate; // Already normalized by ui.js
-        const now = new Date();
-        const nowUTC = (typeof dateFnsTz !== 'undefined' && dateFnsTz.utcToZonedTime)
-            ? dateFns.startOfDay(dateFnsTz.utcToZonedTime(now, 'UTC'))
-            : dateFns.startOfDay(now);
+        const nowUTC = toUTCStartOfDay(new Date());
         const estimatedEndDateRough = dateFns.addYears(birthDateUTC, totalLifespanYearsEst);
-        const estimatedEndDateUTC = (typeof dateFnsTz !== 'undefined' && dateFnsTz.utcToZonedTime)
-            ? dateFns.startOfDay(dateFnsTz.utcToZonedTime(estimatedEndDateRough, 'UTC'))
-            : dateFns.startOfDay(estimatedEndDateRough);
+        const estimatedEndDateUTC = toUTCStartOfDay(estimatedEndDateRough);
 
         // Calculate the start of the *current* month in UTC for comparison
         const currentMonthStartDateUTC = dateFns.startOfMonth(nowUTC);
@@ -455,9 +443,9 @@ function renderYearsGrid(inputBirthDate, totalLifespanYearsEst, gridContentAreaE
     try {
         // --- Date Setup (UTC) ---
         const birthDateUTC = inputBirthDate; // Already normalized by ui.js
-        const nowUTC = dateFns.startOfDay(new Date(), { timeZone: UTC_TIMEZONE });
+        const nowUTC = toUTCStartOfDay(new Date());
         const estimatedEndDateRough = dateFns.addYears(birthDateUTC, totalLifespanYearsEst);
-        const estimatedEndDateUTC = dateFns.startOfDay(estimatedEndDateRough, { timeZone: UTC_TIMEZONE });
+        const estimatedEndDateUTC = toUTCStartOfDay(estimatedEndDateRough);
 
         // Calculate current age in whole years for state determination (past/present/future)
         const currentAge = calculateAgeAtDate(nowUTC, birthDateUTC);
@@ -486,7 +474,7 @@ function renderYearsGrid(inputBirthDate, totalLifespanYearsEst, gridContentAreaE
             }
 
             // Calculate the start date of this specific year of life
-            const yearStartDateUTC = dateFns.startOfDay(dateFns.addYears(birthDateUTC, yearIndex));
+            const yearStartDateUTC = toUTCStartOfDay(dateFns.addYears(birthDateUTC, yearIndex));
 
             // Don't render blocks for years that start after the estimated end date
             // Note: A year block represents the *entire* year starting at yearIndex

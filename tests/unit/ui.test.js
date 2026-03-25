@@ -505,6 +505,7 @@ describe('ui module (setup & form flow)', () => {
 
     invalidBtn.dispatchEvent(new global.MouseEvent('click', { bubbles: true }));
     expect(gridContentArea.querySelector('.error-message')?.textContent).toContain('Invalid view selected.');
+    expect(gridContentArea.hasAttribute('aria-label')).toBe(false);
   });
 
   it('keeps current view when clicking the already-active tab', async () => {

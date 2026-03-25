@@ -155,6 +155,7 @@ function renderCurrentView() {
             console.error("Unknown view type selected:", currentView);
             gridContentArea.innerHTML = '<p class="error-message">Invalid view selected.</p>';
             updateAxisLabels(false); // Hide on error
+            gridContentArea.removeAttribute('aria-label'); // Remove stale success label on error
             gridContentArea.removeAttribute('tabindex'); // Not focusable on error
         }
         // If rendering was successful (no error message was set by the renderer), update and show axis labels.

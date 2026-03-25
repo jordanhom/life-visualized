@@ -117,8 +117,8 @@ describe('gridRenderer years view', () => {
     vi.resetModules();
     global.dateFns = {
       ...makeMockDateFns(),
-      startOfDay: () => {
-        throw new Error('forced startOfDay failure');
+      addYears: () => {
+        throw new Error('forced addYears failure');
       },
     };
 
@@ -130,5 +130,31 @@ describe('gridRenderer years view', () => {
     const err = container.querySelector('.error-message');
     expect(err).not.toBeNull();
     expect(err.textContent).toContain('Error generating years-based grid.');
+  });
+
+  it('uses UTC day boundaries for current-age state when date-fns-tz is unavailable', async () => {
+    vi.resetModules();
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date('2025-01-01T00:30:00Z'));
+
+    const shiftedStartOfDay = vi.fn((d) => {
+      const dt = new Date(d);
+      return new Date(Date.UTC(dt.getUTCFullYear(), dt.getUTCMonth(), dt.getUTCDate() - 1));
+    });
+
+    global.dateFns = {
+      ...makeMockDateFns(),
+      startOfDay: shiftedStartOfDay,
+    };
+
+    const { renderYearsGrid } = await import('../../js/gridRenderer.js');
+    const container = document.createElement('div');
+
+    renderYearsGrid(new Date(Date.UTC(2000, 0, 1)), 30, container);
+
+    const presentBlock = container.querySelector('.year-block.present');
+    expect(presentBlock).not.toBeNull();
+    expect(presentBlock.title).toContain('Age 25');
+    expect(shiftedStartOfDay).not.toHaveBeenCalled();
   });
 });

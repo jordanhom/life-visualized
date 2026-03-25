@@ -128,10 +128,6 @@ This collaborative approach enabled the creation of this MVP, serving as both a 
   - Full local CI gate: `npm run verify`
   - Coverage: `npm run test:coverage`
 
-- Current local baseline (2026-03-25):
-  - Tests: `11` files / `67` tests passing
-  - Coverage: `96.32%` statements, `78.84%` branches, `100%` functions, `97.8%` lines
-
 - CI notes:
   - CI is configured to use `npm ci`, then run `npm run verify` (lint + typecheck + tests).
   - CI runs on Node.js `20.x` and `22.x`.
