@@ -1,16 +1,27 @@
 # Active Context — Life Visualized
 
 ## Last Update
-- Date: 2026-01-23
-- Summary: WIP branch `wip-jhom-tests-20251124` merged into `main` (PR #22). Added timezone-handling improvements to `js/gridRenderer.js` and included `date-fns-tz` via CDN in `index.html` to support timezone-aware formatting.
+- Date: 2026-03-24
+- Summary: Security/tooling hardening completed on `main`: Dependabot remediation via dev-dependency upgrades, CI upgraded to Node 20, and quality gates (lint + typecheck + tests) added.
 
 ## Recent Changes
-- Added `date-fns-tz` CDN and updated renderer to use `utcToZonedTime` / `formatInTimeZone` when available; fallback to core `date-fns` when not present.
-- Ran unit tests locally: 44 tests passed.
-- Created issues for further cleanups and test hardening (#18, #20).
+- Upgraded dev deps:
+  - `vitest` -> `^4.1.1`
+  - `jsdom` -> `^29.0.1`
+  - `c8` -> `^11.0.0`
+- Added quality gate tooling and config:
+  - `eslint`, `@eslint/js`, `globals`
+  - `typescript`, `@types/node`
+  - `eslint.config.js`, `tsconfig.json`, `types/globals.d.ts`
+- Updated CI workflow to run:
+  - `npm ci`
+  - `npm run lint`
+  - `npm run typecheck`
+  - `npm run test:run`
+- Updated tests for Vitest 4 mocking semantics (`vi.doMock(...)` where needed).
+- Current local test baseline: 12 files / 47 tests passing.
 
 ## Next Steps
-- Tidy and make time-dependent tests deterministic (Issue #18).
-- Replace runtime life-expectancy test override with explicit mocking or add a dataOverride parameter (Issue #20).
-- Update docs and memory bank with these changes (this file).
-
+- Monitor default-branch Dependabot re-evaluation after push/PR merge.
+- Keep CI and local dev aligned to Node 20+.
+- Continue incremental modularization of large files (`js/ui.js`, `js/gridRenderer.js`, `css/style.css`) without behavior regressions.

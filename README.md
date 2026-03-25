@@ -77,7 +77,8 @@ This collaborative approach enabled the creation of this MVP, serving as both a 
 ## Technology Stack
 
 * **Frontend:** HTML5, CSS3 (including Flexbox, CSS Variables, `calc()`, `aspect-ratio`), Vanilla JavaScript (ES6+ Modules)
-* **Core Dependency:** `date-fns` v4.1.0 (loaded via CDN) for reliable date calculations (UTC-based). This library is used under the MIT License.
+* **Core Dependencies:** `date-fns` v4.1.0 and `date-fns-tz` v1.3.7 (both loaded via CDN) for UTC-safe date calculations and timezone-aware formatting. These libraries are used under the MIT License.
+* **Dev Tooling:** Vitest, JSDOM, c8, ESLint (flat config), and TypeScript (`tsc --noEmit` for project typecheck gate).
 * **Development:** Requires a simple local HTTP server (due to ES Modules). No build process currently.
 
 ## Getting Started

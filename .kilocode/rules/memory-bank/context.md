@@ -1,41 +1,47 @@
 # Current Context - Life Visualized
 
 ## Current Goal
-Post-MVP Monitoring & Planning
+Maintain a secure and stable post-MVP baseline with reproducible quality gates.
 
 ## Current Task
-MVP Launched. Monitoring initial feedback and planning for next iteration.
+Documentation and memory-bank sync after security/toolchain updates.
 
 ## Recent Changes
 
-- MVP Launched. (Reflected in `progress.md` task #16)
-- Completed Pre-Launch Bug Fixes & Refinements (tab focus, focus highlight behavior, page padding, CSS cleanup). (Details in `progress.md` task #15)
-- Successfully implemented all Critical UX Refinements (tasks 1-14) leading up to the MVP. (Details in `progress.md`)
-- Updated memory bank (`activeContext.md`, `progress.md`) to reflect current post-MVP status.
-- Consolidated "Recent Changes" and "Learnings & Insights" sections in `activeContext.md` for improved readability; `progress.md` retains detailed history.
+- Dependabot remediation performed by upgrading dev tooling dependencies and regenerating lockfile.
+- Added CI quality gates (`lint`, `typecheck`, `test:run`) and aligned workflow to Node 20.
+- Added local quality gate command: `npm run verify`.
+- Added project configs: `eslint.config.js`, `tsconfig.json`, `types/globals.d.ts`.
+- Updated tests for Vitest 4 mock behavior.
+- Local baseline validated: 47/47 tests pass; local `npm audit` reports 0 vulnerabilities.
 
 ## Next Action
-Monitor MVP performance, gather user feedback, and plan for v1.1.
+Push current branch and confirm Dependabot alert closure on default branch.
 
 ## Decisions
-- Zoom usability testing deferred for MVP.
-- Safari Tabbing Issue accepted for MVP with known limitations.
-- Decided not to align internal text of "How to Read This Visualization" guide with outer content blocks, as its parent container's alignment is sufficient.
-- Visual Diagram for Calendar View Guide deferred.
+- Adopted Node 20 as CI baseline due to `vitest@4` engine requirements.
+- Added lint + typecheck gates in CI before tests.
+- Typecheck gate currently uses TypeScript project validation without JS strict checking (`checkJs: false`) to keep signal actionable.
 
 ## Blockers
 None.
 
 ## Relevant Files Recently Modified
-- `index.html` (Updated for intro block, helper text, button state)
-- `css/style.css` (Updated styles for intro block, helper text, button disabled state)
-- `js/ui.js` (Updated for dynamic button state, axis label management, tablist keyboard navigation, Start Over button container)
+- `.github/workflows/ci.yml`
+- `package.json`
+- `package-lock.json`
+- `eslint.config.js`
+- `tsconfig.json`
+- `types/globals.d.ts`
+- `tests/unit/ui.test.js`
+- `tests/unit/ui.axis-aria.test.js`
+- `tests/unit/main.test.js`
+- `README.md`
 
 ## Open Questions/Decisions
-- Consider a broader "UI/UX consistency review" after the current critical UX refinements are implemented to ensure overall polish and cohesion.
-- User decision: Defer extensive accessibility changes post-MVP, focus on easy-to-implement/high-impact items for now.
-- Safari Tabbing Issue: Noted that in Safari, tabbing to the "Calculate & Visualize" button immediately after it becomes enabled, and tabbing to the "Start Over" button immediately after it becomes visible, does not consistently work. Works as expected in Chrome. Documented for potential future investigation if it becomes a higher priority.
-- Visual Diagram for Calendar View Guide deferred.
+- Should CI include coverage thresholds (`npm run test:coverage`) as an additional gate?
+- Should the project adopt stricter type checking over time (e.g., gradual `checkJs` opt-in per file)?
+- Should Dependabot auto-merge policy be enabled for low-risk devDependency patches?
 
 ## Learnings & Insights
 

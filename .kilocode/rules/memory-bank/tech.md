@@ -8,14 +8,26 @@
 
 ## 2. Key Libraries & Dependencies
 
-* **`date-fns` v4.1.0:**
+* **Runtime CDN dependencies:**
+  * **`date-fns` v4.1.0:**
   * **Usage:** Essential for all complex date calculations (getting weeks, adding units, formatting, comparing dates, handling ISO weeks/years).
   * **Integration:** Loaded via CDN (`https://cdn.jsdelivr.net/npm/date-fns@4.1.0/cdn.min.js`) in `index.html`. Accessed globally via the `dateFns` object.
   * **Constraint:** The application relies on this specific version (or compatible 4.x) being available globally. `gridRenderer.js` includes a basic check for its presence.
+  * **`date-fns-tz` v1.3.7:**
+  * **Usage:** Optional timezone-aware helpers (`utcToZonedTime`, `formatInTimeZone`) used by renderer fallback paths.
+  * **Integration:** Loaded via CDN (`https://cdn.jsdelivr.net/npm/date-fns-tz@1.3.7/dist/date-fns-tz.min.js`) in `index.html`. Accessed globally via `dateFnsTz`.
+
+* **Dev/test dependencies (npm):**
+  * `vitest` `^4.1.1`
+  * `jsdom` `^29.0.1`
+  * `c8` `^11.0.0`
+  * `eslint` `^10.1.0` (+ `@eslint/js`, `globals`)
+  * `typescript` `^6.0.2` (+ `@types/node`)
 
 ## 3. Development Setup & Environment
 
 * **Environment:** Standard web browser environment supporting HTML5, CSS3, and ES6+ JavaScript.
+* **Node baseline for tooling:** Node.js 20+.
 * **Build Process:** None currently required. The application runs directly from the source files (HTML, CSS, JS modules).
 * **Development Server:** A simple local HTTP server (like `live-server`, Python's `http.server`, etc.) is needed to serve the files locally due to the use of ES Modules (which have CORS restrictions when loaded via `file://`).
 
@@ -27,9 +39,11 @@
 
 ## 5. Tool Usage Patterns
 
-* **Version Control:** Git is used for version control, hosted on GitHub (`github.com:jordanhom/life-visualized.git`). The `mvp` branch is the active development branch.
+* **Version Control:** Git is used for version control, hosted on GitHub (`github.com:jordanhom/life-visualized.git`). `main` is the active integration branch.
 * **Editor:** Visual Studio Code appears to be the editor in use.
-* **Code Formatting/Linting:** No specific tools (like Prettier, ESLint) are explicitly configured, but code style appears generally consistent.
+* **Quality gates:**
+  * Local: `npm run verify` (lint + typecheck + tests)
+  * CI: `.github/workflows/ci.yml` runs `npm ci`, `npm run lint`, `npm run typecheck`, `npm run test:run`
 
 ## 6. Additional Notes from Historical Context
 

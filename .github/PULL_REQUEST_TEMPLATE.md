@@ -27,7 +27,7 @@ Please ensure you’ve done the following before requesting review:
 - [ ] Code builds and runs locally
 - [ ] Tests updated or added
 - [ ] Documentation updated (README or docs/)
-- [ ] Linting and formatting applied
+- [ ] Linting and typecheck pass locally (`npm run verify`)
 - [ ] Linked to an issue if applicable
 
 ---

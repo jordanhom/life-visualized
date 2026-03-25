@@ -32,8 +32,13 @@
   * The results statistics are displayed in a 2-column grid (`.results-stats-grid`) with `grid-template-columns: auto auto` and `width: fit-content`, centered within its container. Body padding and main container `max-width` have been adjusted for better large-screen layout. (NEW)
   * Responsive CSS reduces vertical padding/margins in the results area and removes body top/bottom padding on small screens to optimize vertical space. (NEW)
 * **Dependency Management:**
-  * **Pattern:** `date-fns` library is loaded via CDN. `gridRenderer.js` includes a check (`checkDateFns`) for its presence.
-  * **Rationale:** Simple integration for a key dependency.
+  * **Pattern:** `date-fns` and `date-fns-tz` are loaded via CDN for runtime date behavior. `gridRenderer.js` includes runtime presence checks and fallback behavior.
+  * **Pattern:** Dev/test/tooling dependencies are managed via npm lockfile; CI uses `npm ci` for reproducible installs.
+  * **Rationale:** Keep runtime lightweight while enforcing deterministic dev/test environments.
+* **Quality Gates:**
+  * **Pattern:** Standardized local/CI verification path: lint -> typecheck -> unit tests.
+  * **Implementation:** `npm run verify` locally; CI workflow executes equivalent steps.
+  * **Rationale:** Catch syntax/static issues before test execution and keep branch quality consistent.
 
 ## 3. Component Relationships & Data Flow - Updated for Nested Structure
 
