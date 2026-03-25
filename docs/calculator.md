@@ -13,8 +13,9 @@ Public API (current)
   - Returns completed years based on the current UTC date/time.
   - Throws Error on invalid input (non-Date or invalid Date).
   - Uses UTC getters (getUTCFullYear/getUTCMonth/getUTCDate) to avoid timezone/DST inconsistencies.
-- getRemainingExpectancy(age: number, sex: 'male'|'female'): Promise<number|null>
-  - Asynchronously reads `lifeExpectancyData` (or uses the in-memory test override) and returns a numeric estimate.
+- getRemainingExpectancy(age: number, sex: 'male'|'female', dataOverride?: object|null): Promise<number|null>
+  - Asynchronously reads `lifeExpectancyData` and returns a numeric estimate.
+  - Optional `dataOverride` supports deterministic tests without mutable module state.
   - Throws Error for invalid inputs (non-finite age or invalid sex).
   - Returns a finite number when a valid bracket/value is found; throws when the data value is invalid (NaN/Infinity/non-numeric).
   - Returns `null` in cases where the sex data is missing or the sex-specific dataset is empty.
@@ -30,9 +31,9 @@ Important behaviors and implementation notes
   - If no defined bracket is ≤ the lookup age (all defined brackets are larger), the implementation falls back to the lowest defined bracket deterministically (this behavior was added to handle non-standard datasets).
   - To improve performance, consider caching parsed/sorted bracket arrays per sex (future work).
 
-- Test override and API surface:
-  - The module currently exposes a test helper [`__setLifeExpectancyDataOverride`](js/calculator.js:55) that injects a dataset for tests.
-  - Recommended next step: replace the global mutable override with an explicit optional `dataOverride` parameter on `getRemainingExpectancy(age, sex, dataOverride)` and deprecate the setter. This makes tests explicit and avoids hidden mutable state.
+- Test data override:
+  - Tests should pass an explicit optional `dataOverride` parameter to `getRemainingExpectancy(age, sex, dataOverride)`.
+  - This keeps test data local to each call and avoids hidden mutable module state.
 
 Error policy and contracts
 - Inputs:
@@ -54,7 +55,7 @@ Testing notes (updated)
   - Sex validation: invalid sex throws (tests expect thrown Error).
   - Malformed data: invalid numeric values (NaN/Infinity/non-numeric string) cause a thrown Error in current implementation (tests assert throws).
   - Empty sex dataset -> returns `null`.
-  - Test override: current tests use [`__setLifeExpectancyDataOverride`](js/calculator.js:55); preference is to migrate tests to pass an explicit override param (future change).
+  - Deterministic overrides: pass `dataOverride` directly in test calls.
 
 Examples
 - calculateCurrentAge(new Date('1990-06-10T00:00:00Z')) // uses UTC date parts
@@ -64,7 +65,6 @@ Future improvements (non-blocking)
 - Make data import synchronous and memoize parsed datasets:
   - Import `lifeExpectancyData` at module top and cache parsed/sorted bracket arrays per-sex to avoid repeated parsing & sorting on every call.
   - If synchronous import is used the API could be simplified to a synchronous `getRemainingExpectancy(...)` (trade-off: simpler API vs larger module init).
-- Replace global test override with explicit `dataOverride` parameter and deprecate `__setLifeExpectancyDataOverride`.
 - Add explicit caching for parsed brackets and optionally expose a small internal helper to parse/inspect bracket data for tests.
 - Add comprehensive JSDoc and a `.d.ts` file to improve developer ergonomics and make the contract explicit.
 - Decide and document a single consistent error policy (throw vs return-null) for data-not-found vs invalid-data cases; current implementation mixes both intentionally for test visibility.

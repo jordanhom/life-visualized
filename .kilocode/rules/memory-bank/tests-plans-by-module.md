@@ -12,7 +12,7 @@ Brief: Separate, focused test plans for each core module to keep the memory bank
   3. Invalid data handling: non-numeric strings, Infinity, NaN, missing sex keys -> returns null.
 - Test notes:
   - Freeze time with `vi.useFakeTimers()` and `vi.setSystemTime()` for deterministic age tests.
-  - Do NOT rely on runtime mutation helpers inside the production module (e.g., `__setLifeExpectancyDataOverride`). Prefer module mocking:
+  - Do NOT rely on runtime mutation helpers inside production modules. Prefer explicit `dataOverride` params or module mocking:
     - Use `vi.mock('../../js/data.js', () => ({ lifeExpectancyData: { /* fixture */ }}))` in tests to supply deterministic datasets.
     - This keeps tests isolated and avoids runtime state leaks between tests.
   - Use `vi.resetModules()` when switching mocked implementations between tests.
@@ -80,7 +80,7 @@ Brief: Separate, focused test plans for each core module to keep the memory bank
 - Test runner: Vitest + JSDOM (configured in [`package.json`](package.json:1)).
 - Use `vi.useFakeTimers()` and `vi.setSystemTime()` for deterministic date tests.
 - Use `vi.resetModules()` and `vi.mock()` to isolate module imports and provide deterministic data fixtures.
-- Avoid runtime mutation helpers embedded in production modules (e.g., `__setLifeExpectancyDataOverride`). Prefer supplying test fixtures via `vi.mock('../../js/data.js')` or mocking the imported calculator functions when isolating UI code.
+- Avoid runtime mutation helpers embedded in production modules. Prefer supplying test fixtures via explicit `dataOverride`, `vi.mock('../../js/data.js')`, or mocking imported calculator functions when isolating UI code.
 - For renderer tests that rely on date calculations, mock only the specific `date-fns` functions used and set `global.dateFns` to a minimal deterministic shim where needed.
 - Create/teardown DOM fixtures per test to avoid state leakage.
 - Recommended order: start with calculator and data tests (highest priority), then grid renderer helpers and edge cases, then ui and integration tests.

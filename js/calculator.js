@@ -48,18 +48,9 @@ function calculateCurrentAge(birthDate) {
  * Uses the imported `lifeExpectancyData`.
  * @param {number} age - Current age in years.
  * @param {string} sex - 'male' or 'female'.
+ * @param {object|null} [dataOverride=null] - Optional explicit dataset override for tests.
  * @returns {Promise<number|null>} Estimated remaining years, or null if not found.
  */
-let __test_lifeExpectancyDataOverride = null;
-
-/**
- * Test helper: inject a deterministic lifeExpectancyData object for tests.
- * Pass `null` to clear the override.
- * @param {object|null} val
- */
-function __setLifeExpectancyDataOverride(val) {
-    __test_lifeExpectancyDataOverride = val;
-}
 
 /**
  * Helper function to find the applicable age bracket efficiently
@@ -97,11 +88,7 @@ async function getRemainingExpectancy(age, sex, dataOverride = null) {
         throw new Error('Invalid sex provided to getRemainingExpectancy. Must be "male" or "female"');
     }
 
-    // Preference order for data source:
-    // 1. explicit dataOverride parameter (preferred for tests)
-    // 2. runtime test override (__setLifeExpectancyDataOverride) for backward compatibility
-    // 3. dynamic import from ./data.js in production
-    const lifeExpectancyData = dataOverride ?? __test_lifeExpectancyDataOverride ?? (await import('./data.js')).lifeExpectancyData;
+    const lifeExpectancyData = dataOverride ?? (await import('./data.js')).lifeExpectancyData;
     
     const sexData = lifeExpectancyData[sex];
     if (!sexData) {
@@ -157,4 +144,4 @@ async function getRemainingExpectancy(age, sex, dataOverride = null) {
 }
 
 // Export the calculation functions
-export { calculateCurrentAge, getRemainingExpectancy, __setLifeExpectancyDataOverride };
+export { calculateCurrentAge, getRemainingExpectancy };
