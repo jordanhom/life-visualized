@@ -1,3 +1,5 @@
+// @ts-check
+
 /**
  * @module calculator
  * @description Provides core calculation functions: determining current age in whole
@@ -21,7 +23,7 @@
  */
 function calculateCurrentAge(birthDate) {
     // Validate input
-    if (!(birthDate instanceof Date) || isNaN(birthDate)) {
+    if (!(birthDate instanceof Date) || Number.isNaN(birthDate.getTime())) {
         throw new Error('Invalid birthDate provided to calculateCurrentAge');
     }
     
@@ -44,12 +46,12 @@ function calculateCurrentAge(birthDate) {
 }
 
 /**
- * Looks up the estimated remaining life expectancy based on age and sex.
- * Uses the imported `lifeExpectancyData`.
- * @param {number} age - Current age in years.
- * @param {string} sex - 'male' or 'female'.
- * @param {object|null} [dataOverride=null] - Optional explicit dataset override for tests.
- * @returns {Promise<number|null>} Estimated remaining years, or null if not found.
+ * @typedef {Record<string, number|string>} SexExpectancyTable
+ * @typedef {{
+ *   male?: SexExpectancyTable,
+ *   female?: SexExpectancyTable,
+ *   [sex: string]: SexExpectancyTable|undefined
+ * }} LifeExpectancyData
  */
 
 /**
@@ -78,6 +80,14 @@ function _findApplicableBracket(sortedBrackets, lookupAge) {
     return result;
 }
 
+/**
+ * Looks up the estimated remaining life expectancy based on age and sex.
+ * Uses the imported `lifeExpectancyData`.
+ * @param {number} age - Current age in years.
+ * @param {'male'|'female'} sex - Biological sex key for expectancy table lookup.
+ * @param {LifeExpectancyData|null} [dataOverride=null] - Optional explicit dataset override for tests.
+ * @returns {Promise<number|null>} Estimated remaining years, or null if not found.
+ */
 async function getRemainingExpectancy(age, sex, dataOverride = null) {
     // Validate inputs
     if (typeof age !== 'number' || !Number.isFinite(age)) {
@@ -88,6 +98,7 @@ async function getRemainingExpectancy(age, sex, dataOverride = null) {
         throw new Error('Invalid sex provided to getRemainingExpectancy. Must be "male" or "female"');
     }
 
+    /** @type {LifeExpectancyData} */
     const lifeExpectancyData = dataOverride ?? (await import('./data.js')).lifeExpectancyData;
     
     const sexData = lifeExpectancyData[sex];

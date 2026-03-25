@@ -31,6 +31,11 @@ Important behaviors and implementation notes
   - If no defined bracket is ≤ the lookup age (all defined brackets are larger), the implementation falls back to the lowest defined bracket deterministically (this behavior was added to handle non-standard datasets).
   - To improve performance, consider caching parsed/sorted bracket arrays per sex (future work).
 
+- Type-safety (incremental):
+  - `js/calculator.js` now uses file-level `// @ts-check`.
+  - JSDoc typedefs define the expected shape of expectancy data and the `dataOverride` contract.
+  - Input date validation uses `Number.isNaN(birthDate.getTime())` for clearer, type-safe checks.
+
 - Test data override:
   - Tests should pass an explicit optional `dataOverride` parameter to `getRemainingExpectancy(age, sex, dataOverride)`.
   - This keeps test data local to each call and avoids hidden mutable module state.
