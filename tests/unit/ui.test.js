@@ -72,7 +72,7 @@ describe('ui module (setup & form flow)', () => {
     document.body.appendChild(gridContainer);
 
     // Mock the calculator module imported by ui.js
-    vi.mock('../../js/calculator.js', async () => {
+    vi.doMock('../../js/calculator.js', async () => {
       return {
         calculateCurrentAge: vi.fn(() => 30),
         getRemainingExpectancy: vi.fn(async () => 50)
@@ -80,7 +80,7 @@ describe('ui module (setup & form flow)', () => {
     });
 
     // Mock the gridRenderer functions so renderCurrentView does not depend on date-fns
-    vi.mock('../../js/gridRenderer.js', async () => {
+    vi.doMock('../../js/gridRenderer.js', async () => {
       return {
         renderAgeGrid: vi.fn(() => {}),
         renderCalendarGrid: vi.fn(() => {}),
