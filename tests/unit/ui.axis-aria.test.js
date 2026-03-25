@@ -69,7 +69,7 @@ describe('ui axis labels & ARIA integration', () => {
       } else if (dom && dom.window && typeof dom.window.close === 'function') {
         dom.window.close();
       }
-    } catch (e) {
+    } catch (_e) {
       // ignore teardown errors in cleanup
     }
     vi.useRealTimers();

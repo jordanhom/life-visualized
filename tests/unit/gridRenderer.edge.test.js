@@ -27,7 +27,7 @@ describe('gridRenderer edge cases', () => {
         return new Date(Date.UTC(dt.getUTCFullYear(), dt.getUTCMonth(), dt.getUTCDate() + diff));
       },
       addYears: (d, n) => new Date(Date.UTC(d.getUTCFullYear() + n, d.getUTCMonth(), d.getUTCDate())),
-      eachWeekOfInterval: ({ start, end }) => {
+      eachWeekOfInterval: ({ start, end: _end }) => {
         // Produce an array of 54 consecutive week-start dates beginning at `start`.
         const weeks = [];
         for (let i = 0; i < 54; i++) {
@@ -39,7 +39,7 @@ describe('gridRenderer edge cases', () => {
       },
       isBefore: (a, b) => a.getTime() < b.getTime(),
       isAfter: (a, b) => a.getTime() > b.getTime(),
-      format: (d, fmt) => {
+      format: (d, _fmt) => {
         const y = d.getUTCFullYear();
         const m = String(d.getUTCMonth() + 1).padStart(2, '0');
         const day = String(d.getUTCDate()).padStart(2, '0');

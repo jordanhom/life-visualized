@@ -27,8 +27,13 @@ export default [
   {
     files: ['tests/**/*.js'],
     rules: {
+      'no-unused-vars': ['error', { argsIgnorePattern: '^_', caughtErrorsIgnorePattern: '^_' }],
+    },
+  },
+  {
+    files: ['tests/setup/jsdom-helper.js'],
+    rules: {
       'no-empty': 'off',
-      'no-unused-vars': 'off',
     },
   },
 ];

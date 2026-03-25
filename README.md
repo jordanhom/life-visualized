@@ -128,7 +128,8 @@ This collaborative approach enabled the creation of this MVP, serving as both a 
   - Full local CI gate: `npm run verify`
 
 - CI notes:
-  - CI is configured to use `npm ci`, then run lint, typecheck, and tests.
+  - CI is configured to use `npm ci`, then run `npm run verify` (lint + typecheck + tests).
+  - CI runs on Node.js `20.x` and `22.x`.
   - CI caches npm for speed; this ensures reproducible installs and avoids committing dependency trees.
   - The workflow lives at [`.github/workflows/ci.yml`](.github/workflows/ci.yml:1).
 

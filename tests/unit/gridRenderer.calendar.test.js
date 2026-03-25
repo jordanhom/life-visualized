@@ -38,7 +38,7 @@ describe('gridRenderer calendar view', () => {
         thursday.setUTCDate(date.getUTCDate() + (4 - day));
         return thursday.getUTCFullYear();
       },
-      getISOWeeksInYear: (d) => {
+      getISOWeeksInYear: (_d) => {
         // Simple implementation for testing
         return 52; // Default to 52 weeks in year
       },
@@ -106,7 +106,7 @@ describe('gridRenderer calendar view', () => {
       },
       addYears: (d, n) => new Date(Date.UTC(d.getUTCFullYear() + n, d.getUTCMonth(), d.getUTCDate())),
       getISOWeekYear: (d) => new Date(d).getUTCFullYear(),
-      getISOWeeksInYear: (d) => 53,
+      getISOWeeksInYear: (_d) => 53,
       setISOWeekYear: (date, isoYear) => new Date(Date.UTC(isoYear, 0, 4)),
       setISOWeek: (date, weekNum) => {
         const firstWeekMonday = new Date(Date.UTC(date.getUTCFullYear(), 0, 4));
