@@ -43,9 +43,19 @@
 * **Editor:** Visual Studio Code appears to be the editor in use.
 * **Quality gates:**
   * Local: `npm run verify` (lint + typecheck + tests)
+  * Local coverage: `npm run test:coverage`
   * CI: `.github/workflows/ci.yml` runs `npm ci`, `npm run lint`, `npm run typecheck`, `npm run test:run`
 
-## 6. Additional Notes from Historical Context
+## 6. Current Test/Coverage Baseline (2026-03-25)
+
+* Unit test files: `11`
+* Passing tests: `67`
+* Coverage:
+  * Statements: `96.32%`
+  * Branches: `78.84%`
+  * Functions: `100%`
+  * Lines: `97.8%`
+## 7. Additional Notes from Historical Context
 
 * The project has undergone multiple iterations of UX refinement focusing on clarity, simplicity, and accessibility.
 * Accessibility improvements include ARIA roles, keyboard navigation, and focus management.

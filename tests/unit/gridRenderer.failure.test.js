@@ -64,6 +64,26 @@ describe('gridRenderer failure modes', () => {
     expect(err.textContent).toContain('Error: Date library failed to load');
   });
 
+  it('shows an error message when months renderer throws unexpectedly', async () => {
+    global.dateFns = {
+      startOfDay: () => {
+        throw new Error('forced months failure');
+      },
+    };
+
+    const errSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    const { renderMonthsGrid } = await import('../../js/gridRenderer.js');
+    const container = document.createElement('div');
+    const birthDateUTC = new Date(Date.UTC(2000, 0, 1));
+
+    renderMonthsGrid(birthDateUTC, 1, container);
+
+    const err = container.querySelector('.error-message');
+    expect(err).not.toBeNull();
+    expect(err.textContent).toContain('Error generating months-based grid.');
+    expect(errSpy).toHaveBeenCalled();
+  });
+
   it('shows an error message in the DOM when dateFns is missing for years renderer', async () => {
     const { renderYearsGrid } = await import('../../js/gridRenderer.js');
     const container = document.createElement('div');
@@ -72,5 +92,25 @@ describe('gridRenderer failure modes', () => {
     const err = container.querySelector('.error-message');
     expect(err).not.toBeNull();
     expect(err.textContent).toContain('Error: Date library failed to load');
+  });
+
+  it('shows an error message when calendar renderer throws unexpectedly', async () => {
+    global.dateFns = {
+      startOfDay: () => {
+        throw new Error('forced calendar failure');
+      },
+    };
+
+    const errSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    const { renderCalendarGrid } = await import('../../js/gridRenderer.js');
+    const container = document.createElement('div');
+    const birthDateUTC = new Date(Date.UTC(2000, 0, 1));
+
+    renderCalendarGrid(birthDateUTC, 1, container);
+
+    const err = container.querySelector('.error-message');
+    expect(err).not.toBeNull();
+    expect(err.textContent).toContain('Error generating calendar-based grid.');
+    expect(errSpy).toHaveBeenCalled();
   });
 });

@@ -1,27 +1,30 @@
 # Current Context - Life Visualized
 
 ## Current Goal
-Maintain a secure and stable post-MVP baseline with reproducible quality gates.
+Maintain a stable, high-signal test baseline with stronger branch coverage and minimal test noise.
 
 ## Current Task
-Documentation and memory-bank sync after security/toolchain updates.
+Test-suite value review, duplicate/obsolete test cleanup, and docs/memory-bank synchronization.
 
 ## Recent Changes
 
-- Dependabot remediation performed by upgrading dev tooling dependencies and regenerating lockfile.
-- Added CI quality gates (`lint`, `typecheck`, `test:run`) and aligned workflow to Node 20.
-- Added local quality gate command: `npm run verify`.
-- Added project configs: `eslint.config.js`, `tsconfig.json`, `types/globals.d.ts`.
-- Updated tests for Vitest 4 mock behavior.
-- Local baseline validated: 47/47 tests pass; local `npm audit` reports 0 vulnerabilities.
+- Expanded branch-focused test coverage across `ui`, `calculator`, and `gridRenderer` unit suites.
+- Added deterministic tests for view-switching keyboard paths, renderer catch paths, fallback DOM branches, and calculator bracket-fallback edge cases.
+- Removed low-value overlap from the suite:
+  - `tests/unit/data-inspect.test.js` deleted (debug-only assertions duplicated by data integrity tests).
+  - Duplicate `nonbinary` invalid-sex assertion removed from `calculator.test.js`.
+- Local baseline validated:
+  - `npm run verify` -> 67/67 tests passing
+  - `npm run test:coverage` -> 96.32% statements, 78.84% branches, 100% functions, 97.8% lines
 
 ## Next Action
-Push current branch and confirm Dependabot alert closure on default branch.
+Commit branch with test cleanup + coverage updates and open PR.
 
 ## Decisions
 - Adopted Node 20 as CI baseline due to `vitest@4` engine requirements.
 - Added lint + typecheck gates in CI before tests.
 - Typecheck gate currently uses TypeScript project validation without JS strict checking (`checkJs: false`) to keep signal actionable.
+- Keep defensive-but-unreachable renderer warning branches as known residual coverage gaps rather than forcing brittle synthetic tests.
 
 ## Blockers
 None.
@@ -37,6 +40,10 @@ None.
 - `tests/unit/ui.axis-aria.test.js`
 - `tests/unit/main.test.js`
 - `README.md`
+- `docs/2026-03-25-changes.md`
+- `.kilocode/rules/memory-bank/activeContext.md`
+- `.kilocode/rules/memory-bank/progress.md`
+- `.kilocode/rules/memory-bank/tests-plans-by-module.md`
 
 ## Open Questions/Decisions
 - Should CI include coverage thresholds (`npm run test:coverage`) as an additional gate?

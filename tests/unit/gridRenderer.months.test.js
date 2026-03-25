@@ -99,4 +99,32 @@ describe('gridRenderer months view', () => {
     expect(some.title).toContain('Age');
     expect(some.title).toContain('Month');
   });
+
+  it('skips month blocks that start after estimated end date', async () => {
+    vi.resetModules();
+    global.dateFns = {
+      ...global.dateFns,
+      // Keep estimated end short for fractional lifespan, but move quickly for month indices.
+      addYears: (d, years) => {
+        const dt = new Date(d);
+        const monthsToAdd = Number.isInteger(years) ? years * 12 : 1;
+        return new Date(Date.UTC(dt.getUTCFullYear(), dt.getUTCMonth() + monthsToAdd, dt.getUTCDate()));
+      },
+      addMonths: (d, months) => {
+        const dt = new Date(d);
+        const monthsToAdd = months * 2;
+        return new Date(Date.UTC(dt.getUTCFullYear(), dt.getUTCMonth() + monthsToAdd, dt.getUTCDate()));
+      },
+    };
+
+    const { renderMonthsGrid } = await import('../../js/gridRenderer.js');
+    const birthDateUTC = new Date(Date.UTC(2000, 0, 1));
+    const container = document.createElement('div');
+
+    // ceil(0.25 * 12) => 3 iterations; with accelerated addMonths only first block remains in-range.
+    renderMonthsGrid(birthDateUTC, 0.25, container);
+
+    const monthBlocks = container.querySelectorAll('.month-block');
+    expect(monthBlocks.length).toBe(1);
+  });
 });

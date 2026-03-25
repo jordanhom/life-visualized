@@ -8,8 +8,8 @@ Brief: Separate, focused test plans for each core module to keep the memory bank
 - Priority: High
 - Tests:
   1. Age calculation edge cases: birthday passed, birthday not reached, leap-day handling, future birth date.
-  2. getRemainingExpectancy: exact bracket matches, mid-bracket ages, very large ages (fallback to highest bracket), unknown sex -> null.
-  3. Invalid data handling: non-numeric strings, Infinity, NaN, missing sex keys -> returns null.
+  2. getRemainingExpectancy: exact bracket matches, mid-bracket ages, very large ages (fallback to highest bracket), invalid sex -> throws.
+  3. Invalid data handling: non-numeric strings, Infinity, NaN -> throws; missing sex key / empty bracket map -> returns null.
 - Test notes:
   - Freeze time with `vi.useFakeTimers()` and `vi.setSystemTime()` for deterministic age tests.
   - Do NOT rely on runtime mutation helpers inside production modules. Prefer explicit `dataOverride` params or module mocking:
@@ -41,6 +41,7 @@ Brief: Separate, focused test plans for each core module to keep the memory bank
   4. `renderMonthsGrid`: 12 months per row; month state classification and life stage assignment.
   5. `renderYearsGrid`: decade rows (10/year); current year highlighting; state classes.
   6. Failure modes: missing `dateFns` -> DOM shows error-message; missing DOM element param -> no throw.
+  7. Per-week calendar fallback: one ISO week computation failure logs error and rendering continues for remaining weeks.
 - Test notes: Use JSDOM; mock global.dateFns with minimal functions required by each test to keep tests deterministic and fast.
 - Estimated effort: 6–12 tests
 
@@ -53,8 +54,10 @@ Brief: Separate, focused test plans for each core module to keep the memory bank
   2. `handleCalculation` success path: mock `calculateCurrentAge` and `getRemainingExpectancy` to confirm results rendering, `lastCalcData` set, progressive reveal (form hidden, grid shown).
   3. `handleCalculation` error paths: invalid date input, future date, expectancy returns null -> displayError and grid stays hidden.
   4. `renderCurrentView`: clears content when no data; sets aria-label/tabindex when rendered; adds view-specific class to container.
-  5. `handleViewChange`: updates `currentView`, toggles `.active` and ARIA attributes, re-renders.
-  6. `handleStartOver`: resets inputs, hides containers, clears `lastCalcData`.
+  5. `renderCurrentView` fallback/error paths: missing `#grid-content-area` -> grid layout error fallback, renderer exception -> error message and aria cleanup.
+  6. `handleViewChange`: updates `currentView`, toggles `.active` and ARIA attributes, re-renders; unknown view shows invalid-view error.
+  7. Keyboard tablist navigation: Arrow/Home/End handling, wrap-around, non-tab focus guard, unhandled key no-op.
+  8. `handleStartOver`: resets inputs, hides containers, clears `lastCalcData`.
 - Test notes: Build DOM fixture using snippets from [`index.html`](index.html:1); stub imported calculator functions; use vi.resetModules() and vi.mock() for isolation.
 - Estimated effort: 8–14 tests
 
@@ -75,6 +78,16 @@ Brief: Separate, focused test plans for each core module to keep the memory bank
   2. Error flow: invalid birthdate -> error shown; grid remains hidden; `lastCalcData` unchanged.
 - Test notes: Use real modules but mock `dateFns` and `lifeExpectancyData` as needed; run in JSDOM.
 - Estimated effort: 3–5 tests
+
+## Current Status Snapshot (2026-03-25)
+- Unit test files: `11`
+- Tests passing: `67`
+- Coverage:
+  - Statements: `96.32%`
+  - Branches: `78.84%`
+  - Functions: `100%`
+  - Lines: `97.8%`
+- Known residual branch gaps are concentrated in defensive renderer branches that are difficult to reach without brittle synthetic mocks.
 
 ## Implementation & Best Practices
 - Test runner: Vitest + JSDOM (configured in [`package.json`](package.json:1)).

@@ -128,11 +128,6 @@ describe('calculator', () => {
       expect(val).toBeCloseTo(expected, 6);
     });
 
-    it('throws error for unknown sex', async () => {
-      const mod = await import('../../js/calculator.js');
-      await expect(mod.getRemainingExpectancy(30, 'nonbinary')).rejects.toThrowError('Invalid sex provided to getRemainingExpectancy. Must be "male" or "female"');
-    });
-
     it('throws error for invalid age', async () => {
       const mod = await import('../../js/calculator.js');
       await expect(mod.getRemainingExpectancy("invalid", "male")).rejects.toThrowError('Invalid age provided to getRemainingExpectancy');
@@ -196,6 +191,29 @@ describe('calculator', () => {
       const mod = await import('../../js/calculator.js');
       const val = await mod.getRemainingExpectancy(30, 'male', { male: {} });
       expect(val).toBeNull();
+    });
+
+    it('returns null when requested sex data is missing in override', async () => {
+      vi.resetModules();
+      const mod = await import('../../js/calculator.js');
+      const val = await mod.getRemainingExpectancy(30, 'male', { female: { "0": 80 } });
+      expect(val).toBeNull();
+    });
+
+    it('exercises fallback bracket path when numeric keys are malformed with leading zero', async () => {
+      vi.resetModules();
+      const mod = await import('../../js/calculator.js');
+      await expect(mod.getRemainingExpectancy(0, 'male', { male: { "05": 60 } }))
+        .rejects
+        .toThrowError('Remaining years data not found or invalid for sex: male, age bracket: 5');
+    });
+
+    it('exercises nearest-lower fallback branch with malformed keys before final validation', async () => {
+      vi.resetModules();
+      const mod = await import('../../js/calculator.js');
+      await expect(mod.getRemainingExpectancy(7, 'male', { male: { "05": 60, "10": 50 } }))
+        .rejects
+        .toThrowError('Remaining years data not found or invalid for sex: male, age bracket: 5');
     });
   });
 });

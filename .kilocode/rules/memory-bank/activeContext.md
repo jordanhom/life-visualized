@@ -1,8 +1,8 @@
 # Active Context — Life Visualized
 
 ## Last Update
-- Date: 2026-03-24
-- Summary: Security/tooling hardening completed on `main`: Dependabot remediation via dev-dependency upgrades, CI upgraded to Node 20, and quality gates (lint + typecheck + tests) added.
+- Date: 2026-03-25
+- Summary: Branch test expansion pass completed. Coverage increased substantially with focused `ui`/`gridRenderer`/`calculator` tests, then low-value duplicate tests were pruned.
 
 ## Recent Changes
 - Upgraded dev deps:
@@ -19,9 +19,24 @@
   - `npm run typecheck`
   - `npm run test:run`
 - Updated tests for Vitest 4 mocking semantics (`vi.doMock(...)` where needed).
-- Current local test baseline: 12 files / 47 tests passing.
+- Expanded branch-focused coverage tests across:
+  - `tests/unit/ui.test.js`
+  - `tests/unit/calculator.test.js`
+  - `tests/unit/gridRenderer.calendar.test.js`
+  - `tests/unit/gridRenderer.months.test.js`
+  - `tests/unit/gridRenderer.years.test.js`
+  - `tests/unit/gridRenderer.failure.test.js`
+- Pruned low-value test overlap:
+  - Removed `tests/unit/data-inspect.test.js` (debug-only).
+  - Removed duplicate invalid-sex assertion in `calculator.test.js`.
+- Current local test baseline: 11 files / 67 tests passing.
+- Current local coverage baseline:
+  - Statements `96.32%`
+  - Branches `78.84%`
+  - Functions `100%`
+  - Lines `97.8%`
 
 ## Next Steps
-- Monitor default-branch Dependabot re-evaluation after push/PR merge.
-- Keep CI and local dev aligned to Node 20+.
-- Continue incremental modularization of large files (`js/ui.js`, `js/gridRenderer.js`, `css/style.css`) without behavior regressions.
+- Push branch changes and open PR with updated coverage summary.
+- Decide whether to enforce minimum branch coverage in CI.
+- Keep focused refactor work scoped to high-complexity modules (`js/ui.js`, `js/gridRenderer.js`) while preserving current test baseline.

@@ -201,4 +201,100 @@ describe('gridRenderer calendar view', () => {
     expect(weekBlocks.length).toBeGreaterThan(0);
     expect(weekBlocks[0].title).toContain('Year');
   });
+
+  it('marks present and future weeks when blocks are within lifespan bounds', async () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date('2025-01-06T00:00:00Z'));
+
+    vi.resetModules();
+    const { JSDOM } = await import('jsdom');
+    const dom = new JSDOM('<!doctype html><html><body></body></html>');
+    global.window = dom.window;
+    global.document = dom.window.document;
+    global.HTMLElement = dom.window.HTMLElement;
+    global.Node = dom.window.Node;
+
+    global.dateFns = {
+      startOfDay: (d) => new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate())),
+      startOfISOWeek: (d) => {
+        const dt = new Date(d);
+        const day = dt.getUTCDay();
+        const diff = (day === 0 ? -6 : 1) - day;
+        return new Date(Date.UTC(dt.getUTCFullYear(), dt.getUTCMonth(), dt.getUTCDate() + diff));
+      },
+      addYears: (d, n) => new Date(Date.UTC(d.getUTCFullYear() + n, d.getUTCMonth(), d.getUTCDate())),
+      getISOWeekYear: (d) => new Date(d).getUTCFullYear(),
+      getISOWeeksInYear: () => 3,
+      setISOWeekYear: (_date, isoYear) => new Date(Date.UTC(isoYear, 0, 4)),
+      setISOWeek: (date, weekNum) => {
+        const firstWeekMonday = new Date(Date.UTC(date.getUTCFullYear(), 0, 6));
+        return new Date(firstWeekMonday.getTime() + (weekNum - 1) * 7 * 24 * 60 * 60 * 1000);
+      },
+      format: (d) => {
+        const y = d.getUTCFullYear();
+        const m = String(d.getUTCMonth() + 1).padStart(2, '0');
+        const day = String(d.getUTCDate()).padStart(2, '0');
+        return `${y}-${m}-${day}`;
+      },
+      isBefore: (a, b) => a.getTime() < b.getTime(),
+      isAfter: (a, b) => a.getTime() > b.getTime(),
+    };
+
+    const { renderCalendarGrid } = await import('../../js/gridRenderer.js');
+    const container = document.createElement('div');
+    renderCalendarGrid(new Date(Date.UTC(2025, 0, 6)), 1, container);
+
+    expect(container.querySelectorAll('.present').length).toBeGreaterThanOrEqual(1);
+    expect(container.querySelectorAll('.future').length).toBeGreaterThanOrEqual(1);
+    vi.useRealTimers();
+  });
+
+  it('continues rendering when one ISO week calculation throws', async () => {
+    vi.resetModules();
+    const { JSDOM } = await import('jsdom');
+    const dom = new JSDOM('<!doctype html><html><body></body></html>');
+    global.window = dom.window;
+    global.document = dom.window.document;
+    global.HTMLElement = dom.window.HTMLElement;
+    global.Node = dom.window.Node;
+
+    global.dateFns = {
+      startOfDay: (d) => new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate())),
+      startOfISOWeek: (d) => {
+        const dt = new Date(d);
+        const day = dt.getUTCDay();
+        const diff = (day === 0 ? -6 : 1) - day;
+        return new Date(Date.UTC(dt.getUTCFullYear(), dt.getUTCMonth(), dt.getUTCDate() + diff));
+      },
+      addYears: (d, n) => new Date(Date.UTC(d.getUTCFullYear() + n, d.getUTCMonth(), d.getUTCDate())),
+      getISOWeekYear: (d) => new Date(d).getUTCFullYear(),
+      getISOWeeksInYear: () => 3,
+      setISOWeekYear: (_date, isoYear) => new Date(Date.UTC(isoYear, 0, 4)),
+      setISOWeek: (date, weekNum) => {
+        if (weekNum === 2) throw new Error('forced week failure');
+        const firstWeekMonday = new Date(Date.UTC(date.getUTCFullYear(), 0, 6));
+        return new Date(firstWeekMonday.getTime() + (weekNum - 1) * 7 * 24 * 60 * 60 * 1000);
+      },
+      format: (d) => {
+        const y = d.getUTCFullYear();
+        const m = String(d.getUTCMonth() + 1).padStart(2, '0');
+        const day = String(d.getUTCDate()).padStart(2, '0');
+        return `${y}-${m}-${day}`;
+      },
+      isBefore: (a, b) => a.getTime() < b.getTime(),
+      isAfter: (a, b) => a.getTime() > b.getTime(),
+    };
+
+    const errSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    const { renderCalendarGrid } = await import('../../js/gridRenderer.js');
+    const container = document.createElement('div');
+
+    renderCalendarGrid(new Date(Date.UTC(2025, 0, 6)), 1, container);
+
+    expect(errSpy).toHaveBeenCalled();
+    expect(errSpy.mock.calls.some(([msg]) => String(msg).includes('Error calculating start of week'))).toBe(true);
+    expect(container.querySelector('.error-message')).toBeNull();
+    expect(container.querySelectorAll('.week-block').length).toBeGreaterThan(0);
+    expect(container.querySelectorAll('.week-block').length).toBeLessThan(6);
+  });
 });

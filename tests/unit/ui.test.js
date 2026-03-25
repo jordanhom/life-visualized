@@ -343,6 +343,69 @@ describe('ui module (setup & form flow)', () => {
     expect(secondBtn.getAttribute('aria-selected')).toBe('true');
   });
 
+  it('keyboard navigation supports End/Home and ArrowUp wrap-around', async () => {
+    const viewSwitcher = document.getElementById('view-switcher');
+    const secondBtn = document.createElement('button');
+    secondBtn.className = 'view-button';
+    secondBtn.id = 'view-months';
+    secondBtn.setAttribute('role', 'tab');
+    secondBtn.dataset.view = 'months';
+    viewSwitcher.appendChild(secondBtn);
+
+    const thirdBtn = document.createElement('button');
+    thirdBtn.className = 'view-button';
+    thirdBtn.id = 'view-years';
+    thirdBtn.setAttribute('role', 'tab');
+    thirdBtn.dataset.view = 'years';
+    viewSwitcher.appendChild(thirdBtn);
+
+    const firstBtn = document.querySelector('#view-switcher .view-button');
+    firstBtn.classList.add('active');
+    firstBtn.setAttribute('role', 'tab');
+
+    const { setupEventListeners } = await import('../../js/ui.js');
+    setupEventListeners();
+
+    firstBtn.focus();
+    firstBtn.dispatchEvent(new global.KeyboardEvent('keydown', { key: 'End', bubbles: true }));
+    await new Promise((r) => setTimeout(r, 0));
+    expect(thirdBtn.classList.contains('active')).toBe(true);
+
+    thirdBtn.focus();
+    thirdBtn.dispatchEvent(new global.KeyboardEvent('keydown', { key: 'Home', bubbles: true }));
+    await new Promise((r) => setTimeout(r, 0));
+    expect(firstBtn.classList.contains('active')).toBe(true);
+
+    firstBtn.focus();
+    firstBtn.dispatchEvent(new global.KeyboardEvent('keydown', { key: 'ArrowUp', bubbles: true }));
+    await new Promise((r) => setTimeout(r, 0));
+    expect(thirdBtn.classList.contains('active')).toBe(true);
+  });
+
+  it('keyboard navigation ignores unhandled keys', async () => {
+    const viewSwitcher = document.getElementById('view-switcher');
+    const secondBtn = document.createElement('button');
+    secondBtn.className = 'view-button';
+    secondBtn.id = 'view-months';
+    secondBtn.setAttribute('role', 'tab');
+    secondBtn.dataset.view = 'months';
+    viewSwitcher.appendChild(secondBtn);
+
+    const firstBtn = document.querySelector('#view-switcher .view-button');
+    firstBtn.classList.add('active');
+    firstBtn.setAttribute('role', 'tab');
+
+    const { setupEventListeners } = await import('../../js/ui.js');
+    setupEventListeners();
+
+    firstBtn.focus();
+    firstBtn.dispatchEvent(new global.KeyboardEvent('keydown', { key: 'a', bubbles: true }));
+    await new Promise((r) => setTimeout(r, 0));
+
+    expect(firstBtn.classList.contains('active')).toBe(true);
+    expect(secondBtn.classList.contains('active')).toBe(false);
+  });
+
   it('updates aria-labelledby and calls the correct renderer on view change', async () => {
     const viewSwitcher = document.getElementById('view-switcher');
     const secondBtn = document.createElement('button');
@@ -375,5 +438,201 @@ describe('ui module (setup & form flow)', () => {
     expect(gridRenderer.renderMonthsGrid).toHaveBeenCalled();
     expect(gridContentArea.getAttribute('aria-labelledby')).toBe('view-months');
     expect(secondBtn.classList.contains('active')).toBe(true);
+  });
+
+  it('switches to weeks-calendar and years views and calls their renderers', async () => {
+    const viewSwitcher = document.getElementById('view-switcher');
+    const calendarBtn = document.createElement('button');
+    calendarBtn.className = 'view-button';
+    calendarBtn.id = 'view-weeks-calendar';
+    calendarBtn.setAttribute('role', 'tab');
+    calendarBtn.dataset.view = 'weeks-calendar';
+    viewSwitcher.appendChild(calendarBtn);
+
+    const yearsBtn = document.createElement('button');
+    yearsBtn.className = 'view-button';
+    yearsBtn.id = 'view-years';
+    yearsBtn.setAttribute('role', 'tab');
+    yearsBtn.dataset.view = 'years';
+    viewSwitcher.appendChild(yearsBtn);
+
+    const { setupEventListeners } = await import('../../js/ui.js');
+    const gridRenderer = await import('../../js/gridRenderer.js');
+
+    setupEventListeners();
+
+    const form = document.getElementById('life-input-form');
+    const birthdateInput = document.getElementById('birthdate');
+    const sexSelect = document.getElementById('sex');
+
+    birthdateInput.value = '1990-01-01';
+    birthdateInput.dispatchEvent(new global.Event('input', { bubbles: true }));
+    sexSelect.value = 'male';
+    sexSelect.dispatchEvent(new global.Event('change', { bubbles: true }));
+    form.dispatchEvent(new global.Event('submit', { bubbles: true, cancelable: true }));
+    await new Promise((r) => setTimeout(r, 10));
+
+    calendarBtn.dispatchEvent(new global.MouseEvent('click', { bubbles: true }));
+    yearsBtn.dispatchEvent(new global.MouseEvent('click', { bubbles: true }));
+
+    expect(gridRenderer.renderCalendarGrid).toHaveBeenCalled();
+    expect(gridRenderer.renderYearsGrid).toHaveBeenCalled();
+  });
+
+  it('shows invalid view error for unknown view button', async () => {
+    const viewSwitcher = document.getElementById('view-switcher');
+    const invalidBtn = document.createElement('button');
+    invalidBtn.className = 'view-button';
+    invalidBtn.id = 'view-invalid';
+    invalidBtn.setAttribute('role', 'tab');
+    invalidBtn.dataset.view = 'invalid-view';
+    viewSwitcher.appendChild(invalidBtn);
+
+    const { setupEventListeners } = await import('../../js/ui.js');
+    setupEventListeners();
+
+    const form = document.getElementById('life-input-form');
+    const birthdateInput = document.getElementById('birthdate');
+    const sexSelect = document.getElementById('sex');
+    const gridContentArea = document.getElementById('grid-content-area');
+
+    birthdateInput.value = '1990-01-01';
+    birthdateInput.dispatchEvent(new global.Event('input', { bubbles: true }));
+    sexSelect.value = 'male';
+    sexSelect.dispatchEvent(new global.Event('change', { bubbles: true }));
+    form.dispatchEvent(new global.Event('submit', { bubbles: true, cancelable: true }));
+    await new Promise((r) => setTimeout(r, 10));
+
+    invalidBtn.dispatchEvent(new global.MouseEvent('click', { bubbles: true }));
+    expect(gridContentArea.querySelector('.error-message')?.textContent).toContain('Invalid view selected.');
+  });
+
+  it('keeps current view when clicking the already-active tab', async () => {
+    const logSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
+    const firstBtn = document.querySelector('#view-switcher .view-button');
+    const { setupEventListeners } = await import('../../js/ui.js');
+
+    setupEventListeners();
+    firstBtn.dispatchEvent(new global.MouseEvent('click', { bubbles: true }));
+
+    expect(logSpy).toHaveBeenCalledWith('Initial view set to:', 'weeks-age');
+    expect(logSpy).not.toHaveBeenCalledWith('View changed to:', 'weeks-age');
+  });
+
+  it('ignores keydown events when focus is not on a tab button', async () => {
+    const viewSwitcher = document.getElementById('view-switcher');
+    const { setupEventListeners } = await import('../../js/ui.js');
+
+    setupEventListeners();
+    viewSwitcher.focus();
+    viewSwitcher.dispatchEvent(new global.KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true }));
+
+    const firstBtn = document.querySelector('#view-switcher .view-button');
+    expect(firstBtn.classList.contains('active')).toBe(true);
+  });
+
+  it('shows render error message when renderer throws inside ui renderCurrentView', async () => {
+    const { setupEventListeners } = await import('../../js/ui.js');
+    const gridRenderer = await import('../../js/gridRenderer.js');
+
+    gridRenderer.renderAgeGrid.mockImplementationOnce(() => {
+      throw new Error('forced render crash');
+    });
+
+    setupEventListeners();
+
+    const form = document.getElementById('life-input-form');
+    const birthdateInput = document.getElementById('birthdate');
+    const sexSelect = document.getElementById('sex');
+    const gridContentArea = document.getElementById('grid-content-area');
+
+    birthdateInput.value = '1990-01-01';
+    birthdateInput.dispatchEvent(new global.Event('input', { bubbles: true }));
+    sexSelect.value = 'male';
+    sexSelect.dispatchEvent(new global.Event('change', { bubbles: true }));
+    form.dispatchEvent(new global.Event('submit', { bubbles: true, cancelable: true }));
+
+    await new Promise((r) => setTimeout(r, 10));
+
+    expect(gridContentArea.querySelector('.error-message')?.textContent).toContain('Error generating weeks-age grid.');
+    expect(gridContentArea.hasAttribute('tabindex')).toBe(false);
+  });
+
+  it('falls back to grid container error when grid-content-area is missing', async () => {
+    const errSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    document.getElementById('grid-content-area').remove();
+
+    const { setupEventListeners } = await import('../../js/ui.js');
+    setupEventListeners();
+
+    const form = document.getElementById('life-input-form');
+    const birthdateInput = document.getElementById('birthdate');
+    const sexSelect = document.getElementById('sex');
+    const gridContainer = document.getElementById('life-grid-container');
+
+    birthdateInput.value = '1990-01-01';
+    birthdateInput.dispatchEvent(new global.Event('input', { bubbles: true }));
+    sexSelect.value = 'male';
+    sexSelect.dispatchEvent(new global.Event('change', { bubbles: true }));
+    form.dispatchEvent(new global.Event('submit', { bubbles: true, cancelable: true }));
+
+    await new Promise((r) => setTimeout(r, 10));
+
+    expect(errSpy).toHaveBeenCalledWith('Grid content area (#grid-content-area) not found.');
+    expect(gridContainer.innerHTML).toContain('Grid layout error.');
+  });
+
+  it('setupEventListeners falls back to first view button when no active tab is preset', async () => {
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    const logSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
+
+    const defaultBtn = document.querySelector('#view-switcher .view-button');
+    defaultBtn.classList.remove('active');
+
+    const { setupEventListeners } = await import('../../js/ui.js');
+    setupEventListeners();
+
+    expect(warnSpy).toHaveBeenCalledWith("No default active view button found in HTML. Defaulting to 'weeks-age'.");
+    expect(logSpy).toHaveBeenCalledWith('Initial view set to:', 'weeks-age');
+  });
+
+  it('setupEventListeners logs errors when view switcher and start over elements are missing', async () => {
+    const errSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    const logSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
+
+    document.getElementById('view-switcher').remove();
+    document.getElementById('start-over-container').remove();
+
+    const { setupEventListeners } = await import('../../js/ui.js');
+    setupEventListeners();
+
+    expect(errSpy).toHaveBeenCalledWith('View switcher container (#view-switcher) not found.');
+    expect(errSpy).toHaveBeenCalledWith('Start Over button (#start-over-btn) or its container (#start-over-container) not found.');
+    expect(logSpy).toHaveBeenCalledWith('Initial view set to:', 'weeks-age');
+  });
+
+  it('setupEventListeners logs errors when form and required inputs are missing', async () => {
+    const errSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+    document.getElementById('life-input-form').remove();
+
+    const { setupEventListeners } = await import('../../js/ui.js');
+    setupEventListeners();
+
+    expect(errSpy).toHaveBeenCalledWith('Form element (#life-input-form) not found.');
+    expect(errSpy).toHaveBeenCalledWith('Birthdate input element (#birthdate) not found.');
+    expect(errSpy).toHaveBeenCalledWith('Sex input element (#sex) not found.');
+  });
+
+  it('setupEventListeners restores global document from window when document is missing', async () => {
+    const logSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
+
+    delete global.document;
+
+    const { setupEventListeners } = await import('../../js/ui.js');
+    setupEventListeners();
+
+    expect(global.document).toBe(global.window.document);
+    expect(logSpy).toHaveBeenCalledWith('Initial view set to:', 'weeks-age');
   });
 });

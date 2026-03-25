@@ -89,4 +89,46 @@ describe('gridRenderer years view', () => {
     // Ensure the title contains the expected year string (from frozen system time 2025-07-01)
     expect(presentBlock.title).toMatch(/2025/);
   });
+
+  it('skips rendering year blocks that start after estimated end date', async () => {
+    vi.resetModules();
+    global.dateFns = {
+      ...makeMockDateFns(),
+      // Force a short estimated end for fractional lifespan input, but larger jumps for integer year indices.
+      addYears: (d, years) => {
+        const dt = new Date(d);
+        const yearsToAdd = Number.isInteger(years) ? years * 2 : 1;
+        return new Date(Date.UTC(dt.getUTCFullYear() + yearsToAdd, dt.getUTCMonth(), dt.getUTCDate()));
+      },
+    };
+
+    const { renderYearsGrid } = await import('../../js/gridRenderer.js');
+    const birthDateUTC = new Date(Date.UTC(2000, 0, 1));
+    const container = document.createElement('div');
+
+    // ceil(2.5) => 3 iterations, but only first block should remain within the forced short end date.
+    renderYearsGrid(birthDateUTC, 2.5, container);
+
+    const yearBlocks = container.querySelectorAll('.year-block');
+    expect(yearBlocks.length).toBe(1);
+  });
+
+  it('renders an error message when years rendering throws unexpectedly', async () => {
+    vi.resetModules();
+    global.dateFns = {
+      ...makeMockDateFns(),
+      startOfDay: () => {
+        throw new Error('forced startOfDay failure');
+      },
+    };
+
+    const { renderYearsGrid } = await import('../../js/gridRenderer.js');
+    const container = document.createElement('div');
+
+    renderYearsGrid(new Date(Date.UTC(2000, 0, 1)), 3, container);
+
+    const err = container.querySelector('.error-message');
+    expect(err).not.toBeNull();
+    expect(err.textContent).toContain('Error generating years-based grid.');
+  });
 });
