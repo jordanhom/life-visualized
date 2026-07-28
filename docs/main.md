@@ -1,7 +1,7 @@
 # Main Module (`js/main.js`)
 
 Purpose
-The smallest entry point for the application. Responsible for bootstrapping UI initialization and performing any global sanity checks on load.
+The smallest entry point for the application. Responsible for bootstrapping UI initialization.
 
 Location
 - [`js/main.js`](js/main.js:1)
@@ -9,14 +9,13 @@ Location
 What it should do
 - Import and call the public initialization function exported by the UI layer.
 - Ensure the DOM is ready before calling into UI.
-- Optionally log startup diagnostics (e.g., presence of `date-fns`).
 
 Public behaviour / API
 - No exported API (runs on script import).
 - Side-effect: calls [`setupEventListeners()`](js/ui.js:1) from the UI module.
 
 Side-effects & requirements
-- Must be loaded after the `date-fns` CDN script in [`index.html`](index.html:1) to allow renderers to rely on `dateFns`.
+- Loads as a native ES module with no runtime CDN dependency.
 - Minimal logic — keep to DOM-ready check + one line to initialize the app.
 
 Tests / verification

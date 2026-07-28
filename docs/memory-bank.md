@@ -2,6 +2,15 @@
 
 ## 2026-07-28
 
+- Implemented worldwide local-calendar correctness tracked in issue #35:
+  - Age changes at browser-local midnight.
+  - Current week, month, and age-year state follows the browser's local calendar.
+  - Birthdates and generated boundaries remain deterministic UTC-encoded dates.
+  - Added shared native helpers in `js/dateUtils.js`.
+  - Removed the `date-fns` and `date-fns-tz` CDN runtime dependencies.
+  - Added timezone, DST, leap-day, UTC-rollover, and ISO-week regression coverage.
+  - Verification: 13 files / 87 tests; 97.96% statements, 87.09% branches, 100% functions, 98.15% lines.
+  - Added Weeks (Age) rollover, UI local-date validation, date-helper contract, and real-module integration coverage.
 - Fixed Month and Year timezone drift tracked in issues #33 and #34:
   - Native UTC helpers now generate Month boundaries and Year birthday anniversaries.
   - Month/Year titles no longer depend on `date-fns-tz` or local-time formatting.

@@ -19,7 +19,7 @@ Key responsibilities
 
 Important internal functions (testable)
 - areInputsValid()
-- getTodayUTC()
+- getLocalDateUTC() (imported from `dateUtils.js`)
 - formatDateInputValue(date)
 - parseBirthdateUTC(value)
 - updateButtonState()
@@ -43,7 +43,8 @@ DOM contracts
 Integration points
 - Calls renderers from [`js/gridRenderer.js`](js/gridRenderer.js:1).
 - Uses calculation functions from [`js/calculator.js`](js/calculator.js:1).
-- Expects `date-fns` to be available globally for renderer behavior.
+- Records the browser's resolved IANA timezone with successful calculation state for diagnostics and future location-aware features.
+- Has no external runtime date-library requirement.
 
 Testing guidance
 - Unit-ish browser harness: simulate form input and submit, assert `#results-area` text and that `#grid-content-area` has children.

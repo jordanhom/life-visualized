@@ -9,6 +9,7 @@
   * `main.js`: Application entry point, initializes UI.
   * `ui.js`: Controller/View-Model - Handles user interactions, manages UI state, orchestrates calls to other modules.
   * `calculator.js`: Model/Service - Performs core age and lifespan calculations.
+  * `dateUtils.js`: Shared date-only model - Converts local today to a UTC-encoded calendar date and provides native UTC calendar helpers.
   * `data.js`: Model/Data Source - Provides the static actuarial data.
   * `gridRenderer.js`: View/Rendering Engine - Generates the HTML for the different grid visualizations.
 * **Single HTML (`index.html`):** Contains the static structure and placeholders for dynamic content.
@@ -17,9 +18,9 @@
 ## 2. Key Technical Decisions & Patterns
 
 * **Vanilla JavaScript (ES Modules):** Chosen for simplicity and performance, avoiding framework overhead for this specific application scope. Enables clear separation of concerns via modules.
-* **UTC-Based Date Handling:**
-  * **Decision:** All internal date storage and calculations are performed using UTC to ensure consistency and avoid timezone/DST errors.
-  * **Pattern:** Input date strings are validated against the user's local calendar date, then normalized to UTC midnight in `ui.js`. Calendar, Month, and Year boundaries are calculated with native UTC helpers; Weeks (Age) still uses global `date-fns` operations.
+* **Local Calendar + UTC-Encoded Date Handling:**
+  * **Decision:** Birthdates are timezone-free calendar dates, while user-facing “today” follows the browser's local timezone.
+  * **Pattern:** Input and local-today calendar components are encoded at UTC midnight. All arithmetic and generated boundaries then use UTC methods to avoid timezone/DST drift.
 * **UI State Management (`ui.js`):**
   * **Pattern:** Simple module-level variables (`currentView`, `lastCalcData`) are used to maintain the selected view and the results of the last calculation.
   * **Rationale:** Sufficient for the current application state; avoids the complexity of a dedicated state management library. Enables efficient view switching without recalculation.
@@ -32,7 +33,10 @@
   * The results statistics are displayed in a 2-column grid (`.results-stats-grid`) with `grid-template-columns: auto auto` and `width: fit-content`, centered within its container. Body padding and main container `max-width` have been adjusted for better large-screen layout. (NEW)
   * Responsive CSS reduces vertical padding/margins in the results area and removes body top/bottom padding on small screens to optimize vertical space. (NEW)
 * **Dependency Management:**
-  * **Pattern:** `date-fns` and `date-fns-tz` are loaded via CDN for runtime date behavior. `gridRenderer.js` includes runtime presence checks and fallback behavior.
+  * **Pattern:** The application has no runtime library dependency; native ES modules provide all date behavior.
+  * **Decision:** `date-fns` and `date-fns-tz` were removed because the CDN-global integration and mixed local/UTC model were unreliable, not because the maintained libraries were defective.
+  * **Tradeoff:** Native helpers are the smallest fit for the current no-build application but increase local calendar-maintenance responsibility.
+  * **Revisit:** Issue #40 evaluates npm module imports with bundling, browser ESM delivery, and Temporal before explicit named-timezone behavior expands.
   * **Pattern:** Dev/test/tooling dependencies are managed via npm lockfile; CI uses `npm ci` for reproducible installs.
   * **Rationale:** Keep runtime lightweight while enforcing deterministic dev/test environments.
 * **Quality Gates:**
@@ -68,7 +72,7 @@
     1. `ui.js` (`renderCurrentView`) determines the view type (`currentView`).
     2. `ui.js` calls the appropriate function in `gridRenderer.js` (e.g., `renderMonthsGrid`), passing `lastCalcData` and the specific `#grid-content-area` element. (UPDATED)
     3. `gridRenderer.js` function clears the *provided element's* (`#grid-content-area`) content. (UPDATED)
-    4. `gridRenderer.js` performs date calculations; Calendar, Month, and Year views use native UTC helpers while Weeks (Age) currently uses `date-fns`.
+    4. `gridRenderer.js` uses shared native UTC helpers for all four views and local-calendar current-period state.
     5. `gridRenderer.js` generates DOM elements (rows, blocks) with correct classes/attributes.
     6. `gridRenderer.js` appends elements to the *provided element* (`#grid-content-area`). (UPDATED)
     7. `gridRenderer.js` sets the `aria-label` on the *parent* (`#life-grid-container`) for overall context. (UPDATED)
@@ -80,9 +84,9 @@
 
 ## 4. Critical Implementation Details
 
-* **`gridRenderer.js` - Age View Week Logic:** Uses `eachWeekOfInterval` + `filter(isBefore)` + `.pop()` (if length 54) to accurately determine the ISO weeks starting within each year of life, ensuring visual consistency (max 53 weeks/row).
+* **`gridRenderer.js` - Age View Week Logic:** Iterates native UTC Monday starts overlapping each age year and trims a natural 54-week span to 53 for visual consistency.
 * **`gridRenderer.js` - Calendar View:** Calculates ISO week-year boundaries directly from UTC date components and correctly handles the 52/53 week variation without browser-timezone drift. Applies `out-of-bounds` styling based on comparison with `firstWeekStartDateUTC` and `estimatedEndDateUTC`.
-* **`gridRenderer.js` - Month View:** Generates exactly `ceil(totalYears * 12)` UTC month starts, classifies the current UTC month, and derives stages and titles from corrected UTC boundaries.
+* **`gridRenderer.js` - Month View:** Generates exactly `ceil(totalYears * 12)` UTC month starts, classifies the browser-local current month, and derives stages and titles from deterministic UTC-encoded boundaries.
 * **`gridRenderer.js` - Year View:** Generates exactly `ceil(totalYears)` UTC birthday anniversaries and classifies state by anniversary intervals. February 29 anniversaries clamp to February 28 in non-leap years.
 * **CSS `calc()` + `aspect-ratio`:** The core mechanism for ensuring Month/Year blocks fill the fixed container width while remaining square. Formulas must be updated in media queries if gaps change.
 * **`js/ui.js` - `handleViewChange()`:** Logic handles clicks on `.view-button` elements, reads `data-view`, and manages `.active`, `aria-selected`, `tabindex`, and tabpanel `aria-labelledby` attributes.

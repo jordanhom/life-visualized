@@ -30,8 +30,8 @@ This project, **`life-visualized`**, aims to create a web application inspired b
   * Include a disclaimer about the nature of the estimates.
 * **Technical:**
   * Implement using HTML, CSS, and modern vanilla JavaScript (ES Modules).
-  * Utilize the `date-fns` library (v4.1.0+) for reliable date calculations, loaded via CDN.
-  * Ensure consistent and accurate date handling, primarily using UTC.
+  * Use native JavaScript date-only helpers without runtime CDN dependencies.
+  * Treat birthdates as timezone-free calendar dates, use the user's local calendar for “today,” and use UTC-encoded boundaries for deterministic calculations.
   * Employ a modular JavaScript structure (`calculator`, `data`, `gridRenderer`, `ui`, `main`).
   * Implement a responsive design suitable for desktop, tablet, and mobile devices.
   * Maintain clean, well-documented code.

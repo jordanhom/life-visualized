@@ -4,7 +4,7 @@
 Keep all visualization and UI state behavior deterministic across browser timezones while maintaining a high-signal test baseline.
 
 ## Current Task
-Fix issues #33 and #34 by making Month and Year rendering independent of browser timezone.
+Complete issue #35 by making age and current-period behavior correct in the user's browser timezone.
 
 ## Recent Changes
 
@@ -14,17 +14,16 @@ Fix issues #33 and #34 by making Month and Year rendering independent of browser
 - Month view now computes month starts, titles, states, and stages directly from UTC components.
 - Year view now computes birthday anniversaries, titles, and states directly from UTC components.
 - Leap-day anniversaries use February 28 in non-leap years.
-- Added deterministic regressions that run Month/Year rendering under UTC, Los Angeles, London, Tokyo, and Auckland settings without local-time `dateFns` helpers.
+- Added shared native date-only helpers and removed runtime `date-fns`/`date-fns-tz` dependencies.
+- Age and present-period state now follow local calendar boundaries.
+- Added deterministic regressions under UTC, Los Angeles, London, Tokyo, and Auckland.
 - Opened:
   - Issue #31 for a future Calendar/Birthday week-alignment toggle.
   - Issue #35 for broader worldwide timezone correctness.
-- Issue #32 is closed; issues #33 and #34 are fixed locally pending merge.
-- Local baseline validated:
-  - `conda run -n base npm run verify` -> 69/69 tests passing
-  - `conda run -n base npm run test:coverage` -> 95.81% statements, 82.62% branches, 100% functions, 97.36% lines
+- Issues #32, #33, and #34 are closed; issue #35 is implemented locally.
 
 ## Next Action
-Commit the Month/Year fixes and documentation updates, then merge and close issues #33 and #34.
+Finish verification and browser checks, then commit and merge the issue #35 branch.
 
 ## Decisions
 - Adopted Node 20 as CI baseline due to `vitest@4` engine requirements.
@@ -36,6 +35,11 @@ Commit the Month/Year fixes and documentation updates, then merge and close issu
 - Compute Calendar ISO boundaries with native UTC helpers instead of local-time `date-fns` functions.
 - Compute Month boundaries and Year birthday anniversaries with native UTC helpers.
 - Treat February 28 as the non-leap-year anniversary for February 29 births.
+- Treat birthdates as timezone-free calendar dates.
+- Use browser-local year/month/day for “today,” age rollover, and present-period state.
+- Encode local today and generated boundaries as UTC dates before arithmetic.
+- Use native JavaScript date helpers with no runtime CDN dependency.
+- Treat the native-helper choice as provisional; issue #40 owns investigation of maintained library integration.
 
 ## Blockers
 None.
@@ -62,8 +66,8 @@ None.
 ## Open Questions/Decisions
 - Should CI include coverage thresholds (`npm run test:coverage`) as an additional gate?
 - Should the project adopt stricter type checking over time (e.g., gradual `checkJs` opt-in per file)?
-- Should the optional `date-fns-tz` CDN integration be repaired, upgraded, or removed in favor of native UTC helpers?
-- How should issue #35 reconcile local-calendar current-period behavior with deterministic UTC-generated boundaries?
+- How should future country-specific actuarial data infer a default location while allowing explicit “what if” selection?
+- Should named-timezone growth use bundled `date-fns`/`date-fns-tz`, browser ESM delivery, Temporal, or a staged combination? Track the decision in issue #40.
 
 ## Learnings & Insights
 

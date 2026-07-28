@@ -18,7 +18,7 @@ Public API
 
 Key internal concepts
 - LIFE_STAGES array and getLifeStageKey(age)
-- UTC-normalized date handling; Calendar, Month, and Year boundaries use native UTC helpers while Weeks (Age) still relies on global `dateFns` v4.x
+- UTC-normalized date-only handling through shared native helpers in `js/dateUtils.js`
 - UTC month/year arithmetic and formatting through `addMonthsUTC`, `addYearsUTC`, `startOfMonthUTC`, and `formatUTCDate`
 - Calendar helpers `startOfISOWeekUTC`, `getISOWeekYearUTC`, `getISOWeekStartUTC`, and `getISOWeeksInYearUTC`
 - DocumentFragment usage for performance
@@ -32,6 +32,7 @@ Behavioral details & edge cases
 - Weeks-by-Age:
   - Generates weeks overlapping each age-year interval.
   - Filters weeks so their start is strictly before the next birthday; trims 54→53 weeks if encountered.
+  - Uses native UTC ISO-week generation with no external runtime library.
   - Titles include week start date and indication of current week.
 - Weeks-by-Calendar:
   - Iterates ISO years between birth and estimated end.
@@ -50,6 +51,7 @@ Behavioral details & edge cases
 State classification
 - Each block gets a `stage-{key}` class via `getLifeStageKey(age)`.
 - Each block gets one of: `past`, `present`, `future`, or `out-of-bounds` on calendar view.
+- The present week, month, or age-year is selected from the user's local calendar date, then compared against UTC-encoded boundaries.
 
 Refactor considerations
 - LIFE_STAGES and getLifeStageKey should be extracted into `js/gridUtils.js` to be shared across renderers.
@@ -63,7 +65,7 @@ Refactor considerations
 Testing guidance
 - Create `tests/grid-renderer-smoke.html` that imports the module and calls each renderer with deterministic inputs.
 - Validate known 52/53-week ISO years, unique block titles, UTC Monday starts, Month/Year boundaries, leap-day anniversaries, and fractional lifespan counts.
-- Ensure Month/Year tests exercise production UTC helpers and remain identical under representative browser timezone settings.
+- Ensure current-period tests cover local midnight and UTC rollover under representative browser timezone settings.
 
 Performance notes
 - Already uses DocumentFragment; maintain this.
@@ -75,4 +77,5 @@ Accessibility & ARIA
 
 References
 - UI orchestration: [`js/ui.js`](js/ui.js:1)
+- Date model and dependency decision: [`docs/dateUtils.md`](docs/dateUtils.md:1)
 - API sketch: [`docs/gridUtils-api.md`](docs/gridUtils-api.md:1)

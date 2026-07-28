@@ -17,7 +17,7 @@ Many people have difficulty grasping the finite nature of their time, myself inc
 AI assistance was used to:
 
 * Rapidly **prototype** HTML, CSS, and JavaScript.
-* **Explain** core concepts and library usage (e.g., `date-fns`).
+* **Explain** core concepts and date-handling choices.
 * **Generate** boilerplate code and **suggest** refinements.
 * **Troubleshoot** and **aid** in initial documentation, including this README.
 * **Simulate** a team environment by interacting with defined developer, product, and UX personas to **inform** decisions throughout the development process.
@@ -36,7 +36,7 @@ This collaborative approach enabled the creation of this MVP, serving as both a 
 * **Visualization & Grid:**
   * Renders lifespan as a responsive grid of blocks.
   * Multiple Views:
-    * Weeks (arranged by Age Year)
+    * Weeks (arranged by Age Year with deterministic native date arithmetic)
     * Weeks (arranged by ISO Calendar Year with timezone-independent 52/53-week handling)
     * Months (arranged by Age Year with timezone-independent UTC boundaries)
     * Years (arranged by Decade with timezone-independent UTC anniversaries)
@@ -78,7 +78,7 @@ This collaborative approach enabled the creation of this MVP, serving as both a 
 ## Technology Stack
 
 * **Frontend:** HTML5, CSS3 (including Flexbox, CSS Variables, `calc()`, `aspect-ratio`), Vanilla JavaScript (ES6+ Modules)
-* **Core Dependencies:** `date-fns` v4.1.0 and optional `date-fns-tz` v1.3.7 are loaded via CDN. Calendar, Month, and Year date boundaries use native UTC helpers; the Weeks (Age) renderer continues to use `date-fns`. These libraries are used under the MIT License.
+* **Runtime Dependencies:** None. Date-only and ISO-week calculations use native JavaScript helpers. User-facing age and current-period state follow the browser's local calendar while stored boundaries remain deterministic UTC-encoded dates.
 * **Dev Tooling:** Vitest, JSDOM, c8, ESLint (flat config), and TypeScript (`tsc --noEmit` for project typecheck gate).
 * **Development:** Requires a simple local HTTP server (due to ES Modules). No build process currently.
 
