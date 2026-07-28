@@ -10,12 +10,13 @@
 
 * **Runtime CDN dependencies:**
   * **`date-fns` v4.1.0:**
-  * **Usage:** Essential for all complex date calculations (getting weeks, adding units, formatting, comparing dates, handling ISO weeks/years).
+  * **Usage:** Used by Age, Month, and Year renderers for date calculations and by renderers for date comparisons.
   * **Integration:** Loaded via CDN (`https://cdn.jsdelivr.net/npm/date-fns@4.1.0/cdn.min.js`) in `index.html`. Accessed globally via the `dateFns` object.
   * **Constraint:** The application relies on this specific version (or compatible 4.x) being available globally. `gridRenderer.js` includes a basic check for its presence.
   * **`date-fns-tz` v1.3.7:**
-  * **Usage:** Optional timezone-aware helpers (`utcToZonedTime`, `formatInTimeZone`) used by renderer fallback paths.
+  * **Usage:** Intended as an optional timezone-aware formatting helper. Calendar view no longer depends on it and formats UTC dates directly.
   * **Integration:** Loaded via CDN (`https://cdn.jsdelivr.net/npm/date-fns-tz@1.3.7/dist/date-fns-tz.min.js`) in `index.html`. Accessed globally via `dateFnsTz`.
+  * **Known runtime state:** The current CDN script does not expose `dateFnsTz` in the audited browser runtime, so remaining renderers use their core `date-fns` fallback paths.
 
 * **Dev/test dependencies (npm):**
   * `vitest` `^4.1.1`
@@ -46,15 +47,15 @@
   * Local coverage: `npm run test:coverage`
   * CI: `.github/workflows/ci.yml` runs `npm ci`, `npm run lint`, `npm run typecheck`, `npm run test:run`
 
-## 6. Current Test/Coverage Baseline (2026-03-25)
+## 6. Current Test/Coverage Baseline (2026-07-27)
 
 * Unit test files: `11`
-* Passing tests: `67`
+* Passing tests: `69`
 * Coverage:
-  * Statements: `96.32%`
-  * Branches: `78.84%`
+  * Statements: `96.17%`
+  * Branches: `81.97%`
   * Functions: `100%`
-  * Lines: `97.8%`
+  * Lines: `97.74%`
 ## 7. Additional Notes from Historical Context
 
 * The project has undergone multiple iterations of UX refinement focusing on clarity, simplicity, and accessibility.

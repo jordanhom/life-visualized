@@ -32,7 +32,7 @@ Brief summary: This file contains separated plans for unit testing each core mod
 - Tests:
   1. Helper functions: `getLifeStageKey` boundary checks; `calculateAgeAtDate` date cases.
   2. renderAgeGrid: enforce max 53 weeks when `eachWeekOfInterval` returns 54 (edge test exists).
-  3. renderCalendarGrid: out-of-bounds weeks, ISO week counts (52/53), present/past/future classification.
+  3. renderCalendarGrid: native UTC ISO boundaries for known 52/53-week years, unique Monday starts, fractional lifespan endpoints, out-of-bounds weeks, and present/past/future classification.
   4. renderMonthsGrid: 12 months per row; month state classification and life stage assignment.
   5. renderYearsGrid: decade rows (10 per row); current year highlighting; state classes.
   6. Failure modes: missing `dateFns` -> renderer writes error message; missing DOM element param.
@@ -44,12 +44,12 @@ Brief summary: This file contains separated plans for unit testing each core mod
 - Primary file: [`js/ui.js`](js/ui.js:1)
 - Priority: Medium
 - Tests:
-  1. areInputsValid / updateButtonState: enabling/disabling logic.
+  1. areInputsValid / updateButtonState: enabling/disabling logic, yesterday maximum, and today/future rejection.
   2. handleCalculation: success path (mock calculator + data), results rendering, progressive reveal.
   3. handleCalculation: error paths (invalid date input, future date, getRemainingExpectancy returns null).
   4. renderCurrentView: clears content when no data; sets aria-label/tabindex when rendered.
   5. handleViewChange: updates `currentView`, toggles `.active` and ARIA attributes, re-renders.
-  6. handleStartOver: resets inputs, hides containers, clears lastCalcData.
+  6. handleStartOver: clears inputs/results/data, restores Weeks (Age) and synchronized tab ARIA state, and focuses birthdate.
 - Test notes: Create DOM fixtures, mock `calculateCurrentAge` and `getRemainingExpectancy` via vi.mock or spies; use time freezing where needed.
 - Estimated effort: 8–12 tests
 

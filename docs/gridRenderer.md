@@ -18,7 +18,8 @@ Public API
 
 Key internal concepts
 - LIFE_STAGES array and getLifeStageKey(age)
-- UTC-normalized date handling; relies on global `dateFns` v4.x
+- UTC-normalized date handling; Calendar ISO boundaries use native UTC helpers while other views rely on global `dateFns` v4.x
+- `startOfISOWeekUTC`, `getISOWeekYearUTC`, `getISOWeekStartUTC`, and `getISOWeeksInYearUTC`
 - DocumentFragment usage for performance
 - Week-generation logic for ISO weeks with handling for 52/53 week years and edge cases near birthdays
 
@@ -33,7 +34,8 @@ Behavioral details & edge cases
   - Titles include week start date and indication of current week.
 - Weeks-by-Calendar:
   - Iterates ISO years between birth and estimated end.
-  - Uses getISOWeeksInYear to render either 52 or 53 weeks per row.
+  - Calculates ISO week-year boundaries directly from UTC date components to render exactly 52 or 53 unique weeks per row, independent of the browser timezone.
+  - Preserves fractional lifespan estimates through UTC month arithmetic and formats `Starts UTC` titles from UTC components.
   - Marks blocks outside lifespan as `out-of-bounds`.
 - Months:
   - Renders up to ceil(totalYears * 12) month blocks grouped in 12-per-row.
@@ -57,7 +59,7 @@ Refactor considerations
 
 Testing guidance
 - Create `tests/grid-renderer-smoke.html` that imports the module and calls each renderer with deterministic inputs.
-- Validate block counts and titles to ensure no regressions during refactor.
+- Validate known 52/53-week ISO years, unique block titles, UTC Monday starts, and fractional lifespan endpoints.
 
 Performance notes
 - Already uses DocumentFragment; maintain this.

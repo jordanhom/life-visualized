@@ -136,6 +136,36 @@ describe('ui module (setup & form flow)', () => {
     expect(calculateBtn.disabled).toBe(true);
   });
 
+  it('sets the latest birthdate and disables calculation for today or future dates', async () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date('2026-07-27T12:00:00Z'));
+
+    const { setupEventListeners } = await import('../../js/ui.js');
+    setupEventListeners();
+
+    const birthdateInput = document.getElementById('birthdate');
+    const sexSelect = document.getElementById('sex');
+    const calculateBtn = document.getElementById('calculate-btn');
+
+    expect(birthdateInput.max).toBe('2026-07-26');
+
+    sexSelect.value = 'male';
+    sexSelect.dispatchEvent(new global.Event('change', { bubbles: true }));
+
+    birthdateInput.value = '2026-07-27';
+    birthdateInput.dispatchEvent(new global.Event('input', { bubbles: true }));
+    expect(calculateBtn.disabled).toBe(true);
+    expect(calculateBtn.title).toBe('Please enter a valid birth date in the past.');
+
+    birthdateInput.value = '2026-07-28';
+    birthdateInput.dispatchEvent(new global.Event('input', { bubbles: true }));
+    expect(calculateBtn.disabled).toBe(true);
+
+    birthdateInput.value = '2026-07-26';
+    birthdateInput.dispatchEvent(new global.Event('input', { bubbles: true }));
+    expect(calculateBtn.disabled).toBe(false);
+  });
+
   it('handleCalculation success path displays results, hides form, and reveals grid', async () => {
     const { setupEventListeners } = await import('../../js/ui.js');
 
@@ -268,6 +298,14 @@ describe('ui module (setup & form flow)', () => {
   });
 
   it('Start Over button resets the UI to initial state after success', async () => {
+    const viewSwitcher = document.getElementById('view-switcher');
+    const yearsButton = document.createElement('button');
+    yearsButton.className = 'view-button';
+    yearsButton.id = 'view-years';
+    yearsButton.setAttribute('role', 'tab');
+    yearsButton.dataset.view = 'years';
+    viewSwitcher.appendChild(yearsButton);
+
     const { setupEventListeners } = await import('../../js/ui.js');
 
     setupEventListeners();
@@ -279,6 +317,8 @@ describe('ui module (setup & form flow)', () => {
     const gridContainer = document.getElementById('life-grid-container');
     const startOverContainer = document.getElementById('start-over-container');
     const startOverBtn = document.getElementById('start-over-btn');
+    const defaultViewButton = document.getElementById('view-weeks-age');
+    const gridContentArea = document.getElementById('grid-content-area');
 
     // Fill inputs to allow a successful calculation (calculator mock returns values in beforeEach)
     birthdateInput.value = '1990-01-01';
@@ -296,6 +336,9 @@ describe('ui module (setup & form flow)', () => {
     expect(gridContainer.classList.contains('hidden')).toBe(false);
     expect(startOverContainer.classList.contains('hidden')).toBe(false);
 
+    yearsButton.dispatchEvent(new global.MouseEvent('click', { bubbles: true }));
+    expect(yearsButton.getAttribute('aria-selected')).toBe('true');
+
     // Click start over
     startOverBtn.dispatchEvent(new global.MouseEvent('click', { bubbles: true }));
 
@@ -308,6 +351,14 @@ describe('ui module (setup & form flow)', () => {
     expect(gridContainer.classList.contains('hidden')).toBe(true);
     expect(birthdateInput.value).toBe('');
     expect(sexSelect.value).toBe('');
+    expect(resultsArea.innerHTML).toBe('');
+    expect(defaultViewButton.classList.contains('active')).toBe(true);
+    expect(defaultViewButton.getAttribute('aria-selected')).toBe('true');
+    expect(defaultViewButton.getAttribute('tabindex')).toBe('0');
+    expect(yearsButton.classList.contains('active')).toBe(false);
+    expect(yearsButton.getAttribute('aria-selected')).toBe('false');
+    expect(yearsButton.getAttribute('tabindex')).toBe('-1');
+    expect(gridContentArea.getAttribute('aria-labelledby')).toBe(defaultViewButton.id);
   });
 
   it('keyboard navigation on view switcher changes active view and ARIA attributes', async () => {

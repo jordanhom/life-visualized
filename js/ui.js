@@ -37,8 +37,9 @@ let gridContentWrapper = null; // Wrapper for left label + content area
 
 
 // --- State Variables ---
+const DEFAULT_VIEW = 'weeks-age';
 // Tracks the currently selected grid view type
-let currentView = 'weeks-age'; // Default view ('weeks-age', 'weeks-calendar', 'months', or 'years') - Matches HTML default button data-view
+let currentView = DEFAULT_VIEW; // Matches the default button in index.html
 // Stores results of the last calculation to allow re-rendering on view change without recalculating
 let lastCalcData = {
     birthDate: null, // Stores the UTC-normalized birthDate object
@@ -50,10 +51,38 @@ let lastCalcData = {
  * @returns {boolean} True if inputs are valid, false otherwise.
  */
 function areInputsValid() {
-    // Ensure elements exist before accessing their properties
-    const birthdateFilled = birthdateInput && birthdateInput.value !== '';
+    const birthDateUTC = parseBirthdateUTC(birthdateInput?.value);
     const sexSelected = sexInput && sexInput.value !== ''; // "Select..." option has value=""
-    return birthdateFilled && sexSelected;
+    return Boolean(birthDateUTC && birthDateUTC < getTodayUTC() && sexSelected);
+}
+
+function getTodayUTC() {
+    const now = new Date();
+    // Represent the user's local calendar date at UTC midnight for date-only comparisons.
+    return new Date(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate()));
+}
+
+function formatDateInputValue(date) {
+    return `${date.getUTCFullYear()}-${String(date.getUTCMonth() + 1).padStart(2, '0')}-${String(date.getUTCDate()).padStart(2, '0')}`;
+}
+
+function parseBirthdateUTC(value) {
+    if (!value) return null;
+
+    const [yearStr, monthStr, dayStr] = value.split('-');
+    const year = Number(yearStr);
+    const monthIndex = Number(monthStr) - 1;
+    const day = Number(dayStr);
+    const birthDateUTC = new Date(Date.UTC(year, monthIndex, day));
+
+    if (Number.isNaN(birthDateUTC.getTime()) ||
+        birthDateUTC.getUTCFullYear() !== year ||
+        birthDateUTC.getUTCMonth() !== monthIndex ||
+        birthDateUTC.getUTCDate() !== day) {
+        return null;
+    }
+
+    return birthDateUTC;
 }
 
 /**
@@ -63,9 +92,14 @@ function areInputsValid() {
 function updateButtonState() {
     if (!calculateBtn) return; // Guard clause if button not found
 
-    const isValid = areInputsValid();
+    const inputsFilled = Boolean(birthdateInput?.value && sexInput?.value);
+    const isValid = inputsFilled && areInputsValid();
     calculateBtn.disabled = !isValid;
-    calculateBtn.title = isValid ? '' : 'Please fill in both fields.';
+    calculateBtn.title = isValid
+        ? ''
+        : inputsFilled
+            ? 'Please enter a valid birth date in the past.'
+            : 'Please fill in both fields.';
 }
 
 /**
@@ -239,22 +273,10 @@ async function handleCalculation(event) {
         return; // Exit, leaving only results area visible
     }
 
-    // Create Date object from input string deterministically in UTC.
-    const [yearStr, monthStr, dayStr] = birthdateStr.split('-');
-    const year = Number(yearStr);
-    const monthIndex = Number(monthStr) - 1;
-    const day = Number(dayStr);
-    const birthDateUTC = new Date(Date.UTC(year, monthIndex, day));
-
-    const now = new Date();
-    const todayUTC = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
-    const isValidBirthDate = !Number.isNaN(birthDateUTC.getTime()) &&
-        birthDateUTC.getUTCFullYear() === year &&
-        birthDateUTC.getUTCMonth() === monthIndex &&
-        birthDateUTC.getUTCDate() === day;
+    const birthDateUTC = parseBirthdateUTC(birthdateStr);
 
     // Check validity and ensure date is in the past.
-    if (!isValidBirthDate || birthDateUTC >= todayUTC) {
+    if (!birthDateUTC || birthDateUTC >= getTodayUTC()) {
         displayError('Please enter a valid birth date in the past (YYYY-MM-DD).');
         renderCurrentView(); // Clear grid content area if validation fails
         finalizeCalculation();
@@ -288,10 +310,9 @@ async function handleCalculation(event) {
         gridContainer.classList.remove('hidden');
         // gridControlsHeader and gridGuideDetails become visible when gridContainer does.
 
-        // Set focus to the first view switcher button after successful calculation
-        if (viewSwitcherButtons && viewSwitcherButtons.length > 0) {
-            viewSwitcherButtons[0].focus();
-        }
+        const activeViewButton = Array.from(viewSwitcherButtons)
+            .find(button => button.dataset.view === currentView);
+        activeViewButton?.focus();
 
     } catch (error) {
         // --- Handle Errors from Calculation or Rendering ---
@@ -387,6 +408,8 @@ function handleStartOver() {
 
     // Hide results, grid, and the start over button itself
     resultsArea.classList.add('hidden');
+    resultsArea.classList.remove('error-message');
+    resultsArea.innerHTML = '';
     gridContainer.classList.add('hidden');
     updateAxisLabels(false); // Hide axis labels
     // gridControlsHeader and gridGuideDetails are hidden along with gridContainer
@@ -399,6 +422,17 @@ function handleStartOver() {
     // Reset stored calculation data
     lastCalcData.birthDate = null;
     lastCalcData.totalLifespanYearsEst = null;
+
+    currentView = DEFAULT_VIEW;
+    viewSwitcherButtons.forEach(button => {
+        const isDefault = button.dataset.view === DEFAULT_VIEW;
+        button.classList.toggle('active', isDefault);
+        button.setAttribute('aria-selected', isDefault.toString());
+        button.setAttribute('tabindex', isDefault ? '0' : '-1');
+        if (isDefault && gridContentArea) {
+            gridContentArea.setAttribute('aria-labelledby', button.id);
+        }
+    });
 
     updateButtonState(); // Disable calculate button
     if (birthdateInput) birthdateInput.focus(); // Focus on the first input field
@@ -489,6 +523,9 @@ function setupEventListeners() {
 
     // Add event listeners to form inputs to update button state
     if (birthdateInput) {
+        const yesterdayUTC = getTodayUTC();
+        yesterdayUTC.setUTCDate(yesterdayUTC.getUTCDate() - 1);
+        birthdateInput.max = formatDateInputValue(yesterdayUTC);
         birthdateInput.addEventListener('input', updateButtonState);
     } else {
         console.error("Birthdate input element (#birthdate) not found.");
