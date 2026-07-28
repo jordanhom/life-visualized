@@ -38,8 +38,8 @@ This collaborative approach enabled the creation of this MVP, serving as both a 
   * Multiple Views:
     * Weeks (arranged by Age Year)
     * Weeks (arranged by ISO Calendar Year with timezone-independent 52/53-week handling)
-    * Months (arranged by Age Year)
-    * Years (arranged by Decade)
+    * Months (arranged by Age Year with timezone-independent UTC boundaries)
+    * Years (arranged by Decade with timezone-independent UTC anniversaries)
   * **Axis Labels:** Dynamically populated top and left axis labels (e.g., Week Number/Month Name/Decade for the top axis, Age Year/Calendar Year for the left axis) provide clear context for each grid view.
   * **Color-Coding:** Blocks are colored to distinguish past, present, future, and general life stages.
 * **User Interface:**
@@ -78,7 +78,7 @@ This collaborative approach enabled the creation of this MVP, serving as both a 
 ## Technology Stack
 
 * **Frontend:** HTML5, CSS3 (including Flexbox, CSS Variables, `calc()`, `aspect-ratio`), Vanilla JavaScript (ES6+ Modules)
-* **Core Dependencies:** `date-fns` v4.1.0 and optional `date-fns-tz` v1.3.7 are loaded via CDN. Calendar ISO calculations use native UTC helpers; other renderers continue to use `date-fns`. These libraries are used under the MIT License.
+* **Core Dependencies:** `date-fns` v4.1.0 and optional `date-fns-tz` v1.3.7 are loaded via CDN. Calendar, Month, and Year date boundaries use native UTC helpers; the Weeks (Age) renderer continues to use `date-fns`. These libraries are used under the MIT License.
 * **Dev Tooling:** Vitest, JSDOM, c8, ESLint (flat config), and TypeScript (`tsc --noEmit` for project typecheck gate).
 * **Development:** Requires a simple local HTTP server (due to ES Modules). No build process currently.
 

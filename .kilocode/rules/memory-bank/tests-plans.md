@@ -33,10 +33,10 @@ Brief summary: This file contains separated plans for unit testing each core mod
   1. Helper functions: `getLifeStageKey` boundary checks; `calculateAgeAtDate` date cases.
   2. renderAgeGrid: enforce max 53 weeks when `eachWeekOfInterval` returns 54 (edge test exists).
   3. renderCalendarGrid: native UTC ISO boundaries for known 52/53-week years, unique Monday starts, fractional lifespan endpoints, out-of-bounds weeks, and present/past/future classification.
-  4. renderMonthsGrid: 12 months per row; month state classification and life stage assignment.
-  5. renderYearsGrid: decade rows (10 per row); current year highlighting; state classes.
+  4. renderMonthsGrid: exact fractional-lifespan counts, unique native UTC month boundaries, state classification, and life-stage assignment across representative timezones.
+  5. renderYearsGrid: exact fractional-lifespan counts, native UTC anniversaries, decade rows, anniversary-based state classes, and explicit leap-day behavior.
   6. Failure modes: missing `dateFns` -> renderer writes error message; missing DOM element param.
-- Test notes: Use JSDOM and mock global.dateFns with minimal functions per test; reuse [`tests/unit/gridRenderer.edge.test.js`](tests/unit/gridRenderer.edge.test.js:1).
+- Test notes: Use JSDOM. Month/Year tests should poison local-time `dateFns` functions so production UTC helpers are exercised directly.
 - Estimated effort: 6–10 test cases
 
 ## js/ui.js

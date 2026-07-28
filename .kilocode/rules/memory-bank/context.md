@@ -4,23 +4,27 @@
 Keep all visualization and UI state behavior deterministic across browser timezones while maintaining a high-signal test baseline.
 
 ## Current Task
-Document and prepare the audited behavior refinements for commit and review.
+Fix issues #33 and #34 by making Month and Year rendering independent of browser timezone.
 
 ## Recent Changes
 
 - Added immediate birthdate validation and a local-calendar `max` of yesterday.
 - Start Over now restores the complete initial state, including Weeks (Age) selection and ARIA state.
 - Calendar view now computes ISO week years, week starts, and 52/53-week counts directly in UTC.
-- Added deterministic regression tests for known ISO boundaries and fractional lifespan endpoints.
+- Month view now computes month starts, titles, states, and stages directly from UTC components.
+- Year view now computes birthday anniversaries, titles, and states directly from UTC components.
+- Leap-day anniversaries use February 28 in non-leap years.
+- Added deterministic regressions that run Month/Year rendering under UTC, Los Angeles, London, Tokyo, and Auckland settings without local-time `dateFns` helpers.
 - Opened:
   - Issue #31 for a future Calendar/Birthday week-alignment toggle.
-  - Issue #32 for the Calendar timezone bug fixed by the current changes.
+  - Issue #35 for broader worldwide timezone correctness.
+- Issue #32 is closed; issues #33 and #34 are fixed locally pending merge.
 - Local baseline validated:
-  - `npm run verify` -> 69/69 tests passing
-  - `npm run test:coverage` -> 96.17% statements, 81.97% branches, 100% functions, 97.74% lines
+  - `conda run -n base npm run verify` -> 69/69 tests passing
+  - `conda run -n base npm run test:coverage` -> 95.81% statements, 82.62% branches, 100% functions, 97.36% lines
 
 ## Next Action
-Commit the behavior fixes and documentation updates, then merge and close issue #32.
+Commit the Month/Year fixes and documentation updates, then merge and close issues #33 and #34.
 
 ## Decisions
 - Adopted Node 20 as CI baseline due to `vitest@4` engine requirements.
@@ -30,6 +34,8 @@ Commit the behavior fixes and documentation updates, then merge and close issue 
 - Use the browser's local calendar date for user-facing birthdate validity, while normalizing accepted date-only values to UTC.
 - Keep Calendar weeks as the default alignment; track Birthday-aligned weeks separately in issue #31.
 - Compute Calendar ISO boundaries with native UTC helpers instead of local-time `date-fns` functions.
+- Compute Month boundaries and Year birthday anniversaries with native UTC helpers.
+- Treat February 28 as the non-leap-year anniversary for February 29 births.
 
 ## Blockers
 None.
@@ -39,10 +45,14 @@ None.
 - `js/gridRenderer.js`
 - `tests/unit/ui.test.js`
 - `tests/unit/gridRenderer.calendar.test.js`
+- `tests/unit/gridRenderer.months.test.js`
+- `tests/unit/gridRenderer.years.test.js`
+- `tests/unit/gridRenderer.failure.test.js`
 - `README.md`
 - `docs/ui.md`
 - `docs/gridRenderer.md`
 - `docs/2026-07-27-changes.md`
+- `docs/2026-07-28-changes.md`
 - `.kilocode/rules/memory-bank/activeContext.md`
 - `.kilocode/rules/memory-bank/architecture.md`
 - `.kilocode/rules/memory-bank/progress.md`
@@ -53,7 +63,7 @@ None.
 - Should CI include coverage thresholds (`npm run test:coverage`) as an additional gate?
 - Should the project adopt stricter type checking over time (e.g., gradual `checkJs` opt-in per file)?
 - Should the optional `date-fns-tz` CDN integration be repaired, upgraded, or removed in favor of native UTC helpers?
-- How should Month and Year views be migrated away from local-time `date-fns` arithmetic?
+- How should issue #35 reconcile local-calendar current-period behavior with deterministic UTC-generated boundaries?
 
 ## Learnings & Insights
 

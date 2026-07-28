@@ -20,7 +20,7 @@ It is **not** intended as a precise predictive tool but rather as a thought-prov
   * **Clarity:** The visualization should be immediately understandable. The grid, colors, and states (past/present/future) should be intuitive. Explanations and keys should be easily accessible when needed. The current view should be clearly indicated.
   * **Simplicity:** The initial interaction should be focused and straightforward (enter details, calculate). Complexity is revealed progressively.
   * **Impact:** The visualization should be striking and encourage contemplation. Placing the grid prominently after results enhances impact.
-  * **Accuracy (within scope):** Calculations should correctly reflect age and use the specified actuarial data. Date handling across timezones/DST must be deterministic; Calendar weeks now meet this requirement, while Month/Year follow-up remains tracked in current context.
+  * **Accuracy (within scope):** Calculations should correctly reflect age and use the specified actuarial data. Date handling across timezones/DST must be deterministic; Calendar, Month, and Year boundaries now meet this requirement, while broader local-time correctness remains tracked in issue #35.
   * **Responsiveness:** The experience should be seamless across desktop, tablet, and mobile devices.
   * **Transparency:** Explanations for visualization nuances (53-week years, calendar view) and a clear disclaimer about the nature of the estimates are essential.
   * **Visual Cohesion:** Controls and related information should feel integrated with the visualization they affect.
@@ -69,7 +69,7 @@ It is **not** intended as a precise predictive tool but rather as a thought-prov
 * **Fixed Grid Container Width:** Ensures a stable and predictable user experience when switching between views.
 * **Dynamic Block Sizing (Months/Years):** Makes less granular views visually fill the available space effectively.
 * **Clear Disclaimer & Explanations:** Manages user expectations and clarifies visualization nuances.
-* **UTC Date Handling:** Accepted date-only input is normalized to UTC. Calendar view computes ISO week-year boundaries directly from UTC date components so 52/53-week counts and Monday starts do not drift with browser timezone.
+* **UTC Date Handling:** Accepted date-only input is normalized to UTC. Calendar, Month, and Year views compute boundaries and titles directly from UTC date components so they do not drift with browser timezone. Leap-day Year anniversaries use February 28 in non-leap years.
 * **Progressive Reveal:** Creates a cleaner starting point focused on input.
 * **Consolidated & Collapsible Guide/Key:** Keeps secondary information accessible but visually tidy. Explanation text refined for clarity and user-friendliness.
 * **Integrated & Nested Controls Header:** Creates a strong visual connection between controls and visualization. Tooltips reduce clutter.

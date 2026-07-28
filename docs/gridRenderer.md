@@ -18,8 +18,9 @@ Public API
 
 Key internal concepts
 - LIFE_STAGES array and getLifeStageKey(age)
-- UTC-normalized date handling; Calendar ISO boundaries use native UTC helpers while other views rely on global `dateFns` v4.x
-- `startOfISOWeekUTC`, `getISOWeekYearUTC`, `getISOWeekStartUTC`, and `getISOWeeksInYearUTC`
+- UTC-normalized date handling; Calendar, Month, and Year boundaries use native UTC helpers while Weeks (Age) still relies on global `dateFns` v4.x
+- UTC month/year arithmetic and formatting through `addMonthsUTC`, `addYearsUTC`, `startOfMonthUTC`, and `formatUTCDate`
+- Calendar helpers `startOfISOWeekUTC`, `getISOWeekYearUTC`, `getISOWeekStartUTC`, and `getISOWeeksInYearUTC`
 - DocumentFragment usage for performance
 - Week-generation logic for ISO weeks with handling for 52/53 week years and edge cases near birthdays
 
@@ -38,11 +39,13 @@ Behavioral details & edge cases
   - Preserves fractional lifespan estimates through UTC month arithmetic and formats `Starts UTC` titles from UTC components.
   - Marks blocks outside lifespan as `out-of-bounds`.
 - Months:
-  - Renders up to ceil(totalYears * 12) month blocks grouped in 12-per-row.
-  - Uses `startOfMonth` for month boundaries.
+  - Renders exactly ceil(totalYears * 12) month blocks grouped in 12-per-row.
+  - Calculates month starts, current-month state, life stages, and `Starts UTC` titles from UTC date components without local-time `date-fns` operations.
 - Years:
-  - Renders year blocks grouped per-decade (10 per row).
-  - Year blocks represent the whole year starting at the birthday anniversary.
+  - Renders exactly ceil(totalYears) year blocks grouped per-decade (10 per row).
+  - Year blocks represent birthday-anniversary intervals calculated in UTC.
+  - Leap-day anniversaries use February 28 in non-leap years and return to February 29 in leap years.
+  - Past/present/future state and `Starts UTC` titles use the corrected UTC anniversary sequence.
 
 State classification
 - Each block gets a `stage-{key}` class via `getLifeStageKey(age)`.
@@ -59,7 +62,8 @@ Refactor considerations
 
 Testing guidance
 - Create `tests/grid-renderer-smoke.html` that imports the module and calls each renderer with deterministic inputs.
-- Validate known 52/53-week ISO years, unique block titles, UTC Monday starts, and fractional lifespan endpoints.
+- Validate known 52/53-week ISO years, unique block titles, UTC Monday starts, Month/Year boundaries, leap-day anniversaries, and fractional lifespan counts.
+- Ensure Month/Year tests exercise production UTC helpers and remain identical under representative browser timezone settings.
 
 Performance notes
 - Already uses DocumentFragment; maintain this.

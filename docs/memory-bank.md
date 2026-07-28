@@ -1,5 +1,19 @@
 # Memory Bank
 
+## 2026-07-28
+
+- Fixed Month and Year timezone drift tracked in issues #33 and #34:
+  - Native UTC helpers now generate Month boundaries and Year birthday anniversaries.
+  - Month/Year titles no longer depend on `date-fns-tz` or local-time formatting.
+  - Year state classification follows anniversary intervals.
+  - February 29 anniversaries use February 28 in non-leap years.
+- Added timezone-invariant regression coverage under UTC, Los Angeles, London, Tokyo, and Auckland settings.
+- Browser-verified the original Month and Year reproductions and leap-day title sequence.
+- Verification:
+  - `conda run -n base npm run verify` passes.
+  - Baseline: 11 test files, 69 tests passing.
+  - Coverage: 95.81% statements, 82.62% branches, 100% functions, 97.36% lines.
+
 ## 2026-07-27
 
 - Behavior audit created GitHub issues:

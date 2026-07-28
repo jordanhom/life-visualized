@@ -10,11 +10,11 @@
 
 * **Runtime CDN dependencies:**
   * **`date-fns` v4.1.0:**
-  * **Usage:** Used by Age, Month, and Year renderers for date calculations and by renderers for date comparisons.
+  * **Usage:** Used by the Weeks (Age) renderer for week generation and comparisons. Calendar, Month, and Year boundaries use native UTC helpers.
   * **Integration:** Loaded via CDN (`https://cdn.jsdelivr.net/npm/date-fns@4.1.0/cdn.min.js`) in `index.html`. Accessed globally via the `dateFns` object.
   * **Constraint:** The application relies on this specific version (or compatible 4.x) being available globally. `gridRenderer.js` includes a basic check for its presence.
   * **`date-fns-tz` v1.3.7:**
-  * **Usage:** Intended as an optional timezone-aware formatting helper. Calendar view no longer depends on it and formats UTC dates directly.
+  * **Usage:** Intended as an optional timezone-aware formatting helper. Calendar, Month, and Year views no longer depend on it and format UTC dates directly.
   * **Integration:** Loaded via CDN (`https://cdn.jsdelivr.net/npm/date-fns-tz@1.3.7/dist/date-fns-tz.min.js`) in `index.html`. Accessed globally via `dateFnsTz`.
   * **Known runtime state:** The current CDN script does not expose `dateFnsTz` in the audited browser runtime, so remaining renderers use their core `date-fns` fallback paths.
 
@@ -52,10 +52,10 @@
 * Unit test files: `11`
 * Passing tests: `69`
 * Coverage:
-  * Statements: `96.17%`
-  * Branches: `81.97%`
+  * Statements: `95.81%`
+  * Branches: `82.62%`
   * Functions: `100%`
-  * Lines: `97.74%`
+  * Lines: `97.36%`
 ## 7. Additional Notes from Historical Context
 
 * The project has undergone multiple iterations of UX refinement focusing on clarity, simplicity, and accessibility.

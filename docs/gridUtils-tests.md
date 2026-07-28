@@ -39,7 +39,7 @@ console.log('Age 3 weeks (count):', age3Weeks.length);
 
 Example: getMonthsForLifespan
 const months = getMonthsForLifespan(birthUTC, 3); // 3 years => 36 months
-console.assert(months.length >= 36, 'getMonthsForLifespan: expected at least total months');
+console.assert(months.length === 36, 'getMonthsForLifespan: expected exact total months');
 console.log('First 3 month starts:', months.slice(0,3).map(m=>m.start.toISOString().slice(0,10)));
 
 Example: classifyBlockByDate

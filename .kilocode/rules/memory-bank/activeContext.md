@@ -1,37 +1,37 @@
 # Active Context — Life Visualized
 
 ## Last Update
-- Date: 2026-07-27
-- Summary: Behavior audit refinements completed for input validation, Start Over state, and timezone-independent ISO Calendar weeks.
+- Date: 2026-07-28
+- Summary: Month and Year renderers now use timezone-independent UTC boundaries, titles, and state classification.
 
 ## Recent Changes
-- Added immediate birthdate validation:
-  - `#birthdate.max` is set to yesterday using the browser's local calendar date.
-  - Today, future dates, malformed dates, and incomplete forms keep Calculate disabled.
-  - Submit-time validation remains as a defensive check.
-- Expanded Start Over into a complete initial-state reset:
-  - Clears inputs, results, calculation data, grid content, and error styling.
-  - Restores Weeks (Age) as the active view with synchronized `aria-selected`, `tabindex`, and `aria-labelledby`.
-  - Successful calculations focus the selected tab instead of always focusing the first tab.
-- Replaced Calendar view's local-time `date-fns` ISO calculations with deterministic UTC helpers:
-  - Correct 52/53-week counts and Monday week starts across browser timezones.
-  - UTC-safe title formatting no longer depends on `date-fns-tz`.
-  - Fractional lifespan endpoints are retained using month-based UTC arithmetic.
-- Added regression coverage in:
-  - `tests/unit/ui.test.js`
-  - `tests/unit/gridRenderer.calendar.test.js`
-- Created GitHub tracking:
-  - Issue #31: Calendar/Birthday week-alignment toggle (backlog enhancement).
-  - Issue #32: Incorrect ISO Calendar week counts/dates (fixed locally; open pending merge).
+- Replaced Month view's local-time `date-fns` operations with native UTC helpers:
+  - Generates exactly `ceil(totalLifespanYearsEst * 12)` month blocks.
+  - Calculates month starts, current-month state, life stages, and `Starts UTC` titles from UTC components.
+  - Produces identical boundaries under UTC, Los Angeles, London, Tokyo, and Auckland timezone settings.
+- Replaced Year view's local-time anniversary operations and formatting:
+  - Generates exactly `ceil(totalLifespanYearsEst)` UTC birthday-anniversary blocks.
+  - Classifies past/present/future from consecutive anniversary boundaries.
+  - Defines February 29 anniversaries as February 28 in non-leap years.
+- Reworked Month/Year tests to poison local-time `dateFns` operations and exercise production UTC helpers.
+- Browser-verified the issue reproductions in the Pacific-time runtime:
+  - Month Age 0/Month 1 for `2000-01-01` starts `2000-01-01`.
+  - Year Age 0 for `1990-06-15` starts `1990-06-15`.
+  - Leap-day titles follow Feb 29 -> Feb 28 -> Feb 29 as years require.
+- GitHub tracking:
+  - Issue #32 is closed after PR #37 reached `main`.
+  - Issues #33 and #34 are fixed locally on `codex/fix-month-year-timezones`, pending merge.
+  - Issue #35 tracks broader worldwide local-time correctness.
 - Current local test baseline: 11 files / 69 tests passing.
 - Current local coverage baseline:
-  - Statements `96.17%`
-  - Branches `81.97%`
+  - Statements `95.81%`
+  - Branches `82.62%`
   - Functions `100%`
-  - Lines `97.74%`
+  - Lines `97.36%`
 
 ## Next Steps
-- Commit and merge the current behavior refinements; close issue #32 after the fix reaches `main`.
+- Commit, open a PR, and merge the Month/Year fixes; close issues #33 and #34 after they reach `main`.
+- Continue worldwide timezone correctness under issue #35, especially Weeks (Age), current-period semantics, and age calculation at local midnight.
 - Implement issue #31 with Calendar weeks as the default alignment.
-- Address remaining timezone-sensitive Month/Year renderer operations and the unavailable `date-fns-tz` runtime global identified during the audit.
+- Decide whether to remove the unavailable `date-fns-tz` runtime dependency.
 - Decide whether to enforce minimum branch coverage in CI.

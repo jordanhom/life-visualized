@@ -19,7 +19,7 @@
 * **Vanilla JavaScript (ES Modules):** Chosen for simplicity and performance, avoiding framework overhead for this specific application scope. Enables clear separation of concerns via modules.
 * **UTC-Based Date Handling:**
   * **Decision:** All internal date storage and calculations are performed using UTC to ensure consistency and avoid timezone/DST errors.
-  * **Pattern:** Input date strings are validated against the user's local calendar date, then normalized to UTC midnight in `ui.js`. Calendar ISO boundaries are calculated with native UTC helpers; other renderers still use global `date-fns` operations.
+  * **Pattern:** Input date strings are validated against the user's local calendar date, then normalized to UTC midnight in `ui.js`. Calendar, Month, and Year boundaries are calculated with native UTC helpers; Weeks (Age) still uses global `date-fns` operations.
 * **UI State Management (`ui.js`):**
   * **Pattern:** Simple module-level variables (`currentView`, `lastCalcData`) are used to maintain the selected view and the results of the last calculation.
   * **Rationale:** Sufficient for the current application state; avoids the complexity of a dedicated state management library. Enables efficient view switching without recalculation.
@@ -68,7 +68,7 @@
     1. `ui.js` (`renderCurrentView`) determines the view type (`currentView`).
     2. `ui.js` calls the appropriate function in `gridRenderer.js` (e.g., `renderMonthsGrid`), passing `lastCalcData` and the specific `#grid-content-area` element. (UPDATED)
     3. `gridRenderer.js` function clears the *provided element's* (`#grid-content-area`) content. (UPDATED)
-    4. `gridRenderer.js` performs date calculations; Calendar view uses native UTC ISO helpers while other views currently use `date-fns`.
+    4. `gridRenderer.js` performs date calculations; Calendar, Month, and Year views use native UTC helpers while Weeks (Age) currently uses `date-fns`.
     5. `gridRenderer.js` generates DOM elements (rows, blocks) with correct classes/attributes.
     6. `gridRenderer.js` appends elements to the *provided element* (`#grid-content-area`). (UPDATED)
     7. `gridRenderer.js` sets the `aria-label` on the *parent* (`#life-grid-container`) for overall context. (UPDATED)
@@ -82,6 +82,8 @@
 
 * **`gridRenderer.js` - Age View Week Logic:** Uses `eachWeekOfInterval` + `filter(isBefore)` + `.pop()` (if length 54) to accurately determine the ISO weeks starting within each year of life, ensuring visual consistency (max 53 weeks/row).
 * **`gridRenderer.js` - Calendar View:** Calculates ISO week-year boundaries directly from UTC date components and correctly handles the 52/53 week variation without browser-timezone drift. Applies `out-of-bounds` styling based on comparison with `firstWeekStartDateUTC` and `estimatedEndDateUTC`.
+* **`gridRenderer.js` - Month View:** Generates exactly `ceil(totalYears * 12)` UTC month starts, classifies the current UTC month, and derives stages and titles from corrected UTC boundaries.
+* **`gridRenderer.js` - Year View:** Generates exactly `ceil(totalYears)` UTC birthday anniversaries and classifies state by anniversary intervals. February 29 anniversaries clamp to February 28 in non-leap years.
 * **CSS `calc()` + `aspect-ratio`:** The core mechanism for ensuring Month/Year blocks fill the fixed container width while remaining square. Formulas must be updated in media queries if gaps change.
 * **`js/ui.js` - `handleViewChange()`:** Logic handles clicks on `.view-button` elements, reads `data-view`, and manages `.active`, `aria-selected`, `tabindex`, and tabpanel `aria-labelledby` attributes.
 * **`index.html` - `#grid-content-area`:** A dedicated `div` within `#life-grid-container` that serves as the specific target for grid rendering, preventing clearing of other nested elements like the header and guide. (NEW)
