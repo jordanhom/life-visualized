@@ -9,10 +9,11 @@ Location
 - [`js/calculator.js`](js/calculator.js:1)
 
 Public API (current)
-- calculateCurrentAge(birthDate: Date): number
-  - Returns completed years based on the current UTC date/time.
-  - Throws Error on invalid input (non-Date or invalid Date).
-  - Uses UTC getters (getUTCFullYear/getUTCMonth/getUTCDate) to avoid timezone/DST inconsistencies.
+- calculateCurrentAge(birthDate: Date, currentDateUTC?: Date): number
+  - Returns completed years based on the browser's local calendar date.
+  - Accepts an optional UTC-encoded current calendar date for deterministic callers and tests.
+  - Throws Error when either date is invalid.
+  - Uses shared UTC date-only arithmetic after local today is encoded by `dateUtils.js`.
 - getRemainingExpectancy(age: number, sex: 'male'|'female', dataOverride?: object|null): Promise<number|null>
   - Asynchronously reads `lifeExpectancyData` and returns a numeric estimate.
   - Optional `dataOverride` supports deterministic tests without mutable module state.
@@ -21,9 +22,11 @@ Public API (current)
   - Returns `null` in cases where the sex data is missing or the sex-specific dataset is empty.
 
 Important behaviors and implementation notes
-- UTC-based age calculation:
-  - `calculateCurrentAge` intentionally uses UTC-based Date getters to ensure deterministic results across timezones and when tests freeze system time.
-  - For testing determinism the module's tests inject a frozen system clock; callers may pass a deterministic Date in tests by mocking time.
+- Local-calendar age calculation:
+  - A birthdate remains a timezone-free calendar date encoded at UTC midnight.
+  - The current instant is converted to the browser's local year/month/day before completed years are calculated.
+  - Age changes at local midnight rather than UTC midnight.
+  - February 29 anniversaries use February 28 in non-leap years, matching Year-view boundaries.
 
 - Bracket lookup and fallbacks:
   - The renderer uses numeric string keys in `lifeExpectancyData` (e.g., `'0'`, `'10'`, `'20'`, ...).
@@ -50,7 +53,7 @@ Error policy and contracts
 Testing notes (updated)
 - `calculateCurrentAge` tests:
   - Leap-day birthdays (ensure correct before/after logic).
-  - Boundary moments (one second before UTC birthday vs exactly at UTC midnight).
+  - Boundary moments immediately before and at local midnight in representative timezones.
   - Future birth dates -> returns 0 (the function clamps to >= 0).
   - Invalid birthDate -> throws.
 - `getRemainingExpectancy` tests:
@@ -63,7 +66,7 @@ Testing notes (updated)
   - Deterministic overrides: pass `dataOverride` directly in test calls.
 
 Examples
-- calculateCurrentAge(new Date('1990-06-10T00:00:00Z')) // uses UTC date parts
+- calculateCurrentAge(new Date('1990-06-10T00:00:00Z')) // uses the browser's local today
 - await getRemainingExpectancy(35, 'female') // returns numeric remaining years or null
 
 Future improvements (non-blocking)
@@ -76,5 +79,6 @@ Future improvements (non-blocking)
 
 References
 - Data source: [`js/data.js`](js/data.js:1)
+- Date model and dependency decision: [`docs/dateUtils.md`](docs/dateUtils.md:1)
 - Module: [`js/calculator.js`](js/calculator.js:1)
 - Tests: [`tests/unit/calculator.test.js`](tests/unit/calculator.test.js:1)

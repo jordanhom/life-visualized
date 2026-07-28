@@ -8,15 +8,10 @@
 
 ## 2. Key Libraries & Dependencies
 
-* **Runtime CDN dependencies:**
-  * **`date-fns` v4.1.0:**
-  * **Usage:** Used by the Weeks (Age) renderer for week generation and comparisons. Calendar, Month, and Year boundaries use native UTC helpers.
-  * **Integration:** Loaded via CDN (`https://cdn.jsdelivr.net/npm/date-fns@4.1.0/cdn.min.js`) in `index.html`. Accessed globally via the `dateFns` object.
-  * **Constraint:** The application relies on this specific version (or compatible 4.x) being available globally. `gridRenderer.js` includes a basic check for its presence.
-  * **`date-fns-tz` v1.3.7:**
-  * **Usage:** Intended as an optional timezone-aware formatting helper. Calendar, Month, and Year views no longer depend on it and format UTC dates directly.
-  * **Integration:** Loaded via CDN (`https://cdn.jsdelivr.net/npm/date-fns-tz@1.3.7/dist/date-fns-tz.min.js`) in `index.html`. Accessed globally via `dateFnsTz`.
-  * **Known runtime state:** The current CDN script does not expose `dateFnsTz` in the audited browser runtime, so remaining renderers use their core `date-fns` fallback paths.
+* **Runtime dependencies:** None.
+  * Native JavaScript and `Intl.DateTimeFormat` provide date-only, ISO-week, and IANA timezone behavior.
+  * `js/dateUtils.js` centralizes local-calendar conversion and deterministic UTC arithmetic.
+  * This is a provisional architecture choice for the static no-build runtime. Issue #40 tracks whether maintained date libraries should return through module imports and a documented build strategy.
 
 * **Dev/test dependencies (npm):**
   * `vitest` `^4.1.1`
@@ -35,7 +30,7 @@
 ## 4. Technical Constraints
 
 * **Client-Side Only:** No backend infrastructure. All data (`data.js`) and logic reside and execute within the browser.
-* **CDN Dependency:** Relies on the `date-fns` CDN being available and accessible to the user. Offline usage is not possible without local hosting of the library.
+* **No Build/Runtime Dependency:** The application runs from static first-party files. A local HTTP server is still required for ES modules.
 * **Browser Compatibility:** Primarily targets modern evergreen browsers. Compatibility with older browsers (e.g., IE11) is not a goal and likely broken due to ES6+ features and modern CSS.
 
 ## 5. Tool Usage Patterns
@@ -47,18 +42,18 @@
   * Local coverage: `npm run test:coverage`
   * CI: `.github/workflows/ci.yml` runs `npm ci`, `npm run lint`, `npm run typecheck`, `npm run test:run`
 
-## 6. Current Test/Coverage Baseline (2026-07-27)
+## 6. Current Test/Coverage Baseline (2026-07-28)
 
-* Unit test files: `11`
-* Passing tests: `69`
+* Unit test files: `13`
+* Passing tests: `87`
 * Coverage:
-  * Statements: `95.81%`
-  * Branches: `82.62%`
+  * Statements: `97.96%`
+  * Branches: `87.09%`
   * Functions: `100%`
-  * Lines: `97.36%`
+  * Lines: `98.15%`
 ## 7. Additional Notes from Historical Context
 
 * The project has undergone multiple iterations of UX refinement focusing on clarity, simplicity, and accessibility.
 * Accessibility improvements include ARIA roles, keyboard navigation, and focus management.
 * The CSS uses modern layout techniques and responsive design to ensure usability across devices.
-* The project is designed to be lightweight and dependency-minimal, relying primarily on vanilla JavaScript and a single date library.
+* The project is designed to be lightweight and uses no third-party runtime JavaScript libraries.

@@ -7,7 +7,7 @@ Brief: Separate, focused test plans for each core module to keep the memory bank
 - Primary functions: [`js/calculator.js`](js/calculator.js:1)
 - Priority: High
 - Tests:
-  1. Age calculation edge cases: birthday passed, birthday not reached, leap-day handling, future birth date.
+  1. Age calculation edge cases: birthday passed, birthday not reached, local-midnight rollover, leap-day handling, future birth date.
   2. getRemainingExpectancy: exact bracket matches, mid-bracket ages, very large ages (fallback to highest bracket), invalid sex -> throws.
   3. Invalid data handling: non-numeric strings, Infinity, NaN -> throws; missing sex key / empty bracket map -> returns null.
 - Test notes:
@@ -36,13 +36,13 @@ Brief: Separate, focused test plans for each core module to keep the memory bank
 - Priority: Medium-High
 - Tests:
   1. Helpers: `getLifeStageKey` boundary checks; `calculateAgeAtDate` correctness across UTC dates.
-  2. `renderAgeGrid`: enforce max 53 weeks when `eachWeekOfInterval` yields 54; confirm past/present/future classes.
+  2. `renderAgeGrid`: enforce max 53 weeks for a natural 54-week span; confirm past/present/future classes.
   3. `renderCalendarGrid`: native UTC ISO week/year handling for known 52/53-week years, unique Monday starts, fractional lifespan endpoints, out-of-bounds weeks, and per-week age/stage correctness.
   4. `renderMonthsGrid`: exact fractional-lifespan counts, unique native UTC month starts, state classification, and life-stage assignment across representative timezones.
   5. `renderYearsGrid`: exact fractional-lifespan counts, native UTC anniversaries, decade rows, anniversary-based state classes, and February 29 clamping.
-  6. Failure modes: missing `dateFns` -> DOM shows error-message; missing DOM element param -> no throw.
-  7. Timezone regression: Calendar, Month, and Year boundaries must produce identical counts/titles without relying on UTC-only mocks of local-time `dateFns` functions.
-- Test notes: Use JSDOM; mock only the remaining global `dateFns` functions required by each renderer. Calendar, Month, and Year tests should exercise production UTC helpers directly.
+  6. Runtime/failure modes: every renderer works without external globals; missing DOM element is safe; unexpected date behavior shows an error.
+  7. Timezone regression: generated boundaries remain deterministic while current week/month/year follows the local calendar across UTC rollover.
+- Test notes: Use JSDOM and production native date helpers. Test representative timezone settings directly.
 - Estimated effort: 6–12 tests
 
 ## js/ui.js
@@ -76,17 +76,18 @@ Brief: Separate, focused test plans for each core module to keep the memory bank
 - Scenarios:
   1. Full success flow: valid inputs -> mocked expectancy -> results area populated, grid rendered into [`#grid-content-area`](index.html:118), start-over visible.
   2. Error flow: invalid birthdate -> error shown; grid remains hidden; `lastCalcData` unchanged.
-- Test notes: Use real modules but mock `dateFns` and `lifeExpectancyData` as needed; run in JSDOM.
+  3. Real timezone flow: production UI, calculator, data, date utilities, and renderer calculate and render together under a representative browser timezone.
+- Test notes: Use real modules and mock `lifeExpectancyData` only where needed; run in JSDOM.
 - Estimated effort: 3–5 tests
 
-## Current Status Snapshot (2026-07-27)
-- Unit test files: `11`
-- Tests passing: `69`
+## Current Status Snapshot (2026-07-28)
+- Unit test files: `13`
+- Tests passing: `87`
 - Coverage:
-  - Statements: `95.81%`
-  - Branches: `82.62%`
+  - Statements: `97.96%`
+  - Branches: `87.09%`
   - Functions: `100%`
-  - Lines: `97.36%`
+  - Lines: `98.15%`
 - Known residual branch gaps are concentrated in defensive renderer branches that are difficult to reach without brittle synthetic mocks.
 
 ## Implementation & Best Practices
@@ -94,7 +95,7 @@ Brief: Separate, focused test plans for each core module to keep the memory bank
 - Use `vi.useFakeTimers()` and `vi.setSystemTime()` for deterministic date tests.
 - Use `vi.resetModules()` and `vi.mock()` to isolate module imports and provide deterministic data fixtures.
 - Avoid runtime mutation helpers embedded in production modules. Prefer supplying test fixtures via explicit `dataOverride`, `vi.mock('../../js/data.js')`, or mocking imported calculator functions when isolating UI code.
-- For renderer tests that rely on date calculations, mock only the specific `date-fns` functions used and set `global.dateFns` to a minimal deterministic shim where needed.
+- For renderer tests, exercise `js/dateUtils.js` production behavior rather than duplicating calendar logic in mocks.
 - Create/teardown DOM fixtures per test to avoid state leakage.
 - Recommended order: start with calculator and data tests (highest priority), then grid renderer helpers and edge cases, then ui and integration tests.
 

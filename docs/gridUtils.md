@@ -39,7 +39,7 @@ Types & constants to export
 
 Design notes
 - Pure helpers whenever possible; allow injection of `nowUTC` for deterministic tests.
-- Isolate the remaining Weeks (Age) `date-fns` usage while preserving native UTC helpers for other views.
+- Build on the shared native UTC helpers now located in `js/dateUtils.js`.
 - Preserve existing CSS class names and titles to avoid stylesheet churn.
 - Keep DOM factories minimal and side-effect free beyond element creation.
 
@@ -64,10 +64,10 @@ Testing & harness
 - Expose helpers on `window` in `tests/gridUtils.test.html` for rapid console assertions.
 
 Migration path (incremental)
-1. Add `js/gridUtils.js` exporting pure helpers and constants.
-2. Extract the existing native UTC Month/Year generation from [`js/gridRenderer.js`](js/gridRenderer.js:1) without changing behavior.
+1. Add `js/gridUtils.js` exporting pure grid helpers and constants.
+2. Reuse `js/dateUtils.js` rather than duplicating date-only and ISO-week arithmetic.
 3. Smoke test via the browser (`index.html`) and `tests/grid-renderer-smoke.html`.
-4. Refactor Weeks-Age and Weeks-Calendar, verifying after each change.
+4. Extract Weeks-Age and Weeks-Calendar grid generation, verifying after each change.
 5. Remove duplication from `js/gridRenderer.js` and update docs.
 
 Performance & accessibility notes

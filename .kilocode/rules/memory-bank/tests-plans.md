@@ -7,10 +7,10 @@ Brief summary: This file contains separated plans for unit testing each core mod
 - Primary functions: [`js/calculator.js`](js/calculator.js:1)
 - Priority: High
 - Tests:
-  1. Age calculation edge cases: birthday passed, birthday not reached, leap-day handling, future birth date.
+  1. Age calculation edge cases: birthday passed, birthday not reached, local-midnight rollover, leap-day handling, future birth date.
   2. getRemainingExpectancy: exact bracket matches, mid-bracket ages, very large ages, unknown sex -> null.
   3. Invalid data handling: non-numeric strings, Infinity, NaN, missing sex keys -> returns null.
-- Test notes: Freeze time with vi.useFakeTimers(); mock [`js/data.js`](js/data.js:1) via vi.mock for specific values.
+- Test notes: Freeze time with vi.useFakeTimers(); vary `process.env.TZ` for local-midnight regressions; pass explicit data overrides for expectancy fixtures.
 - Estimated effort: 3–5 test groups (~8–12 test cases)
 
 ## js/data.js
@@ -31,12 +31,13 @@ Brief summary: This file contains separated plans for unit testing each core mod
 - Priority: Medium-High
 - Tests:
   1. Helper functions: `getLifeStageKey` boundary checks; `calculateAgeAtDate` date cases.
-  2. renderAgeGrid: enforce max 53 weeks when `eachWeekOfInterval` returns 54 (edge test exists).
+  2. renderAgeGrid: enforce max 53 weeks for a natural 54-week age-year span.
   3. renderCalendarGrid: native UTC ISO boundaries for known 52/53-week years, unique Monday starts, fractional lifespan endpoints, out-of-bounds weeks, and present/past/future classification.
   4. renderMonthsGrid: exact fractional-lifespan counts, unique native UTC month boundaries, state classification, and life-stage assignment across representative timezones.
   5. renderYearsGrid: exact fractional-lifespan counts, native UTC anniversaries, decade rows, anniversary-based state classes, and explicit leap-day behavior.
-  6. Failure modes: missing `dateFns` -> renderer writes error message; missing DOM element param.
-- Test notes: Use JSDOM. Month/Year tests should poison local-time `dateFns` functions so production UTC helpers are exercised directly.
+  6. Runtime/failure modes: all views render without external globals; missing DOM element is safe; unexpected date failure writes an error.
+  7. Current-period state follows local week/month/year boundaries across UTC rollover.
+- Test notes: Use JSDOM and production native date helpers. Vary `process.env.TZ` only where local-calendar state is under test.
 - Estimated effort: 6–10 test cases
 
 ## js/ui.js
@@ -67,7 +68,8 @@ Brief summary: This file contains separated plans for unit testing each core mod
 - Scenarios:
   1. Full flow: valid inputs -> mocked expectancy -> results area populated, grid rendered, start-over visible.
   2. Error flow: invalid birthdate -> error shown; grid remains hidden.
-- Test notes: Use real modules but mock `dateFns` as needed; run in JSDOM environment.
+  3. Real timezone flow: production UI, calculator, data, date utilities, and renderer complete a calculation under a representative browser timezone.
+- Test notes: Use real modules with JSDOM; mock calculator/data boundaries only where isolation requires it.
 - Estimated effort: 3–4 tests
 
 ## Implementation Guidance (applies to all modules)

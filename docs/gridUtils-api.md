@@ -6,7 +6,7 @@ Provide a small, focused utilities module to centralize common grid logic curren
 Goals
 - Extract pure date and block-generation helpers.
 - Provide a small block element factory that preserves existing CSS/class conventions.
-- Keep native UTC and remaining Weeks (Age) `date-fns` assumptions explicit.
+- Reuse native UTC date-only helpers from `js/dateUtils.js`.
 - Maintain ARIA/title metadata and DocumentFragment-friendly rendering.
 
 Design Principles
@@ -71,7 +71,7 @@ Migration plan (incremental)
 Performance & Accessibility notes
 - Keep using DocumentFragment in renderRow to avoid layout thrash.
 - makeBlockElement should set title attributes and preserve `role`/`aria-*` as needed.
-- Keep UTC semantics explicit and isolate the remaining Weeks (Age) `date-fns` calls.
+- Keep local-calendar versus UTC-encoded boundary semantics explicit.
 - Preserve existing CSS class names (stage-{key}, present/past/future/out-of-bounds) to avoid large stylesheet changes.
 
 Next actions

@@ -2,52 +2,43 @@
 
 ## Latest Update (2026-07-28)
 - Status: Active
-- Summary: Issues #33 and #34 are fixed locally with native UTC Month/Year generation and regression coverage.
+- Summary: Worldwide local-calendar correctness from issue #35 is implemented locally.
 
 ## Recent Changes
-- Month rendering corrected in [`js/gridRenderer.js`](js/gridRenderer.js:1):
-  - Native UTC helpers replace `dateFns.startOfMonth`, `addMonths`, comparisons, and formatting.
-  - Exact fractional-lifespan block counts and unique month starts are preserved.
-  - Current-month state and life stages use corrected UTC month boundaries.
-- Year rendering corrected in [`js/gridRenderer.js`](js/gridRenderer.js:1):
-  - Native UTC birthday anniversaries replace local-time `dateFns.addYears`.
-  - Anniversary intervals determine past/present/future state.
-  - February 29 clamps to February 28 in non-leap years.
-- Issue #32 was merged through PR #37 and closed.
-- Issues #33 and #34 remain open until this branch reaches `main`.
+- Added shared native date utilities in `js/dateUtils.js`.
+- Changed current age from UTC-midnight rollover to browser-local-midnight rollover.
+- Changed current week, month, and age-year classification to use the browser's local calendar.
+- Kept birthdates and generated boundaries as deterministic UTC-encoded calendar dates.
+- Replaced Weeks (Age) `date-fns` generation with native ISO-week arithmetic.
+- Removed `date-fns`, `date-fns-tz`, and obsolete browser-global type declarations.
+- Documented that removal addressed the CDN-global integration and mixed date models, not defects in the maintained libraries.
+- Created issue #40 to evaluate properly imported libraries, browser ESM delivery, and Temporal.
+- Stored the resolved browser IANA timezone with successful calculation state.
 
 ## New/Updated Test Files
+- `tests/unit/dateUtils.test.js`
+- `tests/unit/calculator.test.js`
+- `tests/unit/gridRenderer.calendar.test.js`
+- `tests/unit/gridRenderer.edge.test.js`
+- `tests/unit/gridRenderer.failure.test.js`
 - `tests/unit/gridRenderer.months.test.js`
 - `tests/unit/gridRenderer.years.test.js`
-- `tests/unit/gridRenderer.failure.test.js`
 
 ## Completed Tasks
-- Reproduced the Month and Year timezone defects.
-- Removed Month/Year dependence on local-time arithmetic and `date-fns-tz` formatting.
-- Added timezone-invariant regressions for UTC, Los Angeles, London, Tokyo, and Auckland settings.
-- Added exact fractional-lifespan count and unique-boundary checks.
-- Defined and tested leap-day anniversary behavior.
-- Browser-verified both issue reproductions and leap-day titles.
-- Local verification succeeds via `conda run -n base npm run verify` (69/69 tests pass).
+- Defined one date model for local user semantics and deterministic boundaries.
+- Added representative-zone coverage for both sides of UTC.
+- Added local-midnight, UTC-rollover, DST, leap-day, month/year, and ISO-week regressions.
+- Replaced synthetic 54-week mocks with a real age-year boundary.
+- Removed obsolete missing-CDN failure tests and retained meaningful renderer failure handling.
+- Added targeted Weeks (Age), UI local-date, date-helper contract, and real-module integration tests.
+- Full conda verification passes: 13 test files / 87 tests.
+- Coverage passes: 97.96% statements, 87.09% branches, 100% functions, 98.15% lines.
+- Browser verification passes for calculation, all four renderers, present-period markers, console errors, and Start Over reset.
 
 ## Remaining Work / Next Steps
-- Commit and merge the current changes; close issues #33 and #34 after merge.
-- Continue issue #35 for worldwide local-time semantics outside Month/Year generation.
-- Implement issue #31 while keeping Calendar weeks as the default.
-- Decide whether to remove the unavailable `date-fns-tz` browser dependency.
-- Decide whether to add coverage threshold enforcement in CI.
-
-## Test Summary (current)
-- Commands:
-  - `conda run -n base npm run verify`
-  - `conda run -n base npm run test:coverage`
-- Current result summary: 69 tests passing locally (0 failing), 11 test files.
-- Current coverage summary:
-  - Statements: `95.81%`
-  - Branches: `82.62%`
-  - Functions: `100%`
-  - Lines: `97.36%`
+- Commit, open a PR linked to issue #35, and merge after CI.
+- Continue issue #31 and coverage-threshold decisions separately.
 
 ## Notes
-- Month/Year tests deliberately make local-time `dateFns` operations unusable so regressions cannot be hidden by UTC-only mocks.
-- Runtime architecture remains static and CDN-based. Only Weeks (Age) still relies on `date-fns` for boundary generation.
+- Location means browser timezone for date behavior; geolocation is not requested.
+- Future country-specific actuarial data remains separate and should default from location while allowing explicit “what if” selection.
