@@ -37,13 +37,14 @@ This collaborative approach enabled the creation of this MVP, serving as both a 
   * Renders lifespan as a responsive grid of blocks.
   * Multiple Views:
     * Weeks (arranged by Age Year)
-    * Weeks (arranged by Calendar Year - handles 52/53 week variations)
+    * Weeks (arranged by ISO Calendar Year with timezone-independent 52/53-week handling)
     * Months (arranged by Age Year)
     * Years (arranged by Decade)
   * **Axis Labels:** Dynamically populated top and left axis labels (e.g., Week Number/Month Name/Decade for the top axis, Age Year/Calendar Year for the left axis) provide clear context for each grid view.
   * **Color-Coding:** Blocks are colored to distinguish past, present, future, and general life stages.
 * **User Interface:**
   * Simple and focused input form.
+  * Immediate birthdate validation prevents today or future dates from enabling calculation.
   * **Progressive Reveal:** Results and visualization appear only after calculation.
   * **Integrated Controls & Guide:**
     * View switcher buttons are integrated within a sticky header directly above the grid, remaining visible during scroll.
@@ -54,7 +55,7 @@ This collaborative approach enabled the creation of this MVP, serving as both a 
     * Focusable grid container with descriptive ARIA labels for screen reader compatibility.
   * Responsive design for desktop, tablet, and mobile.
   * Clear disclaimer about the nature of the estimates.
-  * "Start Over" functionality to reset the application.
+  * "Start Over" functionality clears calculation state and restores the default Weeks (Age) view.
 
 ## MVP Status
 
@@ -77,7 +78,7 @@ This collaborative approach enabled the creation of this MVP, serving as both a 
 ## Technology Stack
 
 * **Frontend:** HTML5, CSS3 (including Flexbox, CSS Variables, `calc()`, `aspect-ratio`), Vanilla JavaScript (ES6+ Modules)
-* **Core Dependencies:** `date-fns` v4.1.0 and `date-fns-tz` v1.3.7 (both loaded via CDN) for UTC-safe date calculations and timezone-aware formatting. These libraries are used under the MIT License.
+* **Core Dependencies:** `date-fns` v4.1.0 and optional `date-fns-tz` v1.3.7 are loaded via CDN. Calendar ISO calculations use native UTC helpers; other renderers continue to use `date-fns`. These libraries are used under the MIT License.
 * **Dev Tooling:** Vitest, JSDOM, c8, ESLint (flat config), and TypeScript (`tsc --noEmit` for project typecheck gate).
 * **Development:** Requires a simple local HTTP server (due to ES Modules). No build process currently.
 
@@ -146,6 +147,7 @@ The following are ideas considered out of scope for the MVP but could be explore
 * Internationalization (i18n).
 * Implementing a build process/bundling.
 * Further accessibility enhancements (e.g., advanced color contrast adjustments, visual aids for complex views).
+* A Calendar/Birthday week-alignment toggle for Weeks (Age), tracked in [issue #31](https://github.com/jordanhom/life-visualized/issues/31).
 
 ## Contributing
 

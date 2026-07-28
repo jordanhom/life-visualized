@@ -20,7 +20,7 @@ It is **not** intended as a precise predictive tool but rather as a thought-prov
   * **Clarity:** The visualization should be immediately understandable. The grid, colors, and states (past/present/future) should be intuitive. Explanations and keys should be easily accessible when needed. The current view should be clearly indicated.
   * **Simplicity:** The initial interaction should be focused and straightforward (enter details, calculate). Complexity is revealed progressively.
   * **Impact:** The visualization should be striking and encourage contemplation. Placing the grid prominently after results enhances impact.
-  * **Accuracy (within scope):** Calculations should correctly reflect age and use the specified actuarial data. Date handling (especially across timezones/DST) must be robust (achieved via UTC normalization and calculation).
+  * **Accuracy (within scope):** Calculations should correctly reflect age and use the specified actuarial data. Date handling across timezones/DST must be deterministic; Calendar weeks now meet this requirement, while Month/Year follow-up remains tracked in current context.
   * **Responsiveness:** The experience should be seamless across desktop, tablet, and mobile devices.
   * **Transparency:** Explanations for visualization nuances (53-week years, calendar view) and a clear disclaimer about the nature of the estimates are essential.
   * **Visual Cohesion:** Controls and related information should feel integrated with the visualization they affect.
@@ -33,7 +33,8 @@ It is **not** intended as a precise predictive tool but rather as a thought-prov
     * The page displays the Title, a brief introductory sentence, the Input Form (DOB, Sex, Calculate button), and the Disclaimer.
     * Results Area and the main Grid Container (`#life-grid-container`) are hidden. The Grid Container holds the Grid Controls Header, Grid Guide section, and the Grid Content Area, all of which are also initially hidden.
 2. **User Interaction:**
-    * User enters their birth date and selects their sex from the form. Button enables dynamically.
+    * User enters their birth date and selects their sex from the form.
+    * Calculate enables only when both fields are complete and the birthdate is before the user's local calendar date. The date control limits selection to yesterday or earlier.
     * User clicks the "Calculate & Visualize" button.
 3. **Calculation Attempt & Results Display:**
     * Button text changes to "Calculating...", results area shows "Calculating your timeline...".
@@ -53,7 +54,7 @@ It is **not** intended as a precise predictive tool but rather as a thought-prov
     * Selecting a different view instantly updates the grid visualization in the grid content area *without* requiring recalculation. The active button style updates.
     * The Grid Controls Header remains sticky at the top of the grid container as the user scrolls horizontally or vertically within the grid area.
     * The user can expand/collapse the "How to Read This Visualization" section (`<details>`) to view the explanation ("Understanding the Grid") and color key ("What the Colors Mean"), presented in side-by-side columns (which stack vertically on smaller screens).
-    * The "Start Over" button is visible after the grid container. Clicking it hides the results, grid, and "Start Over" button, clears inputs, shows the form, and resets the "Calculate & Visualize" button to disabled.
+    * The "Start Over" button is visible after the grid container. Clicking it hides and clears the results and grid, clears calculation data and inputs, restores Weeks by Age as the selected view with matching ARIA state, shows the form, disables Calculate, and focuses the birthdate field.
 5. **Re-Calculation:** If the user changes inputs and clicks "Calculate & Visualize" again, the flow repeats from Step 2/3 (relevant sections are hidden again before the new attempt).
 
 ## 4. Key Product Decisions (Rationale) - Updated for Refinements
@@ -68,7 +69,7 @@ It is **not** intended as a precise predictive tool but rather as a thought-prov
 * **Fixed Grid Container Width:** Ensures a stable and predictable user experience when switching between views.
 * **Dynamic Block Sizing (Months/Years):** Makes less granular views visually fill the available space effectively.
 * **Clear Disclaimer & Explanations:** Manages user expectations and clarifies visualization nuances.
-* **UTC Date Handling:** Ensures consistent calculations free from local timezone/DST ambiguities.
+* **UTC Date Handling:** Accepted date-only input is normalized to UTC. Calendar view computes ISO week-year boundaries directly from UTC date components so 52/53-week counts and Monday starts do not drift with browser timezone.
 * **Progressive Reveal:** Creates a cleaner starting point focused on input.
 * **Consolidated & Collapsible Guide/Key:** Keeps secondary information accessible but visually tidy. Explanation text refined for clarity and user-friendliness.
 * **Integrated & Nested Controls Header:** Creates a strong visual connection between controls and visualization. Tooltips reduce clutter.

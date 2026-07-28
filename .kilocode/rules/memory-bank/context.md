@@ -1,54 +1,59 @@
 # Current Context - Life Visualized
 
 ## Current Goal
-Maintain a stable, high-signal test baseline with stronger branch coverage and minimal test noise.
+Keep all visualization and UI state behavior deterministic across browser timezones while maintaining a high-signal test baseline.
 
 ## Current Task
-Test-suite value review, duplicate/obsolete test cleanup, and docs/memory-bank synchronization.
+Document and prepare the audited behavior refinements for commit and review.
 
 ## Recent Changes
 
-- Expanded branch-focused test coverage across `ui`, `calculator`, and `gridRenderer` unit suites.
-- Added deterministic tests for view-switching keyboard paths, renderer catch paths, fallback DOM branches, and calculator bracket-fallback edge cases.
-- Removed low-value overlap from the suite:
-  - `tests/unit/data-inspect.test.js` deleted (debug-only assertions duplicated by data integrity tests).
-  - Duplicate `nonbinary` invalid-sex assertion removed from `calculator.test.js`.
+- Added immediate birthdate validation and a local-calendar `max` of yesterday.
+- Start Over now restores the complete initial state, including Weeks (Age) selection and ARIA state.
+- Calendar view now computes ISO week years, week starts, and 52/53-week counts directly in UTC.
+- Added deterministic regression tests for known ISO boundaries and fractional lifespan endpoints.
+- Opened:
+  - Issue #31 for a future Calendar/Birthday week-alignment toggle.
+  - Issue #32 for the Calendar timezone bug fixed by the current changes.
 - Local baseline validated:
-  - `npm run verify` -> 67/67 tests passing
-  - `npm run test:coverage` -> 96.32% statements, 78.84% branches, 100% functions, 97.8% lines
+  - `npm run verify` -> 69/69 tests passing
+  - `npm run test:coverage` -> 96.17% statements, 81.97% branches, 100% functions, 97.74% lines
 
 ## Next Action
-Commit branch with test cleanup + coverage updates and open PR.
+Commit the behavior fixes and documentation updates, then merge and close issue #32.
 
 ## Decisions
 - Adopted Node 20 as CI baseline due to `vitest@4` engine requirements.
 - Added lint + typecheck gates in CI before tests.
 - Typecheck gate currently uses TypeScript project validation without JS strict checking (`checkJs: false`) to keep signal actionable.
 - Keep defensive-but-unreachable renderer warning branches as known residual coverage gaps rather than forcing brittle synthetic tests.
+- Use the browser's local calendar date for user-facing birthdate validity, while normalizing accepted date-only values to UTC.
+- Keep Calendar weeks as the default alignment; track Birthday-aligned weeks separately in issue #31.
+- Compute Calendar ISO boundaries with native UTC helpers instead of local-time `date-fns` functions.
 
 ## Blockers
 None.
 
 ## Relevant Files Recently Modified
-- `.github/workflows/ci.yml`
-- `package.json`
-- `package-lock.json`
-- `eslint.config.js`
-- `tsconfig.json`
-- `types/globals.d.ts`
+- `js/ui.js`
+- `js/gridRenderer.js`
 - `tests/unit/ui.test.js`
-- `tests/unit/ui.axis-aria.test.js`
-- `tests/unit/main.test.js`
+- `tests/unit/gridRenderer.calendar.test.js`
 - `README.md`
-- `docs/2026-03-25-changes.md`
+- `docs/ui.md`
+- `docs/gridRenderer.md`
+- `docs/2026-07-27-changes.md`
 - `.kilocode/rules/memory-bank/activeContext.md`
+- `.kilocode/rules/memory-bank/architecture.md`
 - `.kilocode/rules/memory-bank/progress.md`
+- `.kilocode/rules/memory-bank/tech.md`
 - `.kilocode/rules/memory-bank/tests-plans-by-module.md`
 
 ## Open Questions/Decisions
 - Should CI include coverage thresholds (`npm run test:coverage`) as an additional gate?
 - Should the project adopt stricter type checking over time (e.g., gradual `checkJs` opt-in per file)?
-- Should Dependabot auto-merge policy be enabled for low-risk devDependency patches?
+- Should the optional `date-fns-tz` CDN integration be repaired, upgraded, or removed in favor of native UTC helpers?
+- How should Month and Year views be migrated away from local-time `date-fns` arithmetic?
 
 ## Learnings & Insights
 

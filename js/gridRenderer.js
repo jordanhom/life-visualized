@@ -37,6 +37,47 @@ function toUTCStartOfDay(date) {
     return new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()));
 }
 
+function addYearsUTC(date, years) {
+    const targetMonthIndex = date.getUTCMonth() + Math.trunc(years * 12);
+    const targetYear = date.getUTCFullYear() + Math.floor(targetMonthIndex / 12);
+    const targetMonth = ((targetMonthIndex % 12) + 12) % 12;
+    const lastDayOfTargetMonth = new Date(Date.UTC(targetYear, targetMonth + 1, 0)).getUTCDate();
+    return new Date(Date.UTC(
+        targetYear,
+        targetMonth,
+        Math.min(date.getUTCDate(), lastDayOfTargetMonth)
+    ));
+}
+
+function startOfISOWeekUTC(date) {
+    const weekStart = toUTCStartOfDay(date);
+    const daysSinceMonday = (weekStart.getUTCDay() + 6) % 7;
+    weekStart.setUTCDate(weekStart.getUTCDate() - daysSinceMonday);
+    return weekStart;
+}
+
+function getISOWeekYearUTC(date) {
+    const thursday = startOfISOWeekUTC(date);
+    thursday.setUTCDate(thursday.getUTCDate() + 3);
+    return thursday.getUTCFullYear();
+}
+
+function getISOWeekStartUTC(isoYear, weekNumber = 1) {
+    const firstWeekStart = startOfISOWeekUTC(new Date(Date.UTC(isoYear, 0, 4)));
+    firstWeekStart.setUTCDate(firstWeekStart.getUTCDate() + ((weekNumber - 1) * 7));
+    return firstWeekStart;
+}
+
+function getISOWeeksInYearUTC(isoYear) {
+    const currentYearStart = getISOWeekStartUTC(isoYear);
+    const nextYearStart = getISOWeekStartUTC(isoYear + 1);
+    return Math.round((nextYearStart - currentYearStart) / (7 * 24 * 60 * 60 * 1000));
+}
+
+function formatUTCDate(date) {
+    return `${date.getUTCFullYear()}-${String(date.getUTCMonth() + 1).padStart(2, '0')}-${String(date.getUTCDate()).padStart(2, '0')}`;
+}
+
 // Helper: Get stage key based on age. (Used for styling blocks)
 function getLifeStageKey(age) {
     for (const stage of LIFE_STAGES) {
@@ -228,14 +269,13 @@ function renderCalendarGrid(inputBirthDate, totalLifespanYearsEst, gridContentAr
         // --- Date Setup (UTC) ---
         const birthDateUTC = inputBirthDate; // Already normalized by ui.js
         const nowUTC = toUTCStartOfDay(new Date());
-        const estimatedEndDateRough = dateFns.addYears(birthDateUTC, totalLifespanYearsEst);
-        const estimatedEndDateUTC = toUTCStartOfDay(estimatedEndDateRough);
-        const startISOYear = dateFns.getISOWeekYear(birthDateUTC);
-        const endISOYear = dateFns.getISOWeekYear(estimatedEndDateUTC);
+        const estimatedEndDateUTC = addYearsUTC(birthDateUTC, totalLifespanYearsEst);
+        const startISOYear = getISOWeekYearUTC(birthDateUTC);
+        const endISOYear = getISOWeekYearUTC(estimatedEndDateUTC);
         // Determine the start of the ISO week containing the birth date
-        const firstWeekStartDateUTC = dateFns.startOfISOWeek(birthDateUTC);
+        const firstWeekStartDateUTC = startOfISOWeekUTC(birthDateUTC);
         // Determine the start of the current ISO week
-        const currentActualWeekStartDateUTC = dateFns.startOfISOWeek(nowUTC);
+        const currentActualWeekStartDateUTC = startOfISOWeekUTC(nowUTC);
 
         // --- Grid Rendering ---
         gridContentAreaElement.innerHTML = ''; // Clear previous content from the specific area
@@ -250,26 +290,12 @@ function renderCalendarGrid(inputBirthDate, totalLifespanYearsEst, gridContentAr
             yearRow.setAttribute('data-year', isoYear); // Add calendar year data attribute
             yearRow.setAttribute('aria-label', `Calendar Year ${isoYear}`); // Add row label
 
-            // Use a date within the target ISO year to get context for week calculations
-            const dateForYearContext = new Date(Date.UTC(isoYear, 0, 4));
             // Determine number of ISO weeks in this specific calendar year (can be 52 or 53)
-            const weeksInThisYear = dateFns.getISOWeeksInYear(dateForYearContext);
+            const weeksInThisYear = getISOWeeksInYearUTC(isoYear);
 
             // Loop through each week number within the ISO year
             for (let weekNum = 1; weekNum <= weeksInThisYear; weekNum++) {
-                let currentRenderWeekStartDateUTC;
-                try {
-                    // Calculate the start date of the specific ISO week/year
-                    let tempDate = dateFns.setISOWeekYear(dateForYearContext, isoYear);
-                    tempDate = dateFns.setISOWeek(tempDate, weekNum);
-                    currentRenderWeekStartDateUTC = dateFns.startOfISOWeek(tempDate);
-                } catch (e) {
-                    // Handle potential errors if date-fns calculation fails (unlikely)
-                    console.error(`Error calculating start of week ${weekNum}, year ${isoYear}:`, e);
-                    currentRenderWeekStartDateUTC = null;
-                }
-
-                if (!currentRenderWeekStartDateUTC) continue; // Skip if calculation failed
+                const currentRenderWeekStartDateUTC = getISOWeekStartUTC(isoYear, weekNum);
 
                 const weekBlock = document.createElement('div');
                 weekBlock.classList.add('week-block');
@@ -280,9 +306,7 @@ function renderCalendarGrid(inputBirthDate, totalLifespanYearsEst, gridContentAr
                 weekBlock.classList.add(`stage-${stageKey}`);
 
                 let stateClass = '';
-                let formattedStart = (typeof dateFnsTz !== 'undefined' && dateFnsTz.formatInTimeZone)
-                    ? dateFnsTz.formatInTimeZone(currentRenderWeekStartDateUTC, 'UTC', 'yyyy-MM-dd')
-                    : dateFns.format(currentRenderWeekStartDateUTC, 'yyyy-MM-dd');
+                const formattedStart = formatUTCDate(currentRenderWeekStartDateUTC);
                 let title = `Year ${isoYear}, Week ${weekNum} (Starts UTC: ${formattedStart})`;
 
                 // Check Out of Bounds: Is this week before the first week containing birth OR after estimated end?

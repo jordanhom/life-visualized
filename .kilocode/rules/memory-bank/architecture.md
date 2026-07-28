@@ -19,7 +19,7 @@
 * **Vanilla JavaScript (ES Modules):** Chosen for simplicity and performance, avoiding framework overhead for this specific application scope. Enables clear separation of concerns via modules.
 * **UTC-Based Date Handling:**
   * **Decision:** All internal date storage and calculations are performed using UTC to ensure consistency and avoid timezone/DST errors.
-  * **Pattern:** Input date string is normalized to a UTC midnight Date object in `ui.js`. This normalized object is stored and passed to `gridRenderer.js`, which uses `date-fns` functions configured for UTC.
+  * **Pattern:** Input date strings are validated against the user's local calendar date, then normalized to UTC midnight in `ui.js`. Calendar ISO boundaries are calculated with native UTC helpers; other renderers still use global `date-fns` operations.
 * **UI State Management (`ui.js`):**
   * **Pattern:** Simple module-level variables (`currentView`, `lastCalcData`) are used to maintain the selected view and the results of the last calculation.
   * **Rationale:** Sufficient for the current application state; avoids the complexity of a dedicated state management library. Enables efficient view switching without recalculation.
@@ -68,7 +68,7 @@
     1. `ui.js` (`renderCurrentView`) determines the view type (`currentView`).
     2. `ui.js` calls the appropriate function in `gridRenderer.js` (e.g., `renderMonthsGrid`), passing `lastCalcData` and the specific `#grid-content-area` element. (UPDATED)
     3. `gridRenderer.js` function clears the *provided element's* (`#grid-content-area`) content. (UPDATED)
-    4. `gridRenderer.js` performs UTC date calculations using `date-fns`.
+    4. `gridRenderer.js` performs date calculations; Calendar view uses native UTC ISO helpers while other views currently use `date-fns`.
     5. `gridRenderer.js` generates DOM elements (rows, blocks) with correct classes/attributes.
     6. `gridRenderer.js` appends elements to the *provided element* (`#grid-content-area`). (UPDATED)
     7. `gridRenderer.js` sets the `aria-label` on the *parent* (`#life-grid-container`) for overall context. (UPDATED)
@@ -81,9 +81,9 @@
 ## 4. Critical Implementation Details
 
 * **`gridRenderer.js` - Age View Week Logic:** Uses `eachWeekOfInterval` + `filter(isBefore)` + `.pop()` (if length 54) to accurately determine the ISO weeks starting within each year of life, ensuring visual consistency (max 53 weeks/row).
-* **`gridRenderer.js` - Calendar View:** Uses `getISOWeeksInYear` and correctly handles the 52/53 week variation. Applies `out-of-bounds` styling based on comparison with `firstWeekStartDateUTC` and `estimatedEndDateUTC`.
+* **`gridRenderer.js` - Calendar View:** Calculates ISO week-year boundaries directly from UTC date components and correctly handles the 52/53 week variation without browser-timezone drift. Applies `out-of-bounds` styling based on comparison with `firstWeekStartDateUTC` and `estimatedEndDateUTC`.
 * **CSS `calc()` + `aspect-ratio`:** The core mechanism for ensuring Month/Year blocks fill the fixed container width while remaining square. Formulas must be updated in media queries if gaps change.
-* **`js/ui.js` - `handleViewChange()`:** Logic handles clicks on `.view-button` elements, reads `data-view`, manages `.active` class and `aria-checked` attributes.
+* **`js/ui.js` - `handleViewChange()`:** Logic handles clicks on `.view-button` elements, reads `data-view`, and manages `.active`, `aria-selected`, `tabindex`, and tabpanel `aria-labelledby` attributes.
 * **`index.html` - `#grid-content-area`:** A dedicated `div` within `#life-grid-container` that serves as the specific target for grid rendering, preventing clearing of other nested elements like the header and guide. (NEW)
 * **CSS - `position: sticky`:** Applied to `#grid-controls-header` to keep it visible at the top of the scrollable `#life-grid-container`. (NEW)
 * **CSS - `.view-button` Styling:** Uses `white-space: normal` to allow wrapping and `min-height` to ensure consistent vertical size for all buttons, combined with `display: inline-flex` and `align-items: center` for vertical text centering. (NEW)
@@ -99,9 +99,9 @@
 * **No Section Headings:** Explicit `<h2>` headings for "Results" and "Visualization" were removed as the content flow makes their purpose clear, reducing visual noise.
 * **Constrained Width Alignment:** The main grid container and the results area share the same `max-width` and are centered within the main container, creating a visually cohesive block post-calculation. (UPDATED)
   * The overall page `.container` `max-width` has been reduced, and `body` padding adjusted for better large-screen aesthetics. (NEW)
-* **Dynamic Button State:** The "Calculate & Visualize" button is disabled until both birth date and sex inputs are valid. (NEW)
+* **Dynamic Button State:** The "Calculate & Visualize" button is disabled until both fields are complete and the birthdate is before the user's local calendar date. The input `max` is set to yesterday. (UPDATED)
 * **Loading Indicators:** The "Calculate & Visualize" button text changes to "Calculating..." and the results area displays a loading message during processing. (NEW)
-* **"Start Over" Functionality:** A dedicated button allows users to reset the application to its initial input state. (NEW)
+* **"Start Over" Functionality:** A dedicated button clears calculation/UI state, restores Weeks (Age) and synchronized tab ARIA state, disables Calculate, and focuses the birthdate field. (UPDATED)
 * **Responsive Results Area:** Vertical padding and margins within the results area are reduced on smaller screens to conserve space. (NEW)
 
 ## 6. Development History and UX Refinements

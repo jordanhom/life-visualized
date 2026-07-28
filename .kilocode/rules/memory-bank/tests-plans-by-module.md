@@ -37,12 +37,12 @@ Brief: Separate, focused test plans for each core module to keep the memory bank
 - Tests:
   1. Helpers: `getLifeStageKey` boundary checks; `calculateAgeAtDate` correctness across UTC dates.
   2. `renderAgeGrid`: enforce max 53 weeks when `eachWeekOfInterval` yields 54; confirm past/present/future classes.
-  3. `renderCalendarGrid`: ISO week/year handling (52/53), out-of-bounds weeks, per-week age/stage correctness.
+  3. `renderCalendarGrid`: native UTC ISO week/year handling for known 52/53-week years, unique Monday starts, fractional lifespan endpoints, out-of-bounds weeks, and per-week age/stage correctness.
   4. `renderMonthsGrid`: 12 months per row; month state classification and life stage assignment.
   5. `renderYearsGrid`: decade rows (10/year); current year highlighting; state classes.
   6. Failure modes: missing `dateFns` -> DOM shows error-message; missing DOM element param -> no throw.
-  7. Per-week calendar fallback: one ISO week computation failure logs error and rendering continues for remaining weeks.
-- Test notes: Use JSDOM; mock global.dateFns with minimal functions required by each test to keep tests deterministic and fast.
+  7. Timezone regression: known ISO boundaries must produce identical counts/titles without relying on mocked `getISOWeeksInYear` values.
+- Test notes: Use JSDOM; mock only the remaining global `dateFns` comparison/functions required by each renderer. Calendar ISO boundaries should exercise the production UTC helpers.
 - Estimated effort: 6–12 tests
 
 ## js/ui.js
@@ -50,14 +50,14 @@ Brief: Separate, focused test plans for each core module to keep the memory bank
 - Primary file: [`js/ui.js`](js/ui.js:1)
 - Priority: Medium
 - Tests:
-  1. `areInputsValid` / `updateButtonState`: enabling/disabling logic and button title.
+  1. `areInputsValid` / `updateButtonState`: enabling/disabling logic, button title, yesterday `max`, and rejection of today/future dates.
   2. `handleCalculation` success path: mock `calculateCurrentAge` and `getRemainingExpectancy` to confirm results rendering, `lastCalcData` set, progressive reveal (form hidden, grid shown).
   3. `handleCalculation` error paths: invalid date input, future date, expectancy returns null -> displayError and grid stays hidden.
   4. `renderCurrentView`: clears content when no data; sets aria-label/tabindex when rendered; adds view-specific class to container.
   5. `renderCurrentView` fallback/error paths: missing `#grid-content-area` -> grid layout error fallback, renderer exception -> error message and aria cleanup.
   6. `handleViewChange`: updates `currentView`, toggles `.active` and ARIA attributes, re-renders; unknown view shows invalid-view error.
   7. Keyboard tablist navigation: Arrow/Home/End handling, wrap-around, non-tab focus guard, unhandled key no-op.
-  8. `handleStartOver`: resets inputs, hides containers, clears `lastCalcData`.
+  8. `handleStartOver`: resets inputs/results/data, hides containers, restores Weeks (Age), synchronizes tab ARIA state, and returns focus to birthdate.
 - Test notes: Build DOM fixture using snippets from [`index.html`](index.html:1); stub imported calculator functions; use vi.resetModules() and vi.mock() for isolation.
 - Estimated effort: 8–14 tests
 
@@ -79,14 +79,14 @@ Brief: Separate, focused test plans for each core module to keep the memory bank
 - Test notes: Use real modules but mock `dateFns` and `lifeExpectancyData` as needed; run in JSDOM.
 - Estimated effort: 3–5 tests
 
-## Current Status Snapshot (2026-03-25)
+## Current Status Snapshot (2026-07-27)
 - Unit test files: `11`
-- Tests passing: `67`
+- Tests passing: `69`
 - Coverage:
-  - Statements: `96.32%`
-  - Branches: `78.84%`
+  - Statements: `96.17%`
+  - Branches: `81.97%`
   - Functions: `100%`
-  - Lines: `97.8%`
+  - Lines: `97.74%`
 - Known residual branch gaps are concentrated in defensive renderer branches that are difficult to reach without brittle synthetic mocks.
 
 ## Implementation & Best Practices
