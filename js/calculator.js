@@ -10,39 +10,23 @@
  * Relies on `lifeExpectancyData` imported from `data.js`.
  */
 
+import { calculateAgeAtDateUTC, getLocalDateUTC } from './dateUtils.js';
+
 /**
- * Calculates current age in whole years using UTC components.
- *
- * NOTE: The project uses UTC-normalized dates across modules to avoid
- * timezone and DST-related inconsistencies. Tests freeze system time
- * (vitest fake timers), and using UTC getters ensures behavior is
- * deterministic regardless of the machine's local timezone.
- *
+ * Calculates current age from UTC-encoded calendar dates.
  * @param {Date} birthDate - UTC-normalized birth date (Date).
+ * @param {Date} [currentDateUTC=getLocalDateUTC()] - UTC-encoded local calendar date.
  * @returns {number} Age in completed years (>= 0).
  */
-function calculateCurrentAge(birthDate) {
-    // Validate input
+function calculateCurrentAge(birthDate, currentDateUTC = getLocalDateUTC()) {
     if (!(birthDate instanceof Date) || Number.isNaN(birthDate.getTime())) {
         throw new Error('Invalid birthDate provided to calculateCurrentAge');
     }
-    
-    // Use UTC-based components to avoid timezone/DST surprises and to match
-    // the rest of the codebase (gridRenderer uses UTC date-fns helpers).
-    const now = new Date();
-    let age = now.getUTCFullYear() - birthDate.getUTCFullYear();
-    const monthDiff = now.getUTCMonth() - birthDate.getUTCMonth();
-
-    // Decrement age if the current UTC date is before the birthday in the current year.
-    // Using UTC dates prevents off-by-one results when local timezone shifts the local date
-    // relative to the intended UTC midnight stored in birthDate.
-    if (monthDiff < 0 || (monthDiff === 0 && now.getUTCDate() < birthDate.getUTCDate())) {
-        age--;
+    if (!(currentDateUTC instanceof Date) || Number.isNaN(currentDateUTC.getTime())) {
+        throw new Error('Invalid currentDateUTC provided to calculateCurrentAge');
     }
 
-    // Ensure non-negative age for future birth dates; caller (ui.js) should validate input,
-    // but this guard keeps the function robust and easy to test.
-    return Math.max(0, age);
+    return calculateAgeAtDateUTC(currentDateUTC, birthDate);
 }
 
 /**

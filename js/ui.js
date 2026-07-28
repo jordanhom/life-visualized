@@ -12,6 +12,7 @@
 
 // Import calculation functions
 import { calculateCurrentAge, getRemainingExpectancy } from './calculator.js';
+import { getBrowserTimeZone, getLocalDateUTC } from './dateUtils.js';
 // Import grid rendering functions
 import { renderAgeGrid, renderCalendarGrid, renderMonthsGrid, renderYearsGrid } from './gridRenderer.js';
 
@@ -43,7 +44,8 @@ let currentView = DEFAULT_VIEW; // Matches the default button in index.html
 // Stores results of the last calculation to allow re-rendering on view change without recalculating
 let lastCalcData = {
     birthDate: null, // Stores the UTC-normalized birthDate object
-    totalLifespanYearsEst: null
+    totalLifespanYearsEst: null,
+    timeZone: null
 };
 
 /**
@@ -53,13 +55,7 @@ let lastCalcData = {
 function areInputsValid() {
     const birthDateUTC = parseBirthdateUTC(birthdateInput?.value);
     const sexSelected = sexInput && sexInput.value !== ''; // "Select..." option has value=""
-    return Boolean(birthDateUTC && birthDateUTC < getTodayUTC() && sexSelected);
-}
-
-function getTodayUTC() {
-    const now = new Date();
-    // Represent the user's local calendar date at UTC midnight for date-only comparisons.
-    return new Date(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate()));
+    return Boolean(birthDateUTC && birthDateUTC < getLocalDateUTC() && sexSelected);
 }
 
 function formatDateInputValue(date) {
@@ -264,6 +260,7 @@ async function handleCalculation(event) {
     // Clear previous calculation data before starting new calculation
     lastCalcData.birthDate = null;
     lastCalcData.totalLifespanYearsEst = null;
+    lastCalcData.timeZone = null;
 
     // --- Input Validation ---
     if (!birthdateStr || !sex) {
@@ -276,7 +273,7 @@ async function handleCalculation(event) {
     const birthDateUTC = parseBirthdateUTC(birthdateStr);
 
     // Check validity and ensure date is in the past.
-    if (!birthDateUTC || birthDateUTC >= getTodayUTC()) {
+    if (!birthDateUTC || birthDateUTC >= getLocalDateUTC()) {
         displayError('Please enter a valid birth date in the past (YYYY-MM-DD).');
         renderCurrentView(); // Clear grid content area if validation fails
         finalizeCalculation();
@@ -297,6 +294,7 @@ async function handleCalculation(event) {
         // --- Store Calculation Results ---
         lastCalcData.birthDate = birthDateUTC;
         lastCalcData.totalLifespanYearsEst = totalEstimatedLifespan;
+        lastCalcData.timeZone = getBrowserTimeZone();
 
         // --- Display Results ---
         displayResults(currentAge, remainingYears, totalEstimatedLifespan, birthDateUTC, sex); // Pass inputs for display
@@ -422,6 +420,7 @@ function handleStartOver() {
     // Reset stored calculation data
     lastCalcData.birthDate = null;
     lastCalcData.totalLifespanYearsEst = null;
+    lastCalcData.timeZone = null;
 
     currentView = DEFAULT_VIEW;
     viewSwitcherButtons.forEach(button => {
@@ -523,7 +522,7 @@ function setupEventListeners() {
 
     // Add event listeners to form inputs to update button state
     if (birthdateInput) {
-        const yesterdayUTC = getTodayUTC();
+        const yesterdayUTC = getLocalDateUTC();
         yesterdayUTC.setUTCDate(yesterdayUTC.getUTCDate() - 1);
         birthdateInput.max = formatDateInputValue(yesterdayUTC);
         birthdateInput.addEventListener('input', updateButtonState);
