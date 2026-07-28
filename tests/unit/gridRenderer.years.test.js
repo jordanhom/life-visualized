@@ -12,7 +12,6 @@ const TEST_TIMEZONES = [
 describe('gridRenderer years view', () => {
   let dom;
   let originalTimezone;
-  let localDateOperation;
 
   beforeEach(async () => {
     vi.resetModules();
@@ -21,24 +20,11 @@ describe('gridRenderer years view', () => {
     dom = await setupJSDOM();
     originalTimezone = process.env.TZ;
 
-    localDateOperation = vi.fn(() => {
-      throw new Error('renderer used a local-time date-fns operation');
-    });
-    global.dateFns = {
-      startOfDay: localDateOperation,
-      addYears: localDateOperation,
-      isAfter: localDateOperation,
-      isBefore: localDateOperation,
-      format: localDateOperation,
-      version: '4.1.0-test',
-    };
   });
 
   afterEach(() => {
     if (originalTimezone === undefined) delete process.env.TZ;
     else process.env.TZ = originalTimezone;
-    delete global.dateFns;
-    delete global.dateFnsTz;
     teardownJSDOM(dom);
     vi.useRealTimers();
     vi.restoreAllMocks();
@@ -63,8 +49,6 @@ describe('gridRenderer years view', () => {
         .toBe('Age 35 (Starts UTC: 2025-06-15) (Current year)');
       expect(container.querySelectorAll('.future')).toHaveLength(4);
     }
-
-    expect(localDateOperation).not.toHaveBeenCalled();
   });
 
   it('preserves the existing fractional-lifespan year block count', async () => {
@@ -77,7 +61,6 @@ describe('gridRenderer years view', () => {
     expect(blocks).toHaveLength(Math.ceil(2.5));
     expect(blocks.map((block) => block.title.match(/Starts UTC: ([0-9-]+)/)?.[1]))
       .toEqual(['2000-01-01', '2001-01-01', '2002-01-01']);
-    expect(localDateOperation).not.toHaveBeenCalled();
   });
 
   it('uses February 28 for leap-day anniversaries in non-leap years', async () => {
@@ -92,5 +75,23 @@ describe('gridRenderer years view', () => {
       .toEqual(['2000-02-29', '2001-02-28', '2002-02-28', '2003-02-28', '2004-02-29']);
     expect(container.querySelector('.present').title)
       .toBe('Age 25 (Starts UTC: 2025-02-28) (Current year)');
+  });
+
+  it('marks the current local age year across a UTC year rollover', async () => {
+    const { renderYearsGrid } = await import('../../js/gridRenderer.js');
+    vi.setSystemTime(new Date('2025-01-01T01:00:00Z'));
+
+    for (const [timezone, expectedAge] of [
+      ['America/Los_Angeles', 24],
+      ['UTC', 25],
+      ['Asia/Tokyo', 25],
+    ]) {
+      process.env.TZ = timezone;
+      const container = document.createElement('div');
+      renderYearsGrid(new Date('2000-01-01T00:00:00Z'), 30, container);
+
+      expect(container.querySelectorAll('.present')).toHaveLength(1);
+      expect(container.querySelector('.present')?.title).toContain(`Age ${expectedAge}`);
+    }
   });
 });

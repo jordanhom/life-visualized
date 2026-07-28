@@ -12,7 +12,6 @@ const TEST_TIMEZONES = [
 describe('gridRenderer months view', () => {
   let dom;
   let originalTimezone;
-  let localDateOperation;
 
   beforeEach(async () => {
     vi.resetModules();
@@ -21,26 +20,11 @@ describe('gridRenderer months view', () => {
     dom = await setupJSDOM();
     originalTimezone = process.env.TZ;
 
-    localDateOperation = vi.fn(() => {
-      throw new Error('renderer used a local-time date-fns operation');
-    });
-    global.dateFns = {
-      startOfDay: localDateOperation,
-      startOfMonth: localDateOperation,
-      addMonths: localDateOperation,
-      addYears: localDateOperation,
-      isAfter: localDateOperation,
-      isBefore: localDateOperation,
-      format: localDateOperation,
-      version: '4.1.0-test',
-    };
   });
 
   afterEach(() => {
     if (originalTimezone === undefined) delete process.env.TZ;
     else process.env.TZ = originalTimezone;
-    delete global.dateFns;
-    delete global.dateFnsTz;
     teardownJSDOM(dom);
     vi.useRealTimers();
     vi.restoreAllMocks();
@@ -65,8 +49,6 @@ describe('gridRenderer months view', () => {
       expect(container.querySelector('.present').title).toContain('Starts UTC: 2025-07-01');
       expect(container.querySelectorAll('.future')).toHaveLength(5);
     }
-
-    expect(localDateOperation).not.toHaveBeenCalled();
   });
 
   it('renders the exact fractional-lifespan month count without duplicate boundaries', async () => {
@@ -80,7 +62,6 @@ describe('gridRenderer months view', () => {
     expect(blocks).toHaveLength(Math.ceil(0.25 * 12));
     expect(starts).toEqual(['2000-01-01', '2000-02-01', '2000-03-01']);
     expect(new Set(starts).size).toBe(starts.length);
-    expect(localDateOperation).not.toHaveBeenCalled();
   });
 
   it('assigns life stages from corrected UTC month starts', async () => {
@@ -95,5 +76,23 @@ describe('gridRenderer months view', () => {
     expect(blocks[12].classList.contains('stage-infancy')).toBe(true);
     expect(blocks[13].title).toContain('Starts UTC: 2001-02-01');
     expect(blocks[13].classList.contains('stage-toddler')).toBe(true);
+  });
+
+  it('marks the current local month across a UTC year rollover', async () => {
+    const { renderMonthsGrid } = await import('../../js/gridRenderer.js');
+    vi.setSystemTime(new Date('2025-01-01T01:00:00Z'));
+
+    for (const [timezone, expectedStart] of [
+      ['America/Los_Angeles', '2024-12-01'],
+      ['UTC', '2025-01-01'],
+      ['Asia/Tokyo', '2025-01-01'],
+    ]) {
+      process.env.TZ = timezone;
+      const container = document.createElement('div');
+      renderMonthsGrid(new Date('2024-01-01T00:00:00Z'), 2, container);
+
+      expect(container.querySelectorAll('.present')).toHaveLength(1);
+      expect(container.querySelector('.present')?.title).toContain(`Starts UTC: ${expectedStart}`);
+    }
   });
 });
