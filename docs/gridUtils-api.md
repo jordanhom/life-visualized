@@ -6,7 +6,7 @@ Provide a small, focused utilities module to centralize common grid logic curren
 Goals
 - Extract pure date and block-generation helpers.
 - Provide a small block element factory that preserves existing CSS/class conventions.
-- Keep UTC/date-fns assumptions explicit.
+- Keep native UTC and remaining Weeks (Age) `date-fns` assumptions explicit.
 - Maintain ARIA/title metadata and DocumentFragment-friendly rendering.
 
 Design Principles
@@ -27,10 +27,11 @@ Public API (proposed)
   - Convenience over getWeeksForInterval for age-row logic (handles birthday boundaries).
 
 - getMonthsForLifespan(birthDateUTC, totalYears) -> {start:Date, age:number, monthIndex:number}[]
-  - Returns month start dates and metadata grouped by life-year when needed.
+  - Returns exactly `ceil(totalYears * 12)` UTC month-start records.
 
 - getYearsForLifespan(birthDateUTC, totalYears) -> {start:Date, age:number}[]
-  - Year-start metadata for year blocks.
+  - Returns exactly `ceil(totalYears)` UTC birthday-anniversary records.
+  - Clamps February 29 to February 28 in non-leap years.
 
 - classifyBlockByDate(blockStartUTC, birthDateUTC, estimatedEndUTC) -> { stageKey:string, state: 'past'|'present'|'future'|'out-of-bounds' }
   - Encapsulates life-stage determination (`getLifeStageKey`) and state (compare to now / estimated end).
@@ -62,20 +63,20 @@ Example: Months view (conceptual)
 
 Migration plan (incremental)
 1. Add [`js/gridUtils.js`](js/gridUtils.js:1) with the pure helpers and small DOM factories plus a test harness (`tests/gridUtils.test.html`).
-2. Replace the Months rendering in [`js/gridRenderer.js`](js/gridRenderer.js:1) to call the helpers and factories (non-breaking change).
+2. Extract the existing native UTC Month/Year generation in [`js/gridRenderer.js`](js/gridRenderer.js:1) into helpers and factories without changing behavior.
 3. Smoke test visually and via console logs; fix any mismatch in class names/titles.
-4. Refactor Weeks-Age, Weeks-Calendar, Years similarly, keeping each change isolated and reviewed.
+4. Refactor Weeks-Age and Weeks-Calendar similarly, keeping each change isolated and reviewed.
 5. Remove duplicated logic and update [`js/ui.js`](js/ui.js:1) docs/architecture.
 
 Performance & Accessibility notes
 - Keep using DocumentFragment in renderRow to avoid layout thrash.
 - makeBlockElement should set title attributes and preserve `role`/`aria-*` as needed.
-- Keep UTC semantics and date-fns dependency; centralize date-fns calls in utils for consistent behavior.
+- Keep UTC semantics explicit and isolate the remaining Weeks (Age) `date-fns` calls.
 - Preserve existing CSS class names (stage-{key}, present/past/future/out-of-bounds) to avoid large stylesheet changes.
 
 Next actions
 - Implement [`js/gridUtils.js`](js/gridUtils.js:1) based on this sketch (I can start when you approve).
-- Refactor Months as a proof-of-concept, then proceed view-by-view.
+- Extract Months and Years first because their native UTC behavior is already covered, then proceed view-by-view.
 
 References
 - Current renderer: [`js/gridRenderer.js`](js/gridRenderer.js:1)

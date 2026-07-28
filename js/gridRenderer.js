@@ -6,8 +6,9 @@
  *
  * Exports: `renderAgeGrid`, `renderCalendarGrid`, `renderMonthsGrid`, `renderYearsGrid`.
  *
- * Relies on the global `dateFns` object (v4.1.0+) for UTC-based date calculations.
- * Expects input `birthDate` to be pre-normalized to UTC midnight by the calling module.
+ * Requires the global `dateFns` object (v4.1.0+); Weeks (Age) uses its date operations,
+ * while Calendar, Month, and Year boundaries use native UTC helpers. Expects input
+ * `birthDate` to be pre-normalized to UTC midnight by the calling module.
  * Defines `LIFE_STAGES` and helper functions internally. Uses `DocumentFragment` for
  * efficient DOM manipulation. Renders content into a specific `gridContentAreaElement`.
  */
@@ -37,8 +38,8 @@ function toUTCStartOfDay(date) {
     return new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()));
 }
 
-function addYearsUTC(date, years) {
-    const targetMonthIndex = date.getUTCMonth() + Math.trunc(years * 12);
+function addMonthsUTC(date, months) {
+    const targetMonthIndex = date.getUTCMonth() + months;
     const targetYear = date.getUTCFullYear() + Math.floor(targetMonthIndex / 12);
     const targetMonth = ((targetMonthIndex % 12) + 12) % 12;
     const lastDayOfTargetMonth = new Date(Date.UTC(targetYear, targetMonth + 1, 0)).getUTCDate();
@@ -47,6 +48,14 @@ function addYearsUTC(date, years) {
         targetMonth,
         Math.min(date.getUTCDate(), lastDayOfTargetMonth)
     ));
+}
+
+function addYearsUTC(date, years) {
+    return addMonthsUTC(date, Math.trunc(years * 12));
+}
+
+function startOfMonthUTC(date) {
+    return new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), 1));
 }
 
 function startOfISOWeekUTC(date) {
@@ -362,11 +371,7 @@ function renderMonthsGrid(inputBirthDate, totalLifespanYearsEst, gridContentArea
         // --- Date Setup (UTC) ---
         const birthDateUTC = inputBirthDate; // Already normalized by ui.js
         const nowUTC = toUTCStartOfDay(new Date());
-        const estimatedEndDateRough = dateFns.addYears(birthDateUTC, totalLifespanYearsEst);
-        const estimatedEndDateUTC = toUTCStartOfDay(estimatedEndDateRough);
-
-        // Calculate the start of the *current* month in UTC for comparison
-        const currentMonthStartDateUTC = dateFns.startOfMonth(nowUTC);
+        const currentMonthStartDateUTC = startOfMonthUTC(nowUTC);
 
         // Calculate total months to potentially render based on estimated lifespan
         const totalEstimatedMonths = Math.ceil(totalLifespanYearsEst * 12);
@@ -391,14 +396,7 @@ function renderMonthsGrid(inputBirthDate, totalLifespanYearsEst, gridContentArea
                 fragment.appendChild(currentMonthRow);
             }
 
-            // Calculate the start date of this specific month in the person's life
-            // Add 'monthIndex' months to the birth date, then find the start of that month.
-            const monthStartDateUTC = dateFns.startOfMonth(dateFns.addMonths(birthDateUTC, monthIndex));
-
-            // Don't render blocks for months that start after the estimated end date
-            if (dateFns.isAfter(monthStartDateUTC, estimatedEndDateUTC)) {
-                continue;
-            }
+            const monthStartDateUTC = startOfMonthUTC(addMonthsUTC(birthDateUTC, monthIndex));
 
             const monthBlock = document.createElement('div');
             monthBlock.classList.add('month-block'); // Class for month-specific styling
@@ -411,16 +409,14 @@ function renderMonthsGrid(inputBirthDate, totalLifespanYearsEst, gridContentArea
             let stateClass = '';
             const yearOfLife = Math.floor(monthIndex / 12); // Age year
             const monthOfLife = (monthIndex % 12) + 1; // 1-based month index within the age year
-            let formattedStart = (typeof dateFnsTz !== 'undefined' && dateFnsTz.formatInTimeZone)
-                ? dateFnsTz.formatInTimeZone(monthStartDateUTC, 'UTC', 'yyyy-MM-dd')
-                : dateFns.format(monthStartDateUTC, 'yyyy-MM-dd');
+            const formattedStart = formatUTCDate(monthStartDateUTC);
             let title = `Age ${yearOfLife}, Month ${monthOfLife} (Starts UTC: ${formattedStart})`;
 
             // Determine past/present/future by comparing the start date of this month
             // with the start date of the current actual month.
             if (monthStartDateUTC.getTime() === currentMonthStartDateUTC.getTime()) {
                 stateClass = 'present'; title += ' (Current month)';
-            } else if (dateFns.isBefore(monthStartDateUTC, currentMonthStartDateUTC)) {
+            } else if (monthStartDateUTC < currentMonthStartDateUTC) {
                 stateClass = 'past';
             } else {
                 stateClass = 'future';
@@ -468,11 +464,6 @@ function renderYearsGrid(inputBirthDate, totalLifespanYearsEst, gridContentAreaE
         // --- Date Setup (UTC) ---
         const birthDateUTC = inputBirthDate; // Already normalized by ui.js
         const nowUTC = toUTCStartOfDay(new Date());
-        const estimatedEndDateRough = dateFns.addYears(birthDateUTC, totalLifespanYearsEst);
-        const estimatedEndDateUTC = toUTCStartOfDay(estimatedEndDateRough);
-
-        // Calculate current age in whole years for state determination (past/present/future)
-        const currentAge = calculateAgeAtDate(nowUTC, birthDateUTC);
 
         // Calculate total years to potentially render (ceiling of estimated lifespan)
         const totalEstimatedYears = Math.ceil(totalLifespanYearsEst);
@@ -497,14 +488,8 @@ function renderYearsGrid(inputBirthDate, totalLifespanYearsEst, gridContentAreaE
                 fragment.appendChild(currentDecadeRow);
             }
 
-            // Calculate the start date of this specific year of life
-            const yearStartDateUTC = toUTCStartOfDay(dateFns.addYears(birthDateUTC, yearIndex));
-
-            // Don't render blocks for years that start after the estimated end date
-            // Note: A year block represents the *entire* year starting at yearIndex
-            if (dateFns.isAfter(yearStartDateUTC, estimatedEndDateUTC)) {
-                continue;
-            }
+            const yearStartDateUTC = addYearsUTC(birthDateUTC, yearIndex);
+            const nextYearStartDateUTC = addYearsUTC(birthDateUTC, yearIndex + 1);
 
             const yearBlock = document.createElement('div');
             yearBlock.classList.add('year-block'); // Class for year-specific styling
@@ -515,16 +500,12 @@ function renderYearsGrid(inputBirthDate, totalLifespanYearsEst, gridContentAreaE
             yearBlock.classList.add(`stage-${stageKey}`);
 
             let stateClass = '';
-            let formattedStart = (typeof dateFnsTz !== 'undefined' && dateFnsTz.formatInTimeZone)
-                ? dateFnsTz.formatInTimeZone(yearStartDateUTC, 'UTC', 'yyyy-MM-dd')
-                : dateFns.format(yearStartDateUTC, 'yyyy-MM-dd');
+            const formattedStart = formatUTCDate(yearStartDateUTC);
             let title = `Age ${ageForThisYear} (Starts UTC: ${formattedStart})`;
 
-            // Determine past/present/future based on comparing the age represented by this block
-            // with the pre-calculated current age.
-            if (ageForThisYear < currentAge) {
+            if (nextYearStartDateUTC <= nowUTC) {
                 stateClass = 'past';
-            } else if (ageForThisYear === currentAge) {
+            } else if (yearStartDateUTC <= nowUTC) {
                 stateClass = 'present'; title += ' (Current year)';
             } else {
                 stateClass = 'future';

@@ -66,17 +66,18 @@ describe('gridRenderer failure modes', () => {
 
   it('shows an error message when months renderer throws unexpectedly', async () => {
     global.dateFns = {
-      startOfDay: () => {
-        throw new Error('forced months failure');
-      },
+      startOfDay: (date) => date,
     };
 
     const errSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
     const { renderMonthsGrid } = await import('../../js/gridRenderer.js');
     const container = document.createElement('div');
-    const birthDateUTC = new Date(Date.UTC(2000, 0, 1));
+    const invalidBirthDate = new Date(Date.UTC(2000, 0, 1));
+    invalidBirthDate.getUTCMonth = () => {
+      throw new Error('forced months failure');
+    };
 
-    renderMonthsGrid(birthDateUTC, 1, container);
+    renderMonthsGrid(invalidBirthDate, 1, container);
 
     const err = container.querySelector('.error-message');
     expect(err).not.toBeNull();

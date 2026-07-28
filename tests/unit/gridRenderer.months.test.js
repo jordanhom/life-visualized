@@ -1,130 +1,99 @@
-/**
- * tests/unit/gridRenderer.months.test.js
- *
- * Tests for renderMonthsGrid (12 months per row, month state)
- */
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { setupJSDOM, teardownJSDOM } from '../setup/jsdom-helper.js';
+
+const TEST_TIMEZONES = [
+  'UTC',
+  'America/Los_Angeles',
+  'Europe/London',
+  'Asia/Tokyo',
+  'Pacific/Auckland',
+];
 
 describe('gridRenderer months view', () => {
+  let dom;
+  let originalTimezone;
+  let localDateOperation;
+
   beforeEach(async () => {
-    // Reset module cache so we can inject a fresh global `dateFns` mock before importing the renderer.
     vi.resetModules();
-    // Make time deterministic for tests
     vi.useFakeTimers();
-    // Set system time to a fixed UTC moment (2025-07-01T00:00:00Z)
-    vi.setSystemTime(new Date(Date.UTC(2025, 6, 1, 0, 0, 0)));
+    vi.setSystemTime(new Date('2025-07-15T12:00:00Z'));
+    dom = await setupJSDOM();
+    originalTimezone = process.env.TZ;
 
-    // Create a JSDOM document/window so DOM APIs are available in Node test environment.
-    const { JSDOM } = await import('jsdom');
-    const dom = new JSDOM('<!doctype html><html><body></body></html>');
-    // Expose minimal globals used by the renderer and tests
-    global.window = dom.window;
-    global.document = dom.window.document;
-    global.HTMLElement = dom.window.HTMLElement;
-    global.Node = dom.window.Node;
-
-    // Minimal date-fns mock implementing only functions used by renderMonthsGrid for this test.
+    localDateOperation = vi.fn(() => {
+      throw new Error('renderer used a local-time date-fns operation');
+    });
     global.dateFns = {
-      startOfDay: (d) => new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate())),
-      startOfMonth: (d) => new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), 1)),
-      addMonths: (d, n) => {
-        const dt = new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate()));
-        const year = dt.getUTCFullYear() + Math.floor((dt.getUTCMonth() + n) / 12);
-        const month = (dt.getUTCMonth() + n) % 12;
-        return new Date(Date.UTC(year, month, dt.getUTCDate()));
-      },
-      addYears: (d, n) => new Date(Date.UTC(d.getUTCFullYear() + n, d.getUTCMonth(), d.getUTCDate())),
-      isAfter: (a, b) => a.getTime() > b.getTime(),
-      isBefore: (a, b) => a.getTime() < b.getTime(),
-      format: (d, _fmt, _opts) => {
-        const y = d.getUTCFullYear();
-        const m = String(d.getUTCMonth() + 1).padStart(2, '0');
-        const day = String(d.getUTCDate()).padStart(2, '0');
-        return `${y}-${m}-${day}`;
-      },
+      startOfDay: localDateOperation,
+      startOfMonth: localDateOperation,
+      addMonths: localDateOperation,
+      addYears: localDateOperation,
+      isAfter: localDateOperation,
+      isBefore: localDateOperation,
+      format: localDateOperation,
+      version: '4.1.0-test',
     };
   });
 
   afterEach(() => {
-    // Clean up globals that were set in beforeEach
-    delete global.window;
-    delete global.document;
-    delete global.HTMLElement;
-    delete global.Node;
-    if (global.dateFns) delete global.dateFns;
-    // Restore timers and mocks
+    if (originalTimezone === undefined) delete process.env.TZ;
+    else process.env.TZ = originalTimezone;
+    delete global.dateFns;
+    delete global.dateFnsTz;
+    teardownJSDOM(dom);
     vi.useRealTimers();
     vi.restoreAllMocks();
   });
 
-  it('renders 12 months per row and marks past/present/future months', async () => {
+  it('renders identical UTC boundaries and states across browser timezones', async () => {
     const { renderMonthsGrid } = await import('../../js/gridRenderer.js');
-    // Use the (fake) current UTC month to ensure a 'present' month exists deterministically.
-    const nowUTC = new Date();
-    // Use a birth date earlier than the current month so the rendered year contains past, present, and future months
-    const birthDateUTC = new Date(Date.UTC(nowUTC.getUTCFullYear(), nowUTC.getUTCMonth() - 6, 1));
-    const totalYears = 1; // render 12 months
-    const container = document.createElement('div');
 
-    renderMonthsGrid(birthDateUTC, totalYears, container);
+    for (const timezone of TEST_TIMEZONES) {
+      process.env.TZ = timezone;
+      const container = document.createElement('div');
 
-    // Should have month-row elements (one row for 12 months)
-    const rows = container.querySelectorAll('.month-row');
-    expect(rows.length).toBeGreaterThanOrEqual(1);
+      renderMonthsGrid(new Date('2025-01-01T00:00:00Z'), 1, container);
 
-    // Each month-row should contain exactly 12 .month-block children for a single-year render
-    const firstRow = rows[0];
-    const monthBlocks = firstRow.querySelectorAll('.month-block');
-    expect(monthBlocks.length).toBe(12);
+      const blocks = Array.from(container.querySelectorAll('.month-block'));
+      expect(blocks).toHaveLength(12);
+      expect(container.querySelectorAll('.month-row')).toHaveLength(1);
+      expect(blocks[0].title).toContain('Starts UTC: 2025-01-01');
+      expect(blocks[11].title).toContain('Starts UTC: 2025-12-01');
+      expect(container.querySelectorAll('.past')).toHaveLength(6);
+      expect(container.querySelectorAll('.present')).toHaveLength(1);
+      expect(container.querySelector('.present').title).toContain('Starts UTC: 2025-07-01');
+      expect(container.querySelectorAll('.future')).toHaveLength(5);
+    }
 
-    // Each row should never have more than 12 month blocks
-    rows.forEach(row => {
-      const blocks = row.querySelectorAll('.month-block');
-      expect(blocks.length).toBeLessThanOrEqual(12);
-    });
-
-    // There should be at least one 'present' class (for current month)
-    const present = container.querySelectorAll('.present');
-    expect(present.length).toBeGreaterThan(0);
-
-    // There should be at least one 'past' and one 'future' month-block
-    const past = container.querySelectorAll('.past');
-    const future = container.querySelectorAll('.future');
-    expect(past.length).toBeGreaterThan(0);
-    expect(future.length).toBeGreaterThan(0);
-
-    // Ensure titles contain 'Age' and 'Month'
-    const some = container.querySelector('.month-block');
-    expect(some).not.toBeNull();
-    expect(some.title).toContain('Age');
-    expect(some.title).toContain('Month');
+    expect(localDateOperation).not.toHaveBeenCalled();
   });
 
-  it('skips month blocks that start after estimated end date', async () => {
-    vi.resetModules();
-    global.dateFns = {
-      ...global.dateFns,
-      // Keep estimated end short for fractional lifespan, but move quickly for month indices.
-      addYears: (d, years) => {
-        const dt = new Date(d);
-        const monthsToAdd = Number.isInteger(years) ? years * 12 : 1;
-        return new Date(Date.UTC(dt.getUTCFullYear(), dt.getUTCMonth() + monthsToAdd, dt.getUTCDate()));
-      },
-      addMonths: (d, months) => {
-        const dt = new Date(d);
-        const monthsToAdd = months * 2;
-        return new Date(Date.UTC(dt.getUTCFullYear(), dt.getUTCMonth() + monthsToAdd, dt.getUTCDate()));
-      },
-    };
-
+  it('renders the exact fractional-lifespan month count without duplicate boundaries', async () => {
     const { renderMonthsGrid } = await import('../../js/gridRenderer.js');
-    const birthDateUTC = new Date(Date.UTC(2000, 0, 1));
     const container = document.createElement('div');
 
-    // ceil(0.25 * 12) => 3 iterations; with accelerated addMonths only first block remains in-range.
-    renderMonthsGrid(birthDateUTC, 0.25, container);
+    renderMonthsGrid(new Date('2000-01-31T00:00:00Z'), 0.25, container);
 
-    const monthBlocks = container.querySelectorAll('.month-block');
-    expect(monthBlocks.length).toBe(1);
+    const blocks = Array.from(container.querySelectorAll('.month-block'));
+    const starts = blocks.map((block) => block.title.match(/Starts UTC: ([0-9-]+)/)?.[1]);
+    expect(blocks).toHaveLength(Math.ceil(0.25 * 12));
+    expect(starts).toEqual(['2000-01-01', '2000-02-01', '2000-03-01']);
+    expect(new Set(starts).size).toBe(starts.length);
+    expect(localDateOperation).not.toHaveBeenCalled();
+  });
+
+  it('assigns life stages from corrected UTC month starts', async () => {
+    const { renderMonthsGrid } = await import('../../js/gridRenderer.js');
+    const container = document.createElement('div');
+
+    renderMonthsGrid(new Date('2000-01-15T00:00:00Z'), 1.1, container);
+
+    const blocks = Array.from(container.querySelectorAll('.month-block'));
+    expect(blocks).toHaveLength(14);
+    expect(blocks[12].title).toContain('Starts UTC: 2001-01-01');
+    expect(blocks[12].classList.contains('stage-infancy')).toBe(true);
+    expect(blocks[13].title).toContain('Starts UTC: 2001-02-01');
+    expect(blocks[13].classList.contains('stage-toddler')).toBe(true);
   });
 });

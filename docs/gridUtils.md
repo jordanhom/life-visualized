@@ -17,10 +17,11 @@ Public API (detailed)
   - Convenience wrapper: computes the interval [birthday+age, birthday+age+1y) and returns week-starts.
 
 - getMonthsForLifespan(birthDateUTC: Date, totalYears: number): { start: Date, age: number, monthIndex: number }[]
-  - Returns month-start metadata for each month up to the estimated lifespan.
+  - Returns exactly `ceil(totalYears * 12)` UTC month-start records.
 
 - getYearsForLifespan(birthDateUTC: Date, totalYears: number): { start: Date, age: number }[]
-  - Returns year-start metadata for each year up to the estimated lifespan.
+  - Returns exactly `ceil(totalYears)` UTC birthday-anniversary records.
+  - Clamps February 29 to February 28 in non-leap years.
 
 - classifyBlockByDate(blockStartUTC: Date, birthDateUTC: Date, estimatedEndUTC: Date, opts?: { nowUTC?: Date })
   - Returns { stageKey: string, state: 'past'|'present'|'future'|'out-of-bounds' }.
@@ -38,7 +39,7 @@ Types & constants to export
 
 Design notes
 - Pure helpers whenever possible; allow injection of `nowUTC` for deterministic tests.
-- Centralize `date-fns` usage here to keep renderers thin.
+- Isolate the remaining Weeks (Age) `date-fns` usage while preserving native UTC helpers for other views.
 - Preserve existing CSS class names and titles to avoid stylesheet churn.
 - Keep DOM factories minimal and side-effect free beyond element creation.
 
@@ -64,9 +65,9 @@ Testing & harness
 
 Migration path (incremental)
 1. Add `js/gridUtils.js` exporting pure helpers and constants.
-2. Refactor [`js/gridRenderer.js`](js/gridRenderer.js:1) Months view to use helpers (non-breaking).
+2. Extract the existing native UTC Month/Year generation from [`js/gridRenderer.js`](js/gridRenderer.js:1) without changing behavior.
 3. Smoke test via the browser (`index.html`) and `tests/grid-renderer-smoke.html`.
-4. Refactor Weeks-Age and Weeks-Calendar, then Years, verifying after each change.
+4. Refactor Weeks-Age and Weeks-Calendar, verifying after each change.
 5. Remove duplication from `js/gridRenderer.js` and update docs.
 
 Performance & accessibility notes

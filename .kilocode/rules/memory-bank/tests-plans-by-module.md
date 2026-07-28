@@ -38,11 +38,11 @@ Brief: Separate, focused test plans for each core module to keep the memory bank
   1. Helpers: `getLifeStageKey` boundary checks; `calculateAgeAtDate` correctness across UTC dates.
   2. `renderAgeGrid`: enforce max 53 weeks when `eachWeekOfInterval` yields 54; confirm past/present/future classes.
   3. `renderCalendarGrid`: native UTC ISO week/year handling for known 52/53-week years, unique Monday starts, fractional lifespan endpoints, out-of-bounds weeks, and per-week age/stage correctness.
-  4. `renderMonthsGrid`: 12 months per row; month state classification and life stage assignment.
-  5. `renderYearsGrid`: decade rows (10/year); current year highlighting; state classes.
+  4. `renderMonthsGrid`: exact fractional-lifespan counts, unique native UTC month starts, state classification, and life-stage assignment across representative timezones.
+  5. `renderYearsGrid`: exact fractional-lifespan counts, native UTC anniversaries, decade rows, anniversary-based state classes, and February 29 clamping.
   6. Failure modes: missing `dateFns` -> DOM shows error-message; missing DOM element param -> no throw.
-  7. Timezone regression: known ISO boundaries must produce identical counts/titles without relying on mocked `getISOWeeksInYear` values.
-- Test notes: Use JSDOM; mock only the remaining global `dateFns` comparison/functions required by each renderer. Calendar ISO boundaries should exercise the production UTC helpers.
+  7. Timezone regression: Calendar, Month, and Year boundaries must produce identical counts/titles without relying on UTC-only mocks of local-time `dateFns` functions.
+- Test notes: Use JSDOM; mock only the remaining global `dateFns` functions required by each renderer. Calendar, Month, and Year tests should exercise production UTC helpers directly.
 - Estimated effort: 6–12 tests
 
 ## js/ui.js
@@ -83,10 +83,10 @@ Brief: Separate, focused test plans for each core module to keep the memory bank
 - Unit test files: `11`
 - Tests passing: `69`
 - Coverage:
-  - Statements: `96.17%`
-  - Branches: `81.97%`
+  - Statements: `95.81%`
+  - Branches: `82.62%`
   - Functions: `100%`
-  - Lines: `97.74%`
+  - Lines: `97.36%`
 - Known residual branch gaps are concentrated in defensive renderer branches that are difficult to reach without brittle synthetic mocks.
 
 ## Implementation & Best Practices
