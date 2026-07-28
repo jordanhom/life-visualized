@@ -1,7 +1,10 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 
 describe('ui module (setup & form flow)', () => {
+  let originalTimezone;
+
   beforeEach(async () => {
+    originalTimezone = process.env.TZ;
     // Reset modules so mocks apply to imports performed by ui.js
     vi.resetModules();
 
@@ -79,7 +82,7 @@ describe('ui module (setup & form flow)', () => {
       };
     });
 
-    // Mock the gridRenderer functions so renderCurrentView does not depend on date-fns
+    // Mock grid renderers so UI tests stay focused on orchestration.
     vi.doMock('../../js/gridRenderer.js', async () => {
       return {
         renderAgeGrid: vi.fn(() => {}),
@@ -91,6 +94,8 @@ describe('ui module (setup & form flow)', () => {
   });
 
   afterEach(() => {
+    if (originalTimezone === undefined) delete process.env.TZ;
+    else process.env.TZ = originalTimezone;
     vi.useRealTimers();
     vi.restoreAllMocks();
     // Clean up globals
@@ -165,6 +170,37 @@ describe('ui module (setup & form flow)', () => {
     birthdateInput.dispatchEvent(new global.Event('input', { bubbles: true }));
     expect(calculateBtn.disabled).toBe(false);
   });
+
+  it.each([
+    ['America/Los_Angeles', '2026-01-01T01:00:00Z', '2025-12-30', '2025-12-31'],
+    ['Asia/Tokyo', '2026-01-01T01:00:00Z', '2025-12-31', '2026-01-01'],
+  ])(
+    'validates birthdates against the local calendar in %s',
+    async (timezone, instant, expectedMaximum, localToday) => {
+      process.env.TZ = timezone;
+      vi.useFakeTimers();
+      vi.setSystemTime(new Date(instant));
+
+      const { setupEventListeners } = await import('../../js/ui.js');
+      setupEventListeners();
+
+      const birthdateInput = document.getElementById('birthdate');
+      const sexSelect = document.getElementById('sex');
+      const calculateBtn = document.getElementById('calculate-btn');
+      sexSelect.value = 'male';
+      sexSelect.dispatchEvent(new global.Event('change', { bubbles: true }));
+
+      expect(birthdateInput.max).toBe(expectedMaximum);
+
+      birthdateInput.value = localToday;
+      birthdateInput.dispatchEvent(new global.Event('input', { bubbles: true }));
+      expect(calculateBtn.disabled).toBe(true);
+
+      birthdateInput.value = expectedMaximum;
+      birthdateInput.dispatchEvent(new global.Event('input', { bubbles: true }));
+      expect(calculateBtn.disabled).toBe(false);
+    },
+  );
 
   it('handleCalculation success path displays results, hides form, and reveals grid', async () => {
     const { setupEventListeners } = await import('../../js/ui.js');

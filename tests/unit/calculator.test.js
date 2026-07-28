@@ -1,5 +1,7 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 
+let originalTimezone;
+
 /**
  * Tests for js/calculator.js
  *
@@ -10,13 +12,16 @@ import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
  */
 
 beforeEach(() => {
-  // Ensure a clean module registry before each test and freeze time by default.
+  originalTimezone = process.env.TZ;
+  process.env.TZ = 'UTC';
   vi.resetModules();
   vi.useFakeTimers();
   vi.setSystemTime(new Date('2025-11-10T00:00:00Z'));
 });
 
 afterEach(() => {
+  if (originalTimezone === undefined) delete process.env.TZ;
+  else process.env.TZ = originalTimezone;
   vi.useRealTimers();
   vi.restoreAllMocks();
 });
@@ -35,20 +40,18 @@ describe('calculator', () => {
       expect(calculateCurrentAge(birth)).toBe(24);
     });
 
-    it('handles leap day birthdays correctly (birthday not yet reached)', async () => {
+    it('uses February 28 as the anniversary for leap-day birthdays in non-leap years', async () => {
       const { calculateCurrentAge } = await import('../../js/calculator.js');
       const birth = new Date('2004-02-29T00:00:00Z');
-      // 2025-02-28 should be considered before birthday => age 20
       vi.setSystemTime(new Date('2025-02-28T00:00:00Z'));
-      expect(calculateCurrentAge(birth)).toBe(20);
+      expect(calculateCurrentAge(birth)).toBe(21);
     });
 
-    it('handles leap day birthdays correctly (birthday passed on Mar 1)', async () => {
+    it('does not increment a leap-day age before the February 28 anniversary', async () => {
       const { calculateCurrentAge } = await import('../../js/calculator.js');
       const birth = new Date('2004-02-29T00:00:00Z');
-      // 2025-03-01 should be after the birthday => age 21
-      vi.setSystemTime(new Date('2025-03-01T00:00:00Z'));
-      expect(calculateCurrentAge(birth)).toBe(21);
+      vi.setSystemTime(new Date('2025-02-27T23:59:59Z'));
+      expect(calculateCurrentAge(birth)).toBe(20);
     });
 
     it('returns 0 for future birth dates', async () => {
@@ -57,20 +60,28 @@ describe('calculator', () => {
       expect(calculateCurrentAge(birth)).toBe(0);
     });
 
-    it('increments age exactly at UTC birthday moment', async () => {
+    it.each([
+      ['UTC', '2025-11-09T23:59:59Z', '2025-11-10T00:00:00Z'],
+      ['America/Los_Angeles', '2025-11-10T07:59:59Z', '2025-11-10T08:00:00Z'],
+      ['Asia/Tokyo', '2025-11-09T14:59:59Z', '2025-11-09T15:00:00Z'],
+      ['Pacific/Auckland', '2025-11-09T10:59:59Z', '2025-11-09T11:00:00Z'],
+    ])('increments age at local midnight in %s', async (timezone, beforeMidnight, atMidnight) => {
+      process.env.TZ = timezone;
       const { calculateCurrentAge } = await import('../../js/calculator.js');
-      // Birthday: 2000-11-10 UTC. If system time equals 2025-11-10T00:00:00Z, age should be 25.
-      vi.setSystemTime(new Date('2025-11-10T00:00:00Z'));
       const birth = new Date('2000-11-10T00:00:00Z');
+
+      vi.setSystemTime(new Date(beforeMidnight));
+      expect(calculateCurrentAge(birth)).toBe(24);
+      vi.setSystemTime(new Date(atMidnight));
       expect(calculateCurrentAge(birth)).toBe(25);
     });
 
-    it('does not increment age one second before UTC birthday', async () => {
+    it('accepts an explicit UTC-encoded current calendar date', async () => {
       const { calculateCurrentAge } = await import('../../js/calculator.js');
-      // One second before UTC midnight of birthday
-      vi.setSystemTime(new Date('2025-11-09T23:59:59Z'));
       const birth = new Date('2000-11-10T00:00:00Z');
-      expect(calculateCurrentAge(birth)).toBe(24);
+
+      expect(calculateCurrentAge(birth, new Date('2025-11-09T00:00:00Z'))).toBe(24);
+      expect(calculateCurrentAge(birth, new Date('2025-11-10T00:00:00Z'))).toBe(25);
     });
 
     it('throws error for invalid birth date', async () => {
@@ -78,6 +89,13 @@ describe('calculator', () => {
       expect(() => calculateCurrentAge("invalid")).toThrowError('Invalid birthDate provided to calculateCurrentAge');
       expect(() => calculateCurrentAge(null)).toThrowError('Invalid birthDate provided to calculateCurrentAge');
       expect(() => calculateCurrentAge(undefined)).toThrowError('Invalid birthDate provided to calculateCurrentAge');
+    });
+
+    it('throws error for an invalid current date', async () => {
+      const { calculateCurrentAge } = await import('../../js/calculator.js');
+      const birth = new Date('2000-11-10T00:00:00Z');
+      expect(() => calculateCurrentAge(birth, new Date('invalid')))
+        .toThrowError('Invalid currentDateUTC provided to calculateCurrentAge');
     });
   });
 
