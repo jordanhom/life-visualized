@@ -14,6 +14,8 @@
 
 - Native modules require HTTP serving; do not validate through `file://`.
 - There is no production build command or runtime package dependency.
+- Modern evergreen browsers are targeted; legacy browsers without native ES modules or modern CSS are out of scope.
+- The TypeScript project currently uses `allowJs: true` and `checkJs: false`; stricter JavaScript checking is not an established requirement.
 - `node_modules/` and `coverage/` are generated and ignored.
 
 ## Verified Entry Points

@@ -14,6 +14,8 @@ The application is a static HTML/CSS/JavaScript SPA using native ES modules. Pro
 - `js/calculator.js` combines age with `js/data.js` actuarial brackets.
 - `js/gridRenderer.js` renders all four grids; `js/dateUtils.js` owns shared calendar arithmetic.
 - Results exist only in browser memory and are rendered into the DOM.
+- `js/ui.js` keeps the selected view and last calculation in module-level memory so view changes rerender without recalculation.
+- `js/gridRenderer.js` batches direct DOM creation with `DocumentFragment` and targets `#grid-content-area`, preserving the controls and guide nested in the surrounding grid container.
 
 ## Invariants And Boundaries
 
@@ -21,6 +23,7 @@ The application is a static HTML/CSS/JavaScript SPA using native ES modules. Pro
 - Local-calendar concepts use browser-local date components; deterministic arithmetic uses UTC methods.
 - User input is not collected, transmitted, or persisted.
 - CSS class names, progressive reveal, reset state, tab semantics, and the four-view contract are user-visible integration boundaries.
+- Modern evergreen browsers are the supported runtime class; legacy browsers without native ES-module and modern CSS support are out of scope.
 
 ## Decisions And Tradeoffs
 

@@ -12,7 +12,7 @@ Route maintainers to implementation seams and diagnostic evidence without duplic
 - `docs/portal/`: durable project, architecture, workflow, operations, product, and execution truth.
 - `docs/*.md`: focused module contracts and dated historical change records.
 - `memory-bank/`: concise cross-session snapshot; verify volatile claims.
-- `.kilocode/rules/memory-bank/`: retained legacy history, not current guidance.
+- Legacy Kilo Code context: removed from the working tree after migration; available through Git history only.
 
 ## Implementation Entry Points
 

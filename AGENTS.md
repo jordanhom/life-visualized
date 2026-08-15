@@ -14,8 +14,8 @@
 - `docs/portal/` is the canonical durable project context. Enter through `docs/portal/00 Portal/MASTER_DOC_INDEX.md` and use `docs/portal/08 AI Context/REPO_MAP.md` for maintained implementation entrypoints and ownership boundaries.
 - Root `memory-bank/` is the concise cross-session handoff. Treat volatile branch, issue, verification, and next-step claims as snapshots and verify them before acting.
 - Existing focused `docs/*.md` files remain canonical module references and historical change records as linked from the portal.
-- `.kilocode/rules/memory-bank/` is retained as legacy history only. Do not update it or use it as current execution guidance.
-- Do not maintain the same fact in legacy context, the active memory bank, and the portal. Link to the canonical destination instead.
+- Legacy Kilo Code context was removed after migration and remains available through Git history only. Do not recreate or use it as current execution guidance.
+- Do not duplicate the same fact across the active memory bank and portal. Link to the canonical destination instead.
 - Keep the repository map at module/seam level—primary entrypoints, runtime flows, artifact boundaries, and diagnostic routes—not a catalog of every function.
 
 ## Architecture And Product Invariants

@@ -13,6 +13,7 @@
 
 - Aggregate gate: `conda run -n base npm run verify` (lint, typecheck, non-watch tests).
 - Coverage: `conda run -n base npm run test:coverage`.
+- The TypeScript gate validates the configured JavaScript project without strict JavaScript checking (`allowJs: true`, `checkJs: false`); tighten this only as an intentional incremental change.
 - CI runs `npm ci` and `npm run verify` on Node.js 20.x and 22.x for pushes and pull requests targeting `main` or `master`.
 - Rendering, interaction, accessibility, responsive, or timezone-sensitive changes also require browser acceptance against the final tested state.
 

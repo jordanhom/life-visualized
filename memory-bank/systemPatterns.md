@@ -10,6 +10,7 @@
 - Birthdates are timezone-free dates encoded at UTC midnight after validation.
 - Browser-local calendar components determine today, age rollover, and present-period state; generated boundaries use UTC arithmetic.
 - Four views share one in-memory calculation state. Reset restores Weeks (Age), visibility, focus, and ARIA state.
+- View changes reuse the last calculation and rerender only `#grid-content-area`; batched DOM appends preserve the nested controls and guide.
 - User birthdate/sex data is not transmitted or persisted.
 
 ## Boundaries And Tradeoffs

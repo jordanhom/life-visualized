@@ -4,14 +4,14 @@ Last updated: 2026-08-15 (America/Los_Angeles)
 
 ## Current State And Focus
 
-- Portable `docs/portal/` and root `memory-bank/` context have been initialized and locally verified against current code, configuration, tests, README, focused docs, and tracked history.
-- `AGENTS.md` is the active repository-wide execution guide. `.kilocode/rules/memory-bank/` is legacy history only.
+- Portable `docs/portal/` and root `memory-bank/` context have been initialized and audited against current code, configuration, tests, README, focused docs, and the complete legacy Kilo context.
+- `AGENTS.md` is the active repository-wide execution guide. Legacy Kilo Code context has been removed from the working tree and remains available through Git history only.
 - Current product behavior is the four-view static SPA with browser-local current-date semantics and deterministic UTC-encoded boundaries.
 
 ## Next Actions
 
-- Live product priorities are not established here; verify GitHub issues before selecting new work.
-- Deliver the migration through the repository's branch and pull-request workflow when requested.
+- No repository-context migration work remains; verify live branch and delivery state with Git before acting.
+- Issues [#31](https://github.com/jordanhom/life-visualized/issues/31) and [#40](https://github.com/jordanhom/life-visualized/issues/40) were verified open on 2026-08-15; their ordering and priority are not established here.
 
 ## Risks And Constraints
 

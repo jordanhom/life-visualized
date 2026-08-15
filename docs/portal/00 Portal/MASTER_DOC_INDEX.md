@@ -53,7 +53,7 @@ documentation.
 
 ### Historical Records
 
-- Dated change summaries and the legacy memory-bank snapshot remain under `docs/` and `.kilocode/rules/memory-bank/`; they are evidence, not current execution guidance.
+- Dated change summaries remain under `docs/`. The retired Kilo Code memory-bank snapshot is available through Git history only; neither is current execution guidance.
 
 ## Navigation Rules
 
