@@ -31,6 +31,6 @@
 
 ## Canonical References
 
-- [UI module](../../ui.md)
-- [Calculator](../../calculator.md)
-- [Grid renderer](../../gridRenderer.md)
+- [Visualization workflow](VISUALIZATION_WORKFLOW.md)
+- [Lifespan estimation](../03%20Domain%20Model/LIFESPAN_ESTIMATION.md)
+- [Date model](../02%20Architecture/DATE_MODEL.md)

@@ -9,8 +9,7 @@ Route maintainers to implementation seams and diagnostic evidence without duplic
 ## Instruction Boundaries
 
 - `AGENTS.md`: repository-wide execution and quality rules.
-- `docs/portal/`: durable project, architecture, workflow, operations, product, and execution truth.
-- `docs/*.md`: focused module contracts and dated historical change records.
+- `docs/portal/`: domain-layered durable project, architecture, module-contract, workflow, operations, product, execution, and historical context.
 - `memory-bank/`: concise cross-session snapshot; verify volatile claims.
 - Legacy Kilo Code context: removed from the working tree after migration; available through Git history only.
 
@@ -26,11 +25,11 @@ Route maintainers to implementation seams and diagnostic evidence without duplic
 
 ## Common Task Routing
 
-- Input, progressive reveal, tabs, reset, focus, or ARIA: start at `js/ui.js`, `index.html`, and UI tests.
-- Age or expectancy: start at `js/calculator.js`, `js/data.js`, and calculator/data tests.
-- Timezone, leap day, month/year, or ISO week: start at `js/dateUtils.js`, then renderer/calculator consumers and timezone tests.
-- Grid count, title, stage, or state: start at `js/gridRenderer.js` and the view-specific renderer tests.
-- Commands or CI: start at `package.json` and `.github/workflows/ci.yml`.
+- Input, progressive reveal, tabs, reset, focus, or ARIA: start with [Visualization Workflow](../04%20Core%20Workflows/VISUALIZATION_WORKFLOW.md), then `js/ui.js`, `index.html`, and UI tests.
+- Age or expectancy: start with [Lifespan Estimation](../03%20Domain%20Model/LIFESPAN_ESTIMATION.md), then `js/calculator.js`, `js/data.js`, and calculator/data tests.
+- Timezone, leap day, month/year, or ISO week: start with the [Date Model](../02%20Architecture/DATE_MODEL.md), then `js/dateUtils.js`, its consumers, and timezone tests.
+- Grid count, title, stage, or state: start with [Visualization Workflow](../04%20Core%20Workflows/VISUALIZATION_WORKFLOW.md), then `js/gridRenderer.js` and view-specific tests.
+- Commands or CI: start with [Operations](../05%20Operations/OPERATIONS.md), then `package.json` and `.github/workflows/ci.yml`.
 
 ## Runtime Flows
 
@@ -54,3 +53,4 @@ Route maintainers to implementation seams and diagnostic evidence without duplic
 - [Documentation index](../00%20Portal/MASTER_DOC_INDEX.md)
 - [Architecture](../02%20Architecture/ARCHITECTURE.md)
 - [Operations](../05%20Operations/OPERATIONS.md)
+- [Change history](../07%20Execution/history/CHANGE_HISTORY.md)

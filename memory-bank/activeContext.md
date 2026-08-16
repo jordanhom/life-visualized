@@ -4,10 +4,11 @@ Last updated: 2026-08-15 (America/Los_Angeles)
 
 ## Current State And Focus
 
-- Portable `docs/portal/` and root `memory-bank/` context have been initialized and audited against current code, configuration, tests, README, focused docs, and the complete legacy Kilo context.
+- Portable `docs/portal/` and root `memory-bank/` context have been initialized and audited against current code, configuration, tests, README, former root module docs, and the complete legacy Kilo context.
 - `AGENTS.md` is the active repository-wide execution guide. Legacy Kilo Code context has been removed from the working tree and remains available through Git history only.
 - Current product behavior is the four-view static SPA with browser-local current-date semantics and deterministic UTC-encoded boundaries.
 - Developer setup and verification guidance is Conda-first; speculative plans were retired so future work is routed through verified GitHub issues.
+- Detailed module contracts and dated implementation evidence are integrated into domain-appropriate portal layers; `docs/README.md` is the only root documentation gateway.
 
 ## Next Actions
 
@@ -17,13 +18,13 @@ Last updated: 2026-08-15 (America/Los_Angeles)
 ## Risks And Constraints
 
 - Branch, issue, CI, release, and test-count claims are volatile and must be verified at their primary sources.
-- Do not duplicate durable facts across the portal, focused module docs, and memory bank.
+- Do not duplicate durable facts across portal layers and the memory bank.
 - Preserve privacy, accessibility, sensitive framing, and the date-only contract.
 
 ## Active Decisions And Revisit Gates
 
 - Native date helpers remain the current architecture. Revisit only when requirements justify named-timezone/history support or a documented module-delivery strategy; issue #40 records the investigation.
-- Detailed module docs remain canonical for module contracts; portal documents own cross-cutting durable context.
+- Detailed module contracts and cross-cutting durable context are integrated into domain-appropriate portal layers.
 
 ## Relevant Canonical References
 

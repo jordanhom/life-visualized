@@ -30,7 +30,6 @@
 
 ## Canonical References
 
-- [Calculator](../../calculator.md)
-- [Data](../../data.md)
-- [Date utilities](../../dateUtils.md)
-- [Grid renderer](../../gridRenderer.md)
+- [Lifespan estimation](LIFESPAN_ESTIMATION.md)
+- [Date model](../02%20Architecture/DATE_MODEL.md)
+- [Visualization workflow](../04%20Core%20Workflows/VISUALIZATION_WORKFLOW.md)

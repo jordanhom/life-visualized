@@ -5,6 +5,7 @@ Use this layer for roadmaps, planning, issue conventions, and execution records.
 ## Canonical Documents
 
 - [Execution Plan](EXECUTION_PLAN.md)
+- [Change History](history/CHANGE_HISTORY.md)
 
 ## Maintenance
 

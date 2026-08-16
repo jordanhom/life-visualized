@@ -13,7 +13,7 @@
 
 - `docs/portal/` is the canonical durable project context. Enter through `docs/portal/00 Portal/MASTER_DOC_INDEX.md` and use `docs/portal/08 AI Context/REPO_MAP.md` for maintained implementation entrypoints and ownership boundaries.
 - Root `memory-bank/` is the concise cross-session handoff. Treat volatile branch, issue, verification, and next-step claims as snapshots and verify them before acting.
-- Existing focused `docs/*.md` files remain canonical module references and historical change records as linked from the portal.
+- Detailed module contracts and historical change records live in their domain-appropriate portal layers and are linked from the master index.
 - Legacy Kilo Code context was removed after migration and remains available through Git history only. Do not recreate or use it as current execution guidance.
 - Do not duplicate the same fact across the active memory bank and portal. Link to the canonical destination instead.
 - Keep the repository map at module/seam level—primary entrypoints, runtime flows, artifact boundaries, and diagnostic routes—not a catalog of every function.
@@ -36,7 +36,7 @@
 - Keep generated date boundaries deterministic across browser timezones.
 - Preserve the documented February 29 anniversary rule and ISO 52/53-week behavior.
 - For timezone-sensitive changes, test local midnight, UTC rollover, year/month ends, leap days, DST where relevant, and representative zones including `America/Los_Angeles`, `UTC`, `Europe/London`, `Asia/Tokyo`, and `Pacific/Auckland`.
-- Use `docs/dateUtils.md` for the current date model, tradeoff, and revisit criteria.
+- Use `docs/portal/02 Architecture/DATE_MODEL.md` for the current date model, tradeoff, and revisit criteria.
 
 ## Toolchain And Commands
 
@@ -68,7 +68,7 @@
 ## Documentation And Durable Guidance
 
 - Keep `README.md` focused on product overview, setup, common use, current technology, and contribution expectations.
-- Put durable architecture, domain, workflow, operations, and product truth in the nearest canonical portal document and keep the master index current. Keep detailed module contracts in the focused `docs/*.md` files linked from the portal.
+- Put durable architecture, domain, module-contract, workflow, operations, product, and historical truth in the nearest canonical portal document and keep the master index current.
 - Classify portal documents accurately as `active`, `planned`, `historical`, or `complete`; never present planned or historical behavior as shipped.
 - Use GitHub issues and execution plans for planned acceptance criteria, work ownership, and unresolved follow-up.
 - Keep source comments limited to non-obvious implementation intent; comments are not substitutes for tests or maintained documentation.

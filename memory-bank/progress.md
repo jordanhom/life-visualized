@@ -10,9 +10,10 @@ Last updated: 2026-08-15 (America/Los_Angeles)
 
 ## Recent Outcomes And Evidence
 
-- 2026-07-28: timezone architecture and regression coverage reached `main` in commits through `54d660a`; focused docs record the local-calendar/UTC-boundary contract.
+- 2026-07-28: timezone architecture and regression coverage reached `main` in commits through `54d660a`; the portal date model and change history preserve the contract and evidence.
 - 2026-08-15: initialized portal and root memory-bank content from repository evidence, audited every legacy Kilo topic and test-plan file, preserved remaining current facts in canonical docs, removed all tracked Kilo files, validated active guidance links, and passed the aggregate verification gate (13 files / 87 tests).
 - 2026-08-15: completed the guidance-alignment cleanup by normalizing README/Makefile commands, retiring unapproved GridUtils plans and duplicate legacy memory, routing follow-up to verified issues, removing local Kilo metadata, correcting active documentation links, and re-running the aggregate gate (13 files / 87 tests).
+- 2026-08-15: consolidated root module contracts and five dated change records into Architecture, Domain Model, Core Workflows, and Execution History portal documents; validated all 32 Markdown files and passed the aggregate gate (13 files / 87 tests).
 
 ## Remaining Work
 

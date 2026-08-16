@@ -5,6 +5,7 @@ Use this layer for entities, terminology, schemas, and domain rules.
 ## Canonical Documents
 
 - [Domain Model](DOMAIN_MODEL.md)
+- [Lifespan Estimation](LIFESPAN_ESTIMATION.md)
 
 ## Maintenance
 

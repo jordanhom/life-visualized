@@ -33,4 +33,5 @@
 
 - [`package.json`](../../../package.json)
 - [CI workflow](../../../.github/workflows/ci.yml)
-- [Date model](../../dateUtils.md)
+- [Date model](../02%20Architecture/DATE_MODEL.md)
+- [Change history](../07%20Execution/history/CHANGE_HISTORY.md)

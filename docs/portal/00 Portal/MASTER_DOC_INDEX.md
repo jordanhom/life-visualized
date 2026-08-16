@@ -18,14 +18,17 @@ documentation.
 ### Architecture
 
 - [Architecture](../02%20Architecture/ARCHITECTURE.md)
+- [Date Model](../02%20Architecture/DATE_MODEL.md)
 
 ### Domain Model
 
 - [Domain Model](../03%20Domain%20Model/DOMAIN_MODEL.md)
+- [Lifespan Estimation](../03%20Domain%20Model/LIFESPAN_ESTIMATION.md)
 
 ### Core Workflows
 
 - [Core Workflows](../04%20Core%20Workflows/CORE_WORKFLOWS.md)
+- [Visualization Workflow](../04%20Core%20Workflows/VISUALIZATION_WORKFLOW.md)
 
 ### Operations
 
@@ -43,17 +46,9 @@ documentation.
 
 - [Repository Map](../08%20AI%20Context/REPO_MAP.md)
 
-### Focused Module References
-
-- [UI](../../ui.md)
-- [Calculator](../../calculator.md)
-- [Actuarial data](../../data.md)
-- [Date utilities](../../dateUtils.md)
-- [Grid renderer](../../gridRenderer.md)
-
 ### Historical Records
 
-- Dated change summaries remain under `docs/`. The retired Kilo Code memory-bank snapshot is available through Git history only; neither is current execution guidance.
+- [Change History](../07%20Execution/history/CHANGE_HISTORY.md) preserves consolidated dated evidence. The retired Kilo Code context remains available through Git history only; neither is current execution guidance.
 
 ## Navigation Rules
 

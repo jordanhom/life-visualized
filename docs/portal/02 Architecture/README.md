@@ -5,6 +5,7 @@ Use this layer for system boundaries, architecture, lifecycle, diagrams, and inv
 ## Canonical Documents
 
 - [Architecture](ARCHITECTURE.md)
+- [Date Model](DATE_MODEL.md)
 
 ## Maintenance
 

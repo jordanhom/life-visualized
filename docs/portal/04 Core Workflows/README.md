@@ -5,6 +5,7 @@ Use this layer for primary application behavior and core processing workflows.
 ## Canonical Documents
 
 - [Core Workflows](CORE_WORKFLOWS.md)
+- [Visualization Workflow](VISUALIZATION_WORKFLOW.md)
 
 ## Maintenance
 

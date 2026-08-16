@@ -9,7 +9,7 @@ The application is a static HTML/CSS/JavaScript SPA using native ES modules. Pro
 ## Components And Data Flow
 
 - `index.html` defines the page and loads `js/main.js`.
-- `js/main.js` boots `js/ui.js` after DOM readiness.
+- `js/main.js` is intentionally limited to booting `js/ui.js` after DOM readiness; it exports no API and must not accumulate application responsibilities.
 - `js/ui.js` owns validation, shared UI state, progressive reveal, view switching, reset, and accessibility coordination.
 - `js/calculator.js` combines age with `js/data.js` actuarial brackets.
 - `js/gridRenderer.js` renders all four grids; `js/dateUtils.js` owns shared calendar arithmetic.
@@ -32,7 +32,6 @@ The application is a static HTML/CSS/JavaScript SPA using native ES modules. Pro
 
 ## Canonical References
 
-- [Date model](../../dateUtils.md)
-- [UI module](../../ui.md)
-- [Grid renderer](../../gridRenderer.md)
+- [Date model](DATE_MODEL.md)
+- [Visualization workflow](../04%20Core%20Workflows/VISUALIZATION_WORKFLOW.md)
 - [Repository map](../08%20AI%20Context/REPO_MAP.md)

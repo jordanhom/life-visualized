@@ -23,4 +23,4 @@
 
 - [Architecture](../docs/portal/02%20Architecture/ARCHITECTURE.md)
 - [Repository map](../docs/portal/08%20AI%20Context/REPO_MAP.md)
-- [Date model](../docs/dateUtils.md)
+- [Date model](../docs/portal/02%20Architecture/DATE_MODEL.md)
