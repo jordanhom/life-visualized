@@ -7,6 +7,7 @@ Last updated: 2026-08-15 (America/Los_Angeles)
 - Portable `docs/portal/` and root `memory-bank/` context have been initialized and audited against current code, configuration, tests, README, focused docs, and the complete legacy Kilo context.
 - `AGENTS.md` is the active repository-wide execution guide. Legacy Kilo Code context has been removed from the working tree and remains available through Git history only.
 - Current product behavior is the four-view static SPA with browser-local current-date semantics and deterministic UTC-encoded boundaries.
+- Developer setup and verification guidance is Conda-first; speculative plans were retired so future work is routed through verified GitHub issues.
 
 ## Next Actions
 

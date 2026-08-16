@@ -2,11 +2,11 @@
 
 Purpose
 Provide core calculation utilities used by the UI and renderers:
-- [`calculateCurrentAge`](js/calculator.js:22)
-- [`getRemainingExpectancy`](js/calculator.js:90)
+- [`calculateCurrentAge`](../js/calculator.js)
+- [`getRemainingExpectancy`](../js/calculator.js)
 
 Location
-- [`js/calculator.js`](js/calculator.js:1)
+- [`js/calculator.js`](../js/calculator.js)
 
 Public API (current)
 - calculateCurrentAge(birthDate: Date, currentDateUTC?: Date): number
@@ -32,7 +32,6 @@ Important behaviors and implementation notes
   - The renderer uses numeric string keys in `lifeExpectancyData` (e.g., `'0'`, `'10'`, `'20'`, ...).
   - The module parses keys to numeric brackets, sorts them ascending, and selects the largest bracket ≤ lookup age.
   - If no defined bracket is ≤ the lookup age (all defined brackets are larger), the implementation falls back to the lowest defined bracket deterministically (this behavior was added to handle non-standard datasets).
-  - To improve performance, consider caching parsed/sorted bracket arrays per sex (future work).
 
 - Type-safety (incremental):
   - `js/calculator.js` now uses file-level `// @ts-check`.
@@ -69,16 +68,8 @@ Examples
 - calculateCurrentAge(new Date('1990-06-10T00:00:00Z')) // uses the browser's local today
 - await getRemainingExpectancy(35, 'female') // returns numeric remaining years or null
 
-Future improvements (non-blocking)
-- Make data import synchronous and memoize parsed datasets:
-  - Import `lifeExpectancyData` at module top and cache parsed/sorted bracket arrays per-sex to avoid repeated parsing & sorting on every call.
-  - If synchronous import is used the API could be simplified to a synchronous `getRemainingExpectancy(...)` (trade-off: simpler API vs larger module init).
-- Add explicit caching for parsed brackets and optionally expose a small internal helper to parse/inspect bracket data for tests.
-- Add comprehensive JSDoc and a `.d.ts` file to improve developer ergonomics and make the contract explicit.
-- Decide and document a single consistent error policy (throw vs return-null) for data-not-found vs invalid-data cases; current implementation mixes both intentionally for test visibility.
-
 References
-- Data source: [`js/data.js`](js/data.js:1)
-- Date model and dependency decision: [`docs/dateUtils.md`](docs/dateUtils.md:1)
-- Module: [`js/calculator.js`](js/calculator.js:1)
-- Tests: [`tests/unit/calculator.test.js`](tests/unit/calculator.test.js:1)
+- Data source: [`js/data.js`](../js/data.js)
+- Date model and dependency decision: [`docs/dateUtils.md`](dateUtils.md)
+- Module: [`js/calculator.js`](../js/calculator.js)
+- Tests: [`tests/unit/calculator.test.js`](../tests/unit/calculator.test.js)

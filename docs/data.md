@@ -4,7 +4,7 @@ Purpose
 Export the `lifeExpectancyData` object containing actuarial estimates used by the calculator.
 
 Location
-- [`js/data.js`](js/data.js:1)
+- [`js/data.js`](../js/data.js)
 
 Structure
 - Top-level keys: 'male', 'female'
@@ -20,7 +20,6 @@ Structure
 Notes
 - Values correspond to remaining years for someone entering that age bracket (CDC 2021).
 - When updating data, keep bracket lower-bound convention and numeric values.
-- Consider adding a metadata/version key when swapping datasets.
 
 Tests
 - Validate object keys for both sexes.
@@ -28,8 +27,8 @@ Tests
 - Example console assertion: console.assert(Number.isFinite(Number(Object.keys(lifeExpectancyData.male)[0])), 'bracket key parseable');
 
 Migration
-- If changing the data shape, update [`js/calculator.js`](js/calculator.js:1) and tests.
+- If changing the data shape, update [`js/calculator.js`](../js/calculator.js) and tests.
 
 References
 - Source: US CDC/NCHS Period Life Table, 2021
-- Used by: [`js/calculator.js`](js/calculator.js:1)
+- Used by: [`js/calculator.js`](../js/calculator.js)

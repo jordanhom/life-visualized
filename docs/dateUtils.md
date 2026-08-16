@@ -8,7 +8,7 @@ Provide one date-only model for age calculation and grid rendering:
 - Generate month, year, and ISO-week boundaries without timezone drift.
 
 Location
-- [`js/dateUtils.js`](js/dateUtils.js:1)
+- [`js/dateUtils.js`](../js/dateUtils.js)
 
 Why native helpers replaced the date libraries
 - `date-fns` and `date-fns-tz` are maintained, tested libraries; the libraries themselves were not identified as defective.
@@ -38,6 +38,6 @@ Revisit criteria
 - If libraries are adopted, prefer npm module imports with a documented bundling strategy.
 
 References
-- Calculator: [`js/calculator.js`](js/calculator.js:1)
-- Renderer: [`js/gridRenderer.js`](js/gridRenderer.js:1)
-- Current change summary: [`docs/2026-07-28-changes.md`](docs/2026-07-28-changes.md:1)
+- Calculator: [`js/calculator.js`](../js/calculator.js)
+- Renderer: [`js/gridRenderer.js`](../js/gridRenderer.js)
+- Current change summary: [`docs/2026-07-28-changes.md`](2026-07-28-changes.md)

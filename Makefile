@@ -1,16 +1,15 @@
-# Convenience Makefile for developers
-# Uses npm scripts as the canonical commands so CI and package.json remain authoritative.
+# Convenience wrappers for the repository's canonical Conda/npm commands.
 
 .PHONY: install test test-run serve
 
 install:
-	npm ci
+	conda run -n base npm ci
 
 test:
-	npm test
+	conda run -n base npm test
 
 test-run:
-	npm test -- --run
+	conda run -n base npm run test:run
 
 # Serve the project using a simple HTTP server (Python 3)
 # Developers can replace with `live-server` if preferred.

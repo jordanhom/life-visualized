@@ -8,7 +8,7 @@ Provides the concrete DOM rendering implementations for the four visualization v
 - Years (Decades) View
 
 Location
-- [`js/gridRenderer.js`](js/gridRenderer.js:1)
+- [`js/gridRenderer.js`](../js/gridRenderer.js)
 
 Public API
 - renderAgeGrid(birthDateUTC, totalLifespanYearsEst, gridContentAreaElement)
@@ -53,15 +53,6 @@ State classification
 - Each block gets one of: `past`, `present`, `future`, or `out-of-bounds` on calendar view.
 - The present week, month, or age-year is selected from the user's local calendar date, then compared against UTC-encoded boundaries.
 
-Refactor considerations
-- LIFE_STAGES and getLifeStageKey should be extracted into `js/gridUtils.js` to be shared across renderers.
-- Week/month/year generation logic contains duplication that would map to:
-  - getWeeksForInterval
-  - getWeeksForAgeYear
-  - getMonthsForLifespan
-  - getYearsForLifespan
-- DOM creation for blocks is similar across views; use a factory `makeBlockElement` in `js/gridUtils.js`.
-
 Testing guidance
 - Create `tests/grid-renderer-smoke.html` that imports the module and calls each renderer with deterministic inputs.
 - Validate known 52/53-week ISO years, unique block titles, UTC Monday starts, Month/Year boundaries, leap-day anniversaries, and fractional lifespan counts.
@@ -69,13 +60,12 @@ Testing guidance
 
 Performance notes
 - Already uses DocumentFragment; maintain this.
-- For very long lifespans (>100 years), verify node count and consider virtualization or canvas if DOM becomes too heavy.
+- `DocumentFragment` batching is sufficient for the currently supported lifespan scale; no alternate rendering strategy is established.
 
 Accessibility & ARIA
 - Renderers should not be responsible for top-level ARIA labels; UI module manages `#grid-content-area` roles and labels.
 - Each row has `aria-label` set for screen reader context (`Age 0`, `Calendar Year 2023`, `Decade starting Age 30`).
 
 References
-- UI orchestration: [`js/ui.js`](js/ui.js:1)
-- Date model and dependency decision: [`docs/dateUtils.md`](docs/dateUtils.md:1)
-- API sketch: [`docs/gridUtils-api.md`](docs/gridUtils-api.md:1)
+- UI orchestration: [`js/ui.js`](../js/ui.js)
+- Date model and dependency decision: [`docs/dateUtils.md`](dateUtils.md)

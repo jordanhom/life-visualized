@@ -2,8 +2,6 @@
 
 Inspired by Tim Urban's thought-provoking "Wait But Why" articles "[Your Life in Weeks](https://waitbutwhy.com/2014/05/life-weeks.html)" and "[The Tail End](https://waitbutwhy.com/2015/12/the-tail-end.html)," this web application offers a tangible, visual perspective on your estimated lifespan. It aims to encourage reflection on time, highlight the present moment, and provide a unique sense of scale for the journey ahead.
 
-**(Note: A screenshot or GIF of the application in action would be beneficial here.)**
-
 ## Purpose
 
 Many people have difficulty grasping the finite nature of their time, myself included! By visualizing the past, present, and (estimated) future in a grid format based on statistical averages, it aims to be a thought-provoking tool for self-reflection.
@@ -72,9 +70,6 @@ This collaborative approach enabled the creation of this MVP, serving as both a 
   * Responsive design.
   * "Start Over" functionality.
   * Refined introductory text, disclaimers, and overall UI/UX for clarity and sensitivity.
-* **Known Minor Issue for MVP:**
-  * Safari Tabbing: Minor inconsistencies in tabbing behavior for dynamically enabled/visible buttons in Safari. Core functionality remains accessible.
-
 ## Technology Stack
 
 * **Frontend:** HTML5, CSS3 (including Flexbox, CSS Variables, `calc()`, `aspect-ratio`), Vanilla JavaScript (ES6+ Modules)
@@ -91,10 +86,7 @@ This collaborative approach enabled the creation of this MVP, serving as both a 
     cd life-visualized
     ```
 
-2. **Serve the files:** Since the project uses ES Modules, you need to serve the files via a local HTTP server. Examples:
-    * Using Python 3: `python -m http.server`
-    * Using Node.js (requires `npm install -g live-server`): `live-server`
-    * Using VS Code Live Server extension.
+2. **Serve the files:** Since the project uses ES Modules, serve the repository root over HTTP, for example with `python -m http.server 8000` or the VS Code Live Server extension.
 3. **Open in browser:** Navigate to the local server address (e.g., `http://localhost:8000` or `http://127.0.0.1:5500`).
 4. **Use the application:**
     * Enter your Date of Birth.
@@ -104,50 +96,28 @@ This collaborative approach enabled the creation of this MVP, serving as both a 
     * Use the buttons above the grid to switch between different views (Weeks, Months, Years).
     * Expand the "How to Read This Visualization" section for details and the color key.
 
-## Developer Setup & CI (quick)
+## Developer Setup And Verification
 
-- Minimal files to commit:
-  - [`package.json`](package.json:1)
-  - [`package-lock.json`](package-lock.json:1)
-  - [`.github/workflows/ci.yml`](.github/workflows/ci.yml:1)
+Use the project's Conda `base` environment for Node.js and npm work. CI supports Node.js 20.x and 22.x.
 
-- Do NOT commit [`node_modules`](node_modules:1). Add it to `.gitignore` so installs remain reproducible and the repo stays small.
+```bash
+conda run -n base npm ci
+conda run -n base npm run verify
+conda run -n base npm run test:coverage
+```
 
-- Node version:
-  - Use Node.js 20+ for local dev and CI (tooling dependencies such as Vitest require modern Node).
+Focused non-watch commands are `conda run -n base npm run lint`, `conda run -n base npm run typecheck`, and `conda run -n base npm run test:run`. `npm test` starts Vitest in watch mode. Do not commit generated `node_modules/` or `coverage/` content.
 
-- Install dependencies (reproducible):
-  - Locally: npm ci
+CI runs `npm ci` followed by `npm run verify` on Node.js 20.x and 22.x. See [`.github/workflows/ci.yml`](.github/workflows/ci.yml).
 
-- Run tests:
-  - Interactive: `npm test`
-  - Non-interactive / CI: `npm test -- --run` or `npm run test:run`
+## Tracked Follow-Up
 
-- Run quality gates:
-  - Lint: `npm run lint`
-  - Typecheck: `npm run typecheck`
-  - Full local CI gate: `npm run verify`
-  - Coverage: `npm run test:coverage`
+Future work is managed in GitHub issues rather than as an implied README roadmap. Current tracked areas include:
 
-- CI notes:
-  - CI is configured to use `npm ci`, then run `npm run verify` (lint + typecheck + tests).
-  - CI runs on Node.js `20.x` and `22.x`.
-  - CI caches npm for speed; this ensures reproducible installs and avoids committing dependency trees.
-  - The workflow lives at [`.github/workflows/ci.yml`](.github/workflows/ci.yml:1).
-
-These instructions are intentionally minimal so you only check in the manifest and CI config; contributors and CI will fetch dependencies via `npm ci`.
-## Potential Future Enhancements
-
-The following are ideas considered out of scope for the MVP but could be explored in future iterations:
-
-* Fetching real-time or alternative actuarial datasets.
-* More sophisticated life stage calculations/coloring.
-* Saving/loading user data or preferences.
-* Advanced UI features (tooltips on blocks, zooming, etc.).
-* Internationalization (i18n).
-* Implementing a build process/bundling.
-* Further accessibility enhancements (e.g., advanced color contrast adjustments, visual aids for complex views).
-* A Calendar/Birthday week-alignment toggle for Weeks (Age), tracked in [issue #31](https://github.com/jordanhom/life-visualized/issues/31).
+* [#15: Complete WCAG AA accessibility pass](https://github.com/jordanhom/life-visualized/issues/15)
+* [#31: Fix duplicate Weeks (Age) boundaries and add alignment toggle](https://github.com/jordanhom/life-visualized/issues/31)
+* [#40: Investigate maintained date libraries for timezone architecture](https://github.com/jordanhom/life-visualized/issues/40)
+* [#43: Strengthen production integration coverage](https://github.com/jordanhom/life-visualized/issues/43)
 
 ## Contributing
 

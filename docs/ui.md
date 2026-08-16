@@ -4,7 +4,7 @@ Purpose
 Manage UI state, validate inputs, orchestrate calculations, progressive reveal, view switching, and coordinate grid rendering.
 
 Location
-- [`js/ui.js`](js/ui.js:1)
+- [`js/ui.js`](../js/ui.js)
 
 Public API
 - setupEventListeners()
@@ -33,7 +33,7 @@ Important internal functions (testable)
 - handleTablistKeydown(event)
 
 DOM contracts
-- Reads/writes these elements by id in [`index.html`](index.html:1):
+- Reads/writes these elements by id in [`index.html`](../index.html):
   - `#life-input-form`, `#birthdate`, `#sex`, `#calculate-btn`
   - `#results-area`
   - `#life-grid-container`, `#grid-content-area`, `#view-switcher`, `#grid-controls-header`
@@ -41,9 +41,9 @@ DOM contracts
   - `#start-over-container`, `#start-over-btn`
 
 Integration points
-- Calls renderers from [`js/gridRenderer.js`](js/gridRenderer.js:1).
-- Uses calculation functions from [`js/calculator.js`](js/calculator.js:1).
-- Records the browser's resolved IANA timezone with successful calculation state for diagnostics and future location-aware features.
+- Calls renderers from [`js/gridRenderer.js`](../js/gridRenderer.js).
+- Uses calculation functions from [`js/calculator.js`](../js/calculator.js).
+- Records the browser's resolved IANA timezone with successful calculation state for diagnostics.
 - Has no external runtime date-library requirement.
 
 Testing guidance
@@ -65,5 +65,4 @@ Examples (console)
 - Simulate submit: document.getElementById('life-input-form').dispatchEvent(new Event('submit'))
 
 References
-- Renderer implementations: [`js/gridRenderer.js`](js/gridRenderer.js:1)
-- API sketch: [`docs/gridUtils-api.md`](docs/gridUtils-api.md:1)
+- Renderer implementations: [`js/gridRenderer.js`](../js/gridRenderer.js)
